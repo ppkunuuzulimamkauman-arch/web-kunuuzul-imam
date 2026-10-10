@@ -286,7 +286,7 @@ try {
     <div id="sorotan-card" class="reveal lg:col-span-2 relative rounded-[1.6rem] overflow-hidden group min-h-[400px] lg:min-h-[500px] flex shadow-xl shadow-emerald-900/10">
       <div id="sorotan-imgs" class="absolute inset-0 bg-emerald-950">
         @foreach($sorotanSlides as $i => $s)
-        <img src="{{ $gambarBerita($s, $i) }}" data-i="{{ $i }}" loading="{{ $i===0 ? 'eager' : 'lazy' }}" fetchpriority="{{ $i===0 ? 'high' : 'auto' }}" decoding="async" class="sorotan-img{{ $i===0 ? ' active' : '' }} {{ $i%2===0 ? 'kb-in' : 'kb-out' }}" alt="{{ $s->judul }}">
+        <img src="{{ $gambarBerita($s, $i) }}" data-i="{{ $i }}" loading="eager" fetchpriority="{{ $i===0 ? 'high' : 'auto' }}" decoding="async" class="sorotan-img{{ $i===0 ? ' active' : '' }} {{ $i%2===0 ? 'kb-in' : 'kb-out' }}" alt="{{ $s->judul }}">
         @endforeach
       </div>
       <div class="absolute inset-0 bg-gradient-to-t from-emerald-950/95 via-emerald-950/30 to-emerald-950/5 pointer-events-none"></div>
@@ -356,6 +356,30 @@ try {
   const tgl = document.getElementById('sorotan-tgl');
   const link = document.getElementById('sorotan-link');
   const btn = document.getElementById('sorotan-btn');
+  const heroFb = {!! json_encode($heroImgs) !!};
+  // Gambar slide berikutnya sering belum selesai diunduh saat waktunya ganti
+  // (foto upload 1-2MB dari server jauh) → crossfade menampilkan latar gelap sesaat.
+  // Solusi: unduh semua di awal + tahan gambar lama sampai gambar baru siap.
+  const imgReady = (im)=>{ try{ return im.complete && im.naturalWidth > 0; }catch(_){ return false; } };
+  function whenReady(im, cb){
+    if(imgReady(im)){ cb(); return; }
+    let done = false;
+    const fin = ()=>{ if(!done){ done = true; cb(); } };
+    const to = setTimeout(fin, 2500); // jangan macet selamanya kalau jaringan lelet
+    im.addEventListener('load', ()=>{ clearTimeout(to); fin(); }, {once:true});
+    im.addEventListener('error', ()=>{ clearTimeout(to); fin(); }, {once:true});
+  }
+  imgs.forEach((im,i)=>{
+    // Fallback: kalau file /storage hilang (mis. redeploy tanpa volume),
+    // ganti ke gambar bawaan agar tidak ada lubang gelap.
+    im.addEventListener('error', function h(){
+      const fb = heroFb[i % heroFb.length];
+      if(im.getAttribute('src') !== fb){ im.src = fb; }
+      else { im.removeEventListener('error', h); }
+    });
+    // Picu unduhan sejak awal (abaikan sisa atribut lazy bila ada di cache lama)
+    try{ if(im.loading && im.loading !== 'eager'){ im.loading = 'eager'; } }catch(_){}
+  });
   let idx = 0, paused = false, transId = 0;
   const DUR = 5000;
   // Jadwal berbasis jam dinding: posisi slide dihitung dari waktu nyata,
@@ -367,27 +391,34 @@ try {
     const my = ++transId; // batalkan bersih-bersih transisi lama kalau disalip jadwal baru
     const d = slides[idx];
     const next = imgs[idx];
-    const prev = imgs.find(im=>im.classList.contains('active'));
-    if(prev && prev !== next){
-      // Bekukan frame zoom terakhir gambar lama biar tidak snap saat transisi
-      try{
-        const cs = getComputedStyle(prev);
-        if(cs.transform && cs.transform !== 'none') prev.style.transform = cs.transform;
-      }catch(_){}
-      // Naikkan gambar baru ke atas, fade-in dulu (crossfade), baru gambar lama dilepas
-      next.style.zIndex = '2'; prev.style.zIndex = '1';
-      next.classList.remove('kb-in','kb-out');
-      void next.offsetWidth;
-      next.classList.add('active', idx%2===0 ? 'kb-in' : 'kb-out');
-      setTimeout(()=>{
-        if(my !== transId) return;
-        prev.classList.remove('active');
-        setTimeout(()=>{ if(my !== transId) return; prev.classList.remove('kb-in','kb-out'); prev.style.transform=''; prev.style.zIndex=''; next.style.zIndex=''; }, 1600);
-      }, 200);
-    } else if(!prev){
-      next.classList.add('active', idx%2===0 ? 'kb-in' : 'kb-out');
-    }
     dots.forEach((dt,i)=>dt.classList.toggle('active', i===idx));
+    const swap = ()=>{
+      if(my !== transId) return;
+      const prev = imgs.find(im=>im.classList.contains('active'));
+      if(prev && prev !== next){
+        // Bekukan frame zoom terakhir gambar lama biar tidak snap saat transisi
+        try{
+          const cs = getComputedStyle(prev);
+          if(cs.transform && cs.transform !== 'none') prev.style.transform = cs.transform;
+        }catch(_){}
+        // Naikkan gambar baru ke atas, fade-in dulu (crossfade), baru gambar lama dilepas
+        next.style.zIndex = '2'; prev.style.zIndex = '1';
+        next.classList.remove('kb-in','kb-out');
+        void next.offsetWidth;
+        next.classList.add('active', idx%2===0 ? 'kb-in' : 'kb-out');
+        setTimeout(()=>{
+          if(my !== transId) return;
+          prev.classList.remove('active');
+          setTimeout(()=>{ if(my !== transId) return; prev.classList.remove('kb-in','kb-out'); prev.style.transform=''; prev.style.zIndex=''; next.style.zIndex=''; }, 1600);
+        }, 200);
+      } else if(!prev){
+        next.classList.add('active', idx%2===0 ? 'kb-in' : 'kb-out');
+      }
+    };
+    // Tukar gambar hanya kalau sudah siap tampil; kalau belum, gambar lama
+    // tetap jalan (tidak ada jeda gelap), swap menyusul begitu unduhan tiba.
+    if(imgReady(next)){ swap(); }
+    else { whenReady(next, swap); }
     const applyText = ()=>{
       if(my !== transId) return;
       judul.textContent = d.judul; excerpt.textContent = d.excerpt ?? '';
