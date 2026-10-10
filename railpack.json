@@ -1,0 +1,12 @@
+{
+  "$schema": "https://schema.railpack.com",
+  "steps": {
+    "build": {
+      "commands": [
+        "composer install --no-dev --optimize-autoloader --no-interaction",
+        "npm install --no-audit --no-fund",
+        "npm run build"
+      ]
+    }
+  }
+}
