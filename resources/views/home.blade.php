@@ -286,7 +286,15 @@ try {
     <div id="sorotan-card" class="reveal lg:col-span-2 relative rounded-[1.6rem] overflow-hidden group min-h-[400px] lg:min-h-[500px] flex shadow-xl shadow-emerald-900/10">
       <div id="sorotan-imgs" class="absolute inset-0 bg-emerald-950">
         @foreach($sorotanSlides as $i => $s)
-        <img src="{{ $gambarBerita($s, $i) }}" data-i="{{ $i }}" loading="eager" fetchpriority="{{ $i===0 ? 'high' : 'auto' }}" decoding="async" class="sorotan-img{{ $i===0 ? ' active' : '' }} {{ $i%2===0 ? 'kb-in' : 'kb-out' }}" alt="{{ $s->judul }}">
+        @php
+          $srcSorot = $gambarBerita($s, $i);
+          // Versi WebP (~45% lebih ringan) untuk gambar bawaan; foto upload tetap pakai file asli.
+          $webpSorot = (str_starts_with($srcSorot, '/images/hero/') && str_ends_with($srcSorot, '.jpg')) ? substr($srcSorot, 0, -4).'.webp' : null;
+        @endphp
+        <picture>
+          @if($webpSorot)<source srcset="{{ $webpSorot }}" type="image/webp">@endif
+          <img src="{{ $srcSorot }}" data-i="{{ $i }}" loading="eager" fetchpriority="{{ $i===0 ? 'high' : 'auto' }}" decoding="async" class="sorotan-img{{ $i===0 ? ' active' : '' }} {{ $i%2===0 ? 'kb-in' : 'kb-out' }}" alt="{{ $s->judul }}">
+        </picture>
         @endforeach
       </div>
       <div class="absolute inset-0 bg-gradient-to-t from-emerald-950/95 via-emerald-950/30 to-emerald-950/5 pointer-events-none"></div>
@@ -365,7 +373,7 @@ try {
     if(imgReady(im)){ cb(); return; }
     let done = false;
     const fin = ()=>{ if(!done){ done = true; cb(); } };
-    const to = setTimeout(fin, 2500); // jangan macet selamanya kalau jaringan lelet
+    const to = setTimeout(fin, 1000); // jangan macet selamanya kalau jaringan lelet
     im.addEventListener('load', ()=>{ clearTimeout(to); fin(); }, {once:true});
     im.addEventListener('error', ()=>{ clearTimeout(to); fin(); }, {once:true});
   }
