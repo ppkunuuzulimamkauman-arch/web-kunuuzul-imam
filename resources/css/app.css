@@ -1,0 +1,116 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Warna dasar sama dengan body biar flash reload tidak putih */
+/* scrollbar-gutter: cegah web bergeser saat intro / modal mengunci scroll (overflow:hidden) */
+html { background: #fafaf9; scrollbar-gutter: stable; }
+body {
+  font-family: 'Plus Jakarta Sans', sans-serif;
+}
+
+/* Navigasi putih + shadow — dipromote ke layer sendiri biar tidak ikut repaint konten */
+#mainnav {
+  transition: none;
+  transform: translateZ(0);
+  backface-visibility: hidden;
+  view-transition-name: mainnav;
+}
+#mainnav.nav-transparent, #mainnav.nav-solid { background: #fff; box-shadow: 0 2px 12px rgb(0 0 0 / .12); }
+#mainnav .nav-link { color: #44403c; }
+#mainnav .nav-link:hover { color: #1c1917; }
+#mainnav .nav-link.active { color: #dc2626; }
+#mainnav .nav-brand-title { color: #1c1917 !important; }
+#mainnav .nav-brand-sub { color: #78716c !important; }
+#mainnav .nav-burger { color: #1c1917; }
+#mainnav .nav-cta { background: transparent; border: 1px solid #1c1917; color: #1c1917; border-radius: 0; }
+#mainnav .nav-cta:hover { background: #022c22; border-color: #022c22; color: #fff; }
+#mainnav #mnav { color: #fff; background: transparent; }
+#mainnav #mnav p { color: rgba(209,250,229,.65); }
+.nav-link { position: relative; transition: color .25s ease; }
+.nav-link::after { content: ''; position: absolute; left: 0; bottom: 8px; height: 2px; width: 0; background: #dc2626; transition: width .3s ease; }
+.nav-link:hover::after, .nav-link.active::after { width: 100%; }
+
+/* Anti-kedip saat pindah halaman:
+   - navbar (#mainnav) + tombol toTop dikunci via view-transition-name sendiri + animation:none
+     sehingga tidak ikut fade bersama <body> dan tidak di-snapshot ulang.
+   - hanya <main> yang dianimasikan halus (fade tipis), navbar diam total.
+   - Turbo Drive sudah mempertahankan #mainnav via data-turbo-permanent, jadi
+     secara DOM navbar tidak pernah diganti — ini hanya pengaman View Transitions API. */
+@view-transition { navigation: auto; }
+#toTop { view-transition-name: totobtn; }
+main { view-transition-name: page-content; }
+::view-transition-group(mainnav),
+::view-transition-old(mainnav),
+::view-transition-new(mainnav),
+::view-transition-group(totobtn),
+::view-transition-old(totobtn),
+::view-transition-new(totobtn) { animation: none; }
+::view-transition-old(root),
+::view-transition-new(root) { animation: none; }
+::view-transition-old(page-content) { animation: content-out .12s ease both; }
+::view-transition-new(page-content) { animation: content-in .16s ease both; }
+@keyframes content-out { to { opacity: .4; } }
+@keyframes content-in { from { opacity: .4; } }
+@media (prefers-reduced-motion: reduce) {
+  ::view-transition-old(page-content),
+  ::view-transition-new(page-content) { animation: none; }
+}
+
+#toTop { transition: opacity .3s ease, transform .3s ease; }
+
+/* Reveal on scroll — hanya disembunyikan kalau JS aktif, biar paint pertama tidak kosong/kedip */
+.reveal { opacity: 1; transform: none; }
+.js .reveal { opacity: 0; transform: translateY(26px) scale(.96); transition: opacity .6s ease, transform .6s ease; }
+.js .reveal.in { opacity: 1; transform: none; }
+@media (prefers-reduced-motion: reduce) { .js .reveal { opacity: 1; transform: none; transition: none; } }
+
+.line-clamp-2 { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+.line-clamp-3 { display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
+
+/* ===== Drawer HP: pure CSS checkbox toggle (model video, tema hijau-emas) ===== */
+.mnav-check { position: absolute; opacity: 0; pointer-events: none; }
+.mnav-burger { width: 40px; height: 40px; display: inline-flex; flex-direction: column; align-items: center; justify-content: center; gap: 5px; cursor: pointer; flex-shrink: 0; }
+.mnav-burger span { display: block; width: 24px; height: 2.5px; border-radius: 2px; background: #1c1917; transition: transform .3s ease-in-out, opacity .2s ease-in-out; }
+#mnavToggle:checked ~ #mainnav-inner .mnav-burger span:nth-child(1) { transform: translateY(7.5px) rotate(45deg); }
+#mnavToggle:checked ~ #mainnav-inner .mnav-burger span:nth-child(2) { opacity: 0; }
+#mnavToggle:checked ~ #mainnav-inner .mnav-burger span:nth-child(3) { transform: translateY(-7.5px) rotate(-45deg); }
+#mnavBackdrop { position: absolute; left: 0; right: 0; top: 100%; height: calc(100vh - 72px); height: calc(100dvh - 72px); min-height: 500px; background: rgba(0,0,0,.5); opacity: 0; visibility: hidden; transition: opacity 250ms ease-in-out, visibility 250ms; cursor: pointer; }
+#mnavToggle:checked ~ #mnavBackdrop { opacity: 1; visibility: visible; }
+#mnav { position: absolute; left: 0; top: calc(100% - 10px); height: calc(100vh - 62px); height: calc(100dvh - 62px); width: 250px; max-width: 85vw; transform: translateX(-100%); transition: transform 250ms ease-in-out; background: transparent; border-radius: 0 28px 28px 0; overflow: hidden; }
+#mnavToggle:checked ~ #mnav { transform: translateX(0); }
+.mnav-panel { height: 100%; display: flex; flex-direction: column; overflow: hidden; border-radius: 0 28px 28px 0; box-shadow: 4px 0 15px rgba(0,0,0,.25); background: linear-gradient(180deg, #065f46 0%, #022c22 100%); }
+.mnav-profile { display: flex; align-items: center; gap: 12px; padding: 22px 20px 18px; border-bottom: 1px solid rgba(255,255,255,.12); flex-shrink: 0; position: relative; }
+.mnav-profile img { height: 48px; width: auto; max-width: 64px; object-fit: contain; flex-shrink: 0; background: transparent; }
+.mnav-profile h3 { color: #fff; font-size: 13px; font-weight: 800; letter-spacing: .06em; line-height: 1.35; }
+.mnav-profile p { color: rgba(209,250,229,.65); font-size: 10.5px; font-weight: 700; letter-spacing: .18em; margin: 0 0 3px; }
+.mnav-list { margin: 0; padding: 6px 0 10px; list-style: none; flex: 1; min-height: 0; overflow-y: auto; }
+#mainnav #mnav .mnav-list li a { display: flex; align-items: center; gap: 8px; color: #fff; text-decoration: none; font-weight: 800; font-size: 12px; letter-spacing: .1em; text-transform: uppercase; line-height: 1.3; padding: 9px 22px; border-left: 3px solid transparent; transition: background .2s ease, color .2s ease, padding-left .2s ease; -webkit-tap-highlight-color: transparent; -webkit-font-smoothing: antialiased; text-shadow: 0 1px 2px rgba(0,0,0,.45); }
+#mainnav #mnav .mnav-list li a:hover, #mainnav #mnav .mnav-list li a:active { background: rgba(255,255,255,.12); color: #fcd34d; text-shadow: 0 1px 8px rgba(252,211,77,.35); }
+.mnav-list > li:not(.mnav-sub):not(.mnav-head):not(.mnav-group) > a:hover, .mnav-list > li:not(.mnav-sub):not(.mnav-head):not(.mnav-group) > a:active { padding-left: 26px; }
+#mainnav #mnav .mnav-list li.active > a { background: rgba(255,255,255,.14); color: #fcd34d; border-left-color: #fbbf24; }
+#mainnav #mnav .mnav-list li.mnav-sub a { padding-left: 32px; font-weight: 800; font-size: 12px; text-transform: uppercase; letter-spacing: .1em; color: #fff; }
+#mainnav #mnav .mnav-list li.mnav-sub a:hover, #mainnav #mnav .mnav-list li.mnav-sub a:active { background: rgba(255,255,255,.12); color: #fcd34d; padding-left: 36px; }
+#mainnav #mnav .mnav-list li.mnav-sub.active > a { color: #fcd34d; }
+.mnav-head { padding: 9px 22px 3px; font-size: 12px; font-weight: 800; letter-spacing: .1em; color: #fff; text-transform: uppercase; }
+/* ===== Grup dropdown mobile (Profil / Lainnya) ala desktop Profil ▾ ===== */
+.mnav-group { margin: 0; padding: 0; }
+.mnav-group details { margin: 0; padding: 0; }
+.mnav-group summary { list-style: none; cursor: pointer; display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: 9px 22px; font-size: 12px; font-weight: 800; letter-spacing: .1em; color: #fff; text-transform: uppercase; line-height: 1.3; border-left: 3px solid transparent; transition: background .2s ease, color .2s ease, padding-left .2s ease; -webkit-tap-highlight-color: transparent; -webkit-font-smoothing: antialiased; text-shadow: 0 1px 2px rgba(0,0,0,.45); }
+.mnav-group summary::-webkit-details-marker { display: none; }
+.mnav-group summary:hover, .mnav-group summary:active { background: rgba(255,255,255,.12); color: #fcd34d; text-shadow: 0 1px 8px rgba(252,211,77,.35); padding-left: 26px; }
+.mnav-group summary .mnav-chev { font-size: 11px; line-height: 1; transition: transform .3s ease; opacity: .95; display: inline-block; }
+.mnav-group details[open] summary .mnav-chev { transform: rotate(180deg); }
+.mnav-group details[open] summary { background: rgba(255,255,255,.08); color: #fcd34d; }
+.mnav-group.has-active summary { background: rgba(255,255,255,.1); color: #fcd34d; border-left-color: #fbbf24; }
+.mnav-sublist { margin: 0; padding: 0 0 4px; list-style: none; overflow: hidden; }
+.mnav-group details[open] .mnav-sublist { animation: mnavDrop .32s ease both; transform-origin: top; }
+.mnav-group details[open] .mnav-sublist li { animation: mnavItemIn .3s ease both; }
+.mnav-group details[open] .mnav-sublist li:nth-child(1) { animation-delay: .04s; }
+.mnav-group details[open] .mnav-sublist li:nth-child(2) { animation-delay: .09s; }
+.mnav-group details[open] .mnav-sublist li:nth-child(3) { animation-delay: .14s; }
+.mnav-group details[open] .mnav-sublist li:nth-child(4) { animation-delay: .19s; }
+@keyframes mnavDrop { from { opacity: 0; transform: translateY(-8px); } to { opacity: 1; transform: translateY(0); } }
+@keyframes mnavItemIn { from { opacity: 0; transform: translateX(-10px); } to { opacity: 1; transform: translateX(0); } }
+.mnav-foot { padding: 14px 20px 20px; flex-shrink: 0; }
+@media (prefers-reduced-motion: reduce) { #mnav, #mnavBackdrop, .mnav-burger span, .mnav-group summary .mnav-chev { transition: none; } .mnav-group details[open] .mnav-sublist, .mnav-group details[open] .mnav-sublist li { animation: none; } }
