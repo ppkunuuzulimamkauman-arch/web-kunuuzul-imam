@@ -45,17 +45,17 @@ jobs:
           protocol: ftps
           local-dir: ./
           server-dir: ./
-          exclude:
-            - '**/.git*'
-            - '**/.git*/**'
-            - '**/node_modules/**'
-            - .env
-            - .env.backup
-            - .env.production
-            - 'database/*.sqlite*'
-            - 'storage/**'
-            - public/index.php
-            - public/.htaccess
+          exclude: |
+            **/.git*
+            **/.git*/**
+            **/node_modules/**
+            .env
+            .env.backup
+            .env.production
+            database/*.sqlite*
+            storage/**
+            public/index.php
+            public/.htaccess
 
       - name: Migrate database via webhook
         run: |
