@@ -6,7 +6,7 @@ name: Deploy ke ArenHost
 # Yang dilindungi (tidak ikut tertimpa di server):
 # .env, database sqlite lokal, folder storage/ (isi upload),
 # public/index.php + public/.htaccess (sudah disesuaikan server).
-on:
+"on":
   push:
     branches: [main]
 
