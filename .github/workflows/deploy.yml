@@ -1,7 +1,11 @@
 name: Deploy ke ArenHost
 
 # Berjalan otomatis setiap ada push ke branch main:
-# build assets -> upload file -> migrate database -> clear cache.
+# install -> build assets -> upload via FTP -> migrate via webhook.
+#
+# Yang dilindungi (tidak ikut tertimpa di server):
+# .env, database sqlite lokal, folder storage/ (isi upload),
+# public/index.php + public/.htaccess (sudah disesuaikan server).
 on:
   push:
     branches: [main]
@@ -32,21 +36,29 @@ jobs:
           npm ci --no-audit --no-fund
           npm run build
 
-      - name: Upload ke server + migrate
-        uses: easingthemes/ssh-deploy@v6
+      - name: Upload via FTP
+        uses: SamKirkland/FTP-Deploy-Action@v4.4.0
         with:
-          SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
-          REMOTE_HOST: ${{ secrets.SSH_HOST }}
-          REMOTE_USER: ${{ secrets.SSH_USER }}
-          REMOTE_PORT: ${{ secrets.SSH_PORT }}
-          SOURCE: "./"
-          TARGET: "/home/kunuuzul/laravel"
-          # Dilindungi (tidak ikut tertimpa):
-          # .env server, database lokal, folder storage (isi upload),
-          # index.php + .htaccess public_html (sudah disesuaikan server).
-          EXCLUDE: "/.git/, /node_modules/, /.env, /.env.backup, /.env.production, /*.sqlite*, /storage/, /public/index.php, /public/.htaccess"
-          ARGS: "-rltgoDzvO"
-          SCRIPT_AFTER: |
-            cd /home/kunuuzul/laravel
-            php artisan migrate --force
-            php artisan optimize:clear
+          server: ${{ secrets.FTP_HOST }}
+          username: ${{ secrets.FTP_USERNAME }}
+          password: ${{ secrets.FTP_PASSWORD }}
+          protocol: ftps
+          local-dir: ./
+          server-dir: ./
+          exclude:
+            - '**/.git*'
+            - '**/.git*/**'
+            - '**/node_modules/**'
+            - .env
+            - .env.backup
+            - .env.production
+            - 'database/*.sqlite*'
+            - 'storage/**'
+            - public/index.php
+            - public/.htaccess
+
+      - name: Migrate database via webhook
+        run: |
+          curl -sS -X POST "https://kunuuzulimamkauman.net/deploy-hook" \
+            --data-urlencode "token=${{ secrets.DEPLOY_TOKEN }}" \
+            --fail --max-time 300

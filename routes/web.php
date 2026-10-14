@@ -74,6 +74,18 @@ Route::post('/kontak', [KontakController::class, 'store'])->middleware('throttle
 Route::get('/konsultasi', [KonsultasiController::class, 'index'])->name('konsultasi');
 Route::post('/konsultasi', [KonsultasiController::class, 'store'])->middleware('throttle:10,1')->name('konsultasi.store');
 
+// Webhook deploy otomatis dari GitHub Actions.
+// Diproteksi token (DEPLOY_TOKEN di .env) + throttle. Hanya menjalankan
+// migrate --force dan optimize:clear, tanpa akses shell.
+Route::post('/deploy-hook', function (\Illuminate\Http\Request $request) {
+    $token = (string) env('DEPLOY_TOKEN', '');
+    abort_unless($token !== '' && hash_equals($token, (string) $request->input('token')), 403);
+    \Illuminate\Support\Facades\Artisan::call('migrate', ['--force' => true]);
+    $migrate = \Illuminate\Support\Facades\Artisan::output();
+    \Illuminate\Support\Facades\Artisan::call('optimize:clear');
+    return response()->json(['ok' => true, 'migrate' => $migrate]);
+})->middleware('throttle:5,1')->name('deploy.hook');
+
 // === Auth Admin ===
 Route::get('/admin/login', [AuthController::class, 'login'])->name('login')->middleware('guest');
 Route::post('/admin/login', [AuthController::class, 'authenticate'])->middleware(['guest', 'throttle:5,1'])->name('login.post');
