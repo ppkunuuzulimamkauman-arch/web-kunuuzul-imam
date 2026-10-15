@@ -17,8 +17,31 @@ class HomeController extends Controller
 {
     public function index(): View
     {
-        try { $heroSlides = HeroSlide::where('is_aktif', true)->orderBy('urutan')->get(); }
-        catch (\Throwable $e) { $heroSlides = collect(); }
+        // Hero slide diambil dari Berita/Artikel yang ditandai ⭐ di admin
+        // (maks. Berita::MAX_HERO). Fallback ke HeroSlide bila belum ada.
+        try {
+            $flagged = Berita::where('is_published', true)->where('is_hero', true)
+                ->latest('published_at')->take(Berita::MAX_HERO)->get();
+            $heroSlides = $flagged->map(function ($b) {
+                $img = $b->gambar ? 'storage/' . ltrim($b->gambar, '/') : null;
+                return (object) [
+                    'label' => strtoupper($b->kategori ?? 'PONDOK'),
+                    'desc' => \Str::limit(trim((string) ($b->excerpt ?? '')), 80),
+                    'badge' => '📰 ' . ucfirst($b->kategori ?? 'Berita'),
+                    'title' => $b->judul,
+                    'sub' => \Str::limit(trim(preg_replace('/\s+/', ' ', strip_tags($b->excerpt ?? $b->konten ?? ''))), 140),
+                    'gambar' => $img ? asset($img) : '/images/hero/slide-1.jpg',
+                    'cta1_text' => 'BACA SELENGKAPNYA',
+                    'cta1_url' => route('berita.show', $b->slug),
+                    'cta2_text' => $b->kategori === 'artikel' ? 'SEMUA ARTIKEL' : 'SEMUA BERITA',
+                    'cta2_url' => $b->kategori === 'artikel' ? route('artikel.index') : route('berita.index'),
+                ];
+            });
+        } catch (\Throwable $e) { $heroSlides = collect(); }
+        if ($heroSlides->isEmpty()) {
+            try { $heroSlides = HeroSlide::where('is_aktif', true)->orderBy('urutan')->get(); }
+            catch (\Throwable $e) { $heroSlides = collect(); }
+        }
         try {
             $agendas = Agenda::where('is_aktif', true)->whereDate('tanggal', '>=', now()->subDay())->orderBy('tanggal')->take(3)->get();
         } catch (\Throwable $e) { $agendas = collect(); }

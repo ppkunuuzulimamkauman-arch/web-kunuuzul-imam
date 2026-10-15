@@ -12,7 +12,9 @@ class Berita extends Model
 
     protected static array $storedFiles = ['gambar'];
 
-    protected $fillable = ['judul','slug','kategori','excerpt','konten','gambar','penulis','is_published','published_at'];
+    protected $fillable = ['judul','slug','kategori','excerpt','konten','gambar','penulis','is_published','is_hero','published_at'];
 
-    protected $casts = ['published_at' => 'datetime'];
+    protected $casts = ['published_at' => 'datetime', 'is_published' => 'boolean', 'is_hero' => 'boolean'];
+
+    public const MAX_HERO = 5;
 }

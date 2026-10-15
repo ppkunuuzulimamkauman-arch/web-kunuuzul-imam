@@ -103,4 +103,13 @@ class BeritaController extends Controller
         ]);
         return back()->with('sukses', 'Status publikasi diubah.');
     }
+
+    public function toggleHero(Berita $berita): RedirectResponse
+    {
+        if (! $berita->is_hero && Berita::where('is_hero', true)->where('id', '!=', $berita->id)->count() >= Berita::MAX_HERO) {
+            return back()->withErrors(['hero' => 'Maksimal ' . Berita::MAX_HERO . ' berita di hero slide. Matikan salah satu dulu.']);
+        }
+        $berita->update(['is_hero' => ! $berita->is_hero]);
+        return back()->with('sukses', $berita->is_hero ? 'Ditambahkan ke hero slide.' : 'Dihapus dari hero slide.');
+    }
 }

@@ -74,6 +74,7 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'admin'])->group(fun
     // Berita & Artikel
     Route::resource('berita', BeritaController::class)->except(['show'])->parameters(['berita' => 'berita']);
     Route::post('berita/{berita}/toggle', [BeritaController::class, 'toggle'])->name('berita.toggle');
+    Route::post('berita/{berita}/hero', [BeritaController::class, 'toggleHero'])->name('berita.hero');
 
     // Program
     Route::resource('program', ProgramController::class)->except(['show']);
