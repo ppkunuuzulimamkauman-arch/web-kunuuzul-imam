@@ -318,11 +318,11 @@ try {
       </div>
     </div>
     <div class="flex flex-col gap-5 h-full">
-      <div class="reveal bg-emerald-950 text-white rounded-[1.6rem] p-6 relative overflow-hidden shrink-0">
-        <p class="font-arab text-[26px] leading-snug text-amber-400">{{ \App\Models\Setting::get('dawuh_arab', '﴿ خَيْرُكُمْ مَنْ تَعَلَّمَ الْقُرْآنَ وَعَلَّمَهُ ﴾') }}</p>
+      <div class="reveal lift bg-emerald-950 text-white rounded-[1.6rem] p-6 relative overflow-hidden shrink-0">
+        <p class="font-arab text-[26px] leading-snug text-amber-400 quote-glow">{{ \App\Models\Setting::get('dawuh_arab', '﴿ خَيْرُكُمْ مَنْ تَعَلَّمَ الْقُرْآنَ وَعَلَّمَهُ ﴾') }}</p>
         <p class="text-[13px] text-emerald-100 mt-3 leading-relaxed italic">{{ \App\Models\Setting::get('dawuh_terjemah', '“Sebaik-baik kalian adalah yang belajar Al-Qur’an dan mengajarkannya.”') }}</p>
         <p class="text-[11px] font-bold text-amber-400 mt-3 tracking-widest">{{ \App\Models\Setting::get('dawuh_sumber', '— HR. BUKHARI • DAWUH PENGASUH') }}</p>
-        <div class="absolute -right-8 -bottom-8 w-36 h-36 rounded-full bg-amber-400/15 pointer-events-none"></div>
+        <div class="absolute -right-8 -bottom-8 w-36 h-36 rounded-full bg-amber-400/15 pointer-events-none float-slow"></div>
       </div>
       <div class="reveal bg-white rounded-[1.6rem] border border-stone-100 p-6 shadow-sm flex-1 flex flex-col">
         <div class="flex items-center justify-between"><p class="text-[11px] font-extrabold tracking-[0.15em] text-emerald-700">● LINIMASA 24 JAM</p><a href="{{ route('berita.index') }}" class="text-[11px] font-bold text-stone-400 hover:text-emerald-700">Lihat →</a></div>

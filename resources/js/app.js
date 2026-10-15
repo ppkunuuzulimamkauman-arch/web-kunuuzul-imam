@@ -94,6 +94,35 @@ if (!window.__scrollBound) {
   window.addEventListener('scroll', syncNavState, { passive: true });
 }
 
+// ---- Counter angka generik: <span data-count="500">0</span> ----
+let countIO = null;
+function initCounters() {
+  if (countIO) countIO.disconnect();
+  const els = document.querySelectorAll('[data-count]:not([data-counted])');
+  const run = (el) => {
+    el.setAttribute('data-counted', '1');
+    const target = parseFloat(el.dataset.count) || 0;
+    if (!('requestAnimationFrame' in window)) { el.textContent = target; return; }
+    const reduce = window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
+    if (reduce) { el.textContent = target; return; }
+    const t0 = performance.now(), dur = 1200;
+    const fmt = (v) => (Number.isInteger(target) ? Math.round(v) : v.toFixed(1));
+    (function tick(t) {
+      const p = Math.min((t - t0) / dur, 1);
+      el.textContent = fmt(target * (1 - Math.pow(1 - p, 3)));
+      if (p < 1) requestAnimationFrame(tick);
+    })(t0);
+  };
+  if (!('IntersectionObserver' in window)) { els.forEach(run); return; }
+  countIO = new IntersectionObserver(
+    (entries) => entries.forEach((en) => {
+      if (en.isIntersecting) { run(en.target); countIO.unobserve(en.target); }
+    }),
+    { threshold: 0.4 },
+  );
+  els.forEach((el) => countIO.observe(el));
+}
+
 // ---- Reveal on scroll (re-observe tiap halaman baru) ----
 let revealIO = null;
 function initReveal() {
@@ -135,6 +164,7 @@ document.addEventListener('turbo:load', () => {
   syncNavState();
   syncMnavActive();
   initReveal();
+  initCounters();
   // JANGAN window.scrollTo({top:0}) di sini — Turbo Drive sudah mengatur scroll
   // otomatis. Pemanggilan manual setelah render menyebabkan lompatan/kedip.
 });
@@ -143,6 +173,7 @@ document.addEventListener('DOMContentLoaded', () => {
   syncNavState();
   syncMnavActive();
   initReveal();
+  initCounters();
   // Ukur ulang setelah semua resource (font/gambar) selesai dimuat.
   if (!window.__mnavLoadBound) {
     window.__mnavLoadBound = true;

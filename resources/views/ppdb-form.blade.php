@@ -7,6 +7,16 @@
   <h1 class="font-extrabold text-stone-900 text-[26px] md:text-[30px] leading-tight mt-1.5">Pendaftaran Santri Baru 2026/2027</h1>
   <div class="w-16 h-1 bg-orange-400 rounded-full mt-3 mb-6"></div>
 
+  {{-- Alur pendaftaran: 4 langkah --}}
+  <div class="reveal border border-stone-200 rounded-2xl p-5 mb-5 bg-stone-50">
+    <div class="psb-steps grid grid-cols-4 gap-2 text-center">
+      <div class="psb-step now"><div class="psb-dot">1</div><p>Isi Formulir</p></div>
+      <div class="psb-step"><div class="psb-dot">2</div><p>Upload Berkas</p></div>
+      <div class="psb-step"><div class="psb-dot">3</div><p>Verifikasi WA</p></div>
+      <div class="psb-step"><div class="psb-dot">4</div><p>Cek Status</p></div>
+    </div>
+  </div>
+
   @if($errors->any())<div class="reveal bg-red-50 border border-red-200 text-red-700 rounded-2xl p-4 text-sm mb-4"><ul class="list-disc ml-5">@foreach($errors->all() as $e)<li>{{ $e }}</li>@endforeach</ul></div>@endif
   @if(session('sukses'))<div class="reveal bg-green-50 border border-green-200 text-green-800 rounded-2xl p-4 text-sm mb-4">{{ session('sukses') }}</div>@endif
   <form action="{{ route('ppdb.store') }}" method="POST" enctype="multipart/form-data" class="reveal border border-stone-200 rounded-2xl p-6 space-y-4 bg-white shadow-sm">

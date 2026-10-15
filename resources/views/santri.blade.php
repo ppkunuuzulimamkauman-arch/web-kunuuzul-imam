@@ -12,7 +12,7 @@
     @php $S = \App\Models\Setting::class; @endphp
     @foreach([1,2,3,4] as $i)
     <div class="reveal rounded-2xl bg-emerald-950 text-white p-6 text-center relative overflow-hidden">
-      <p class="font-extrabold text-[32px] leading-none text-amber-400"><span class="count" data-target="{{ $S::get("santri_stat_{$i}_angka", [500,30,40,24][$i-1]) }}">0</span><span class="text-[18px]">{{ $S::get("santri_stat_{$i}_satuan", ['+','Juz','+','Jam'][$i-1]) }}</span></p>
+      <p class="font-extrabold text-[32px] leading-none text-amber-400"><span data-count="{{ $S::get("santri_stat_{$i}_angka", [500,30,40,24][$i-1]) }}">0</span><span class="text-[18px]">{{ $S::get("santri_stat_{$i}_satuan", ['+','Juz','+','Jam'][$i-1]) }}</span></p>
       <p class="text-[12px] font-bold tracking-widest text-emerald-100 mt-2">{{ strtoupper($S::get("santri_stat_{$i}_label", ['Santri Mukim','Target Tahfidz','Ustadz & Musyrif','Pembinaan'][$i-1])) }}</p>
     </div>
     @endforeach
@@ -44,23 +44,4 @@
   </div>
 </div>
 </div>
-<script>
-(function(){
-  const els = document.querySelectorAll('.count');
-  if(!('IntersectionObserver' in window)){ els.forEach(e=>e.textContent=e.dataset.target); return; }
-  const io = new IntersectionObserver((es)=>{
-    es.forEach(en=>{
-      if(!en.isIntersecting) return;
-      const el = en.target, target = +el.dataset.target, t0 = performance.now();
-      (function tick(t){
-        const p = Math.min((t-t0)/1200, 1);
-        el.textContent = Math.round(target * (1-Math.pow(1-p,3)));
-        if(p<1) requestAnimationFrame(tick);
-      })(t0);
-      io.unobserve(el);
-    });
-  },{threshold:.4});
-  els.forEach(e=>io.observe(e));
-})();
-</script>
 @endsection
