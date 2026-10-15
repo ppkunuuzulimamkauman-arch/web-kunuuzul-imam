@@ -8,8 +8,7 @@
   <div class="w-16 h-1 bg-orange-400 rounded-full mt-3 mb-6"></div>
   <p class="text-[14px] text-stone-500 leading-relaxed max-w-2xl">Ada yang ingin ditanyakan seputar pendidikan, tahfidz, PPDB, atau keluarga? Pilih kategori, tulis pertanyaan Anda — insyaAllah kami balas via WA.</p>
 
-  <div class="grid md:grid-cols-2 gap-6 items-start mt-6">
-    @include('partials.kontak-info')
+  <div class="max-w-2xl mt-6">
     <div class="reveal border border-stone-200 rounded-2xl p-6 bg-white">
       @if(session('sukses'))<div class="bg-green-50 border border-green-200 text-green-800 rounded-xl p-3 text-sm mb-3">{{ session('sukses') }}</div>@endif
       <form action="{{ route('konsultasi.store') }}" method="POST" class="space-y-3">

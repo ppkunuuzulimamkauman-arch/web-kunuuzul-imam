@@ -2,7 +2,6 @@
   $S = \App\Models\Setting::class;
   $asramas = [
     ['label' => 'Asrama 1', 'alamat' => $S::get('kontak_alamat_1', ''), 'wa' => $S::get('kontak_wa_1', '')],
-    ['label' => 'Asrama 2', 'alamat' => $S::get('kontak_alamat_2', ''), 'wa' => $S::get('kontak_wa_2', '')],
   ];
   $waLink = function ($no) {
     $d = preg_replace('/[^0-9]/', '', (string) $no);

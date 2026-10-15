@@ -120,12 +120,10 @@ class Setting extends Model
             'kontak' => [
                 'label' => 'Kontak',
                 'icon' => 'fa-solid fa-phone',
-                'desc' => 'Alamat & WA Asrama 1/2 + jam — tampil di footer dan halaman kontak.',
+                'desc' => 'Alamat & WA asrama + jam — tampil di footer dan halaman kontak.',
                 'fields' => [
-                    'kontak_alamat_1' => ['label' => 'Alamat Asrama 1', 'type' => 'text', 'hint' => ''],
-                    'kontak_wa_1' => ['label' => 'No. WA Asrama 1', 'type' => 'text', 'hint' => 'Contoh: 081234567890'],
-                    'kontak_alamat_2' => ['label' => 'Alamat Asrama 2', 'type' => 'text', 'hint' => ''],
-                    'kontak_wa_2' => ['label' => 'No. WA Asrama 2', 'type' => 'text', 'hint' => 'Contoh: 081234567890'],
+                    'kontak_alamat_1' => ['label' => 'Alamat Asrama', 'type' => 'text', 'hint' => ''],
+                    'kontak_wa_1' => ['label' => 'No. WA Asrama', 'type' => 'text', 'hint' => 'Contoh: 081234567890'],
                     'kontak_jam' => ['label' => 'Jam Pelayanan', 'type' => 'text', 'hint' => ''],
                 ],
             ],

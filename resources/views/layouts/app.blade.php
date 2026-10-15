@@ -261,7 +261,6 @@
       <ul class="text-sm space-y-2.5 text-primary-100/80">
         @php
           $wa1 = trim((string) \App\Models\Setting::get('kontak_wa_1', ''));
-          $wa2 = trim((string) \App\Models\Setting::get('kontak_wa_2', ''));
           $waUrl = function ($no) {
             $d = preg_replace('/[^0-9]/', '', (string) $no);
             if (str_starts_with($d, '0')) $d = '62' . substr($d, 1);
@@ -269,18 +268,9 @@
           };
         @endphp
         <li>
-          <div class="grid grid-cols-2 gap-4">
-            <div>
-              <p class="font-bold text-white">📍 Asrama 1</p>
-              <p class="mt-1">{{ \App\Models\Setting::get('kontak_alamat_1', '') }}</p>
-              @if($wa1 !== '')<p class="mt-1">📞 @if($waUrl($wa1))<a href="{{ $waUrl($wa1) }}" target="_blank" rel="noopener" class="hover:text-amber-300 transition">{{ $wa1 }}</a>@else{{ $wa1 }}@endif</p>@endif
-            </div>
-            <div>
-              <p class="font-bold text-white">📍 Asrama 2</p>
-              <p class="mt-1">{{ \App\Models\Setting::get('kontak_alamat_2', '') }}</p>
-              @if($wa2 !== '')<p class="mt-1">📞 @if($waUrl($wa2))<a href="{{ $waUrl($wa2) }}" target="_blank" rel="noopener" class="hover:text-amber-300 transition">{{ $wa2 }}</a>@else{{ $wa2 }}@endif</p>@endif
-            </div>
-          </div>
+          <p class="font-bold text-white">📍 Asrama 1</p>
+          <p class="mt-1">{{ \App\Models\Setting::get('kontak_alamat_1', '') }}</p>
+          @if($wa1 !== '')<p class="mt-1">📞 @if($waUrl($wa1))<a href="{{ $waUrl($wa1) }}" target="_blank" rel="noopener" class="hover:text-amber-300 transition">{{ $wa1 }}</a>@else{{ $wa1 }}@endif</p>@endif
         </li>
         <li>🕐 {{ \App\Models\Setting::get('kontak_jam', 'Senin–Sabtu 08.00–15.00') }}</li>
       </ul>
