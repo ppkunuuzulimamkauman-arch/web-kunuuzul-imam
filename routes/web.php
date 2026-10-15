@@ -98,15 +98,52 @@ Route::get('/konsultasi', [KonsultasiController::class, 'index'])->name('konsult
 Route::post('/konsultasi', [KonsultasiController::class, 'store'])->middleware('throttle:10,1')->name('konsultasi.store');
 
 // Webhook deploy otomatis dari GitHub Actions.
-// Diproteksi token (DEPLOY_TOKEN di .env) + throttle. Hanya menjalankan
-// migrate --force dan optimize:clear, tanpa akses shell.
+// Diproteksi token (DEPLOY_TOKEN di .env) + throttle. Menjalankan
+// migrate --force, sinkron public/ -> public_html (copy lokal, tanpa FTP),
+// dan optimize:clear. Tanpa akses shell.
 Route::post('/deploy-hook', function (\Illuminate\Http\Request $request) {
     $token = (string) env('DEPLOY_TOKEN', '');
     abort_unless($token !== '' && hash_equals($token, (string) $request->input('token')), 403);
     \Illuminate\Support\Facades\Artisan::call('migrate', ['--force' => true]);
     $migrate = \Illuminate\Support\Facades\Artisan::output();
+    // public_html adalah copy terpisah dari laravel/public (bukan symlink),
+    // jadi hasil build Vite + favicon + robots + images disalin di sini.
+    // index.php/.htaccess milik server tidak disentuh.
+    $sync = ['target' => null, 'copied' => 0, 'skipped' => false];
+    try {
+        $src = realpath(public_path()) ?: public_path();
+        $dst = realpath(base_path('../public_html')) ?: null;
+        $sync['target'] = $dst;
+        if ($dst && is_dir($dst) && is_file($dst . '/index.php')) {
+            $it = new \RecursiveIteratorIterator(
+                new \RecursiveDirectoryIterator($src, \FilesystemIterator::SKIP_DOTS),
+                \RecursiveIteratorIterator::SELF_FIRST
+            );
+            foreach ($it as $file) {
+                $rel = ltrim(str_replace('\\', '/', substr($file->getPathname(), strlen($src))), '/');
+                if (in_array($rel, ['index.php', '.htaccess'], true)) continue;
+                $dest = $dst . '/' . $rel;
+                if ($file->isDir()) {
+                    if (! is_dir($dest)) mkdir($dest, 0755, true);
+                    continue;
+                }
+                if (! is_file($dest) || filesize($dest) !== $file->getSize()
+                    || filemtime($dest) !== $file->getMTime()) {
+                    @mkdir(dirname($dest), 0755, true);
+                    if (@copy($file->getPathname(), $dest)) {
+                        @touch($dest, $file->getMTime());
+                        $sync['copied']++;
+                    }
+                }
+            }
+        } else {
+            $sync['skipped'] = true;
+        }
+    } catch (\Throwable $e) {
+        $sync['error'] = substr($e->getMessage(), 0, 200);
+    }
     \Illuminate\Support\Facades\Artisan::call('optimize:clear');
-    return response()->json(['ok' => true, 'migrate' => $migrate]);
+    return response()->json(['ok' => true, 'migrate' => $migrate, 'public_sync' => $sync]);
 })->middleware('throttle:5,1')->name('deploy.hook');
 
 // === Auth Admin ===

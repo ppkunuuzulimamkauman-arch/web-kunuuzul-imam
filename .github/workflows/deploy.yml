@@ -74,22 +74,9 @@ jobs:
             public/index.php
             public/.htaccess
 
-      - name: Sinkron folder public ke public_html
-        uses: SamKirkland/FTP-Deploy-Action@v4.4.0
-        with:
-          server: ${{ secrets.FTP_HOST }}
-          username: ${{ secrets.FTP_USERNAME }}
-          password: ${{ secrets.FTP_PASSWORD }}
-          protocol: ftp
-          local-dir: ./public/
-          # public_html adalah copy terpisah (lihat File Manager), jadi hasil
-          # build Vite + favicon + robots.txt harus disalin ke sini.
-          # index.php/.htaccess milik server dipertahankan.
-          server-dir: ../../public_html/
-          exclude: |
-            index.php
-            .htaccess
-
+      # Catatan: sinkron public/ -> public_html TIDAK lewat FTP (koneksi data
+      # FTP ke hosting ini sering ECONNRESET). Sebagai gantinya, deploy-hook
+      # di bawah menyalinnya secara lokal di server (cepat & andal).
       - name: Migrate database via webhook
         run: |
           curl -sS -X POST "https://kunuuzulimamkauman.net/deploy-hook" \
