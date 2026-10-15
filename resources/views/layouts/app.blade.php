@@ -268,10 +268,20 @@
             return strlen($d) >= 10 && ! str_contains((string) $no, 'x') ? 'https://wa.me/' . $d : null;
           };
         @endphp
-        <li>📍 <b class="text-white">Asrama 1:</b> {{ \App\Models\Setting::get('kontak_alamat_1', '') }}</li>
-        @if($wa1 !== '')<li>📞 <b class="text-white">WA Asrama 1:</b> @if($waUrl($wa1))<a href="{{ $waUrl($wa1) }}" target="_blank" rel="noopener" class="hover:text-amber-300 transition">{{ $wa1 }}</a>@else{{ $wa1 }}@endif</li>@endif
-        <li>📍 <b class="text-white">Asrama 2:</b> {{ \App\Models\Setting::get('kontak_alamat_2', '') }}</li>
-        @if($wa2 !== '')<li>📞 <b class="text-white">WA Asrama 2:</b> @if($waUrl($wa2))<a href="{{ $waUrl($wa2) }}" target="_blank" rel="noopener" class="hover:text-amber-300 transition">{{ $wa2 }}</a>@else{{ $wa2 }}@endif</li>@endif
+        <li>
+          <div class="grid grid-cols-2 gap-4">
+            <div>
+              <p class="font-bold text-white">📍 Asrama 1</p>
+              <p class="mt-1">{{ \App\Models\Setting::get('kontak_alamat_1', '') }}</p>
+              @if($wa1 !== '')<p class="mt-1">📞 @if($waUrl($wa1))<a href="{{ $waUrl($wa1) }}" target="_blank" rel="noopener" class="hover:text-amber-300 transition">{{ $wa1 }}</a>@else{{ $wa1 }}@endif</p>@endif
+            </div>
+            <div>
+              <p class="font-bold text-white">📍 Asrama 2</p>
+              <p class="mt-1">{{ \App\Models\Setting::get('kontak_alamat_2', '') }}</p>
+              @if($wa2 !== '')<p class="mt-1">📞 @if($waUrl($wa2))<a href="{{ $waUrl($wa2) }}" target="_blank" rel="noopener" class="hover:text-amber-300 transition">{{ $wa2 }}</a>@else{{ $wa2 }}@endif</p>@endif
+            </div>
+          </div>
+        </li>
         <li>🕐 {{ \App\Models\Setting::get('kontak_jam', 'Senin–Sabtu 08.00–15.00') }}</li>
       </ul>
     </div>
