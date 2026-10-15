@@ -47,7 +47,10 @@ jobs:
           password: ${{ secrets.FTP_PASSWORD }}
           protocol: ftps
           local-dir: ./
-          server-dir: ./
+          # PENTING: user FTP mendarat di /home/kunuuzu, sedangkan aplikasi
+          # live ada di kunuuzulimamkauman.net/laravel/ (lihat cPanel File Manager).
+          # Jangan pakai ./ — file akan nyasar ke folder yang salah.
+          server-dir: kunuuzulimamkauman.net/laravel/
           exclude: |
             **/.git*
             **/.git*/**
