@@ -16,8 +16,9 @@ body{background:var(--bg);color:var(--ink);display:flex;min-height:100vh}
 /* ===== sidebar ===== */
 .sidebar{width:232px;background:linear-gradient(180deg,var(--side),#0e0c24);color:#c9c6e8;position:fixed;inset:0 auto 0 0;display:flex;flex-direction:column;z-index:40}
 .brand{display:flex;align-items:center;gap:10px;padding:20px 18px 14px}
-.brand .logo{width:34px;height:34px;border-radius:10px;background:var(--primary);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:18px;flex-shrink:0}
-.brand b{font-size:15.5px;color:#fff;display:block}.brand small{font-size:11px;color:#8f8bb8}
+.brand img{width:40px;height:auto;max-height:46px;object-fit:contain;flex-shrink:0;background:transparent}
+.brand small{font-size:10px;font-weight:400;letter-spacing:.22em;color:#8f8bb8;display:block}
+.brand b{font-size:16px;color:#fff;display:block;line-height:1.3}
 .nav{padding:6px 12px;overflow-y:auto;flex:1}
 .nav-label{font-size:10px;font-weight:800;letter-spacing:.14em;color:#7d78ad;margin:12px 10px 6px}
 .nav a{display:flex;align-items:center;gap:11px;color:#b9b5dd;text-decoration:none;padding:10px 12px;border-radius:10px;font-size:13.5px;font-weight:600;margin-bottom:2px;position:relative}
@@ -104,8 +105,8 @@ label.f{display:block;margin-bottom:12px;font-size:13px;font-weight:700}label.f 
 <body>
 <aside class="sidebar" id="sidebar">
   <div class="brand">
-    <div class="logo">C</div>
-    <div><b>Kunuuzul CRM</b><small>Admin Pondok Pesantren</small></div>
+    <img src="{{ asset('images/logo-pondok.png') }}" alt="Logo PP Kunuuzul Imam Kauman">
+    <div><small>PONDOK PESANTREN</small><b>KUNUUZUL IMAM KAUMAN</b></div>
   </div>
   <nav class="nav">
     <div class="nav-label">MENU UTAMA</div>
