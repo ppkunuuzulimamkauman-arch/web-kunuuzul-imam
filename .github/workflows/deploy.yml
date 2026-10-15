@@ -52,10 +52,13 @@ jobs:
           # kembalikan ke: protocol: ftps
           protocol: ftp
           local-dir: ./
-          # PENTING: user FTP mendarat di /home/kunuuzu, sedangkan aplikasi
-          # live ada di kunuuzulimamkauman.net/laravel/ (lihat cPanel File Manager).
-          # Jangan pakai ./ — file akan nyasar ke folder yang salah.
-          server-dir: kunuuzulimamkauman.net/laravel/
+          # PENTING (hasil investigasi 15 Okt 2026 via cPanel File Manager):
+          # - User FTP mendarat di kunuuzulimamkauman.net/deploy/ (bukan home).
+          # - Aplikasi LIVE ada di /home/kunuuzu/laravel/ karena
+          #   public_html/index.php require __DIR__.'/../laravel/...'.
+          # - Folder public live = /home/kunuuzu/public_html (copy terpisah,
+          #   bukan symlink), jadi assets public disinkron terpisah di bawah.
+          server-dir: ../../laravel/
           exclude: |
             **/.git*
             **/.git*/**
@@ -70,6 +73,22 @@ jobs:
             storage/**
             public/index.php
             public/.htaccess
+
+      - name: Sinkron folder public ke public_html
+        uses: SamKirkland/FTP-Deploy-Action@v4.4.0
+        with:
+          server: ${{ secrets.FTP_HOST }}
+          username: ${{ secrets.FTP_USERNAME }}
+          password: ${{ secrets.FTP_PASSWORD }}
+          protocol: ftp
+          local-dir: ./public/
+          # public_html adalah copy terpisah (lihat File Manager), jadi hasil
+          # build Vite + favicon + robots.txt harus disalin ke sini.
+          # index.php/.htaccess milik server dipertahankan.
+          server-dir: ../../public_html/
+          exclude: |
+            index.php
+            .htaccess
 
       - name: Migrate database via webhook
         run: |
