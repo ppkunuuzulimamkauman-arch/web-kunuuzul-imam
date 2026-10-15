@@ -268,7 +268,7 @@
           };
         @endphp
         <li>
-          <p>📍 {{ \App\Models\Setting::get('kontak_alamat_1', '') }}</p>
+          <p>{{ \App\Models\Setting::get('kontak_alamat_1', '') }}</p>
           @if($wa1 !== '')<p class="mt-1">📞 @if($waUrl($wa1))<a href="{{ $waUrl($wa1) }}" target="_blank" rel="noopener" class="hover:text-amber-300 transition">{{ $wa1 }}</a>@else{{ $wa1 }}@endif</p>@endif
         </li>
         <li>🕐 {{ \App\Models\Setting::get('kontak_jam', 'Senin–Sabtu 08.00–15.00') }}</li>
