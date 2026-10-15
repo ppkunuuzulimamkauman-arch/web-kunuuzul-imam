@@ -6,6 +6,9 @@ name: Deploy ke ArenHost
 # Yang dilindungi (tidak ikut tertimpa di server):
 # .env, database sqlite lokal, folder storage/ (isi upload),
 # public/index.php + public/.htaccess (sudah disesuaikan server).
+# vendor/ juga tidak ikut upload (ribuan file, bikin FTP macet) —
+# vendor server diasumsikan sudah cocok dengan composer.lock.
+# Jika composer.json/lock berubah, upload vendor manual via cPanel.
 "on":
   push:
     branches: [main]
@@ -49,6 +52,9 @@ jobs:
             **/.git*
             **/.git*/**
             **/node_modules/**
+            vendor/**
+            tests/**
+            .github/**
             .env
             .env.backup
             .env.production
