@@ -25,28 +25,35 @@ class PendaftaranController extends Controller
         }
 
         $fileRules = 'nullable|file|mimes:pdf,doc,docx,jpg,jpeg,png|max:4096';
+        $phoneRules = 'required|string|max:20|regex:/^[0-9+\-\s]{9,20}$/';
         $data = $request->validate([
             'nama_lengkap' => 'required|string|max:100',
             'jenis_kelamin' => 'required|in:L,P',
-            'nik' => 'required|string|max:20',
+            'nik' => 'required|string|regex:/^[0-9]{16}$/',
             'tempat_lahir' => 'required|string|max:50',
-            'tanggal_lahir' => 'required|date',
-            'alamat' => 'required|string',
+            'tanggal_lahir' => 'required|date|before:today',
+            'alamat' => 'required|string|max:2000',
             'nama_ayah' => 'required|string|max:100',
             'pekerjaan_ayah' => 'required|string|max:100',
             'nama_ibu' => 'required|string|max:100',
             'pekerjaan_ibu' => 'required|string|max:100',
-            'no_hp' => 'required|string|max:20',
+            'no_hp' => $phoneRules,
             'jenjang' => 'required|string|max:50',
             'asal_sekolah' => 'required|string|max:100',
             'nama_wali' => 'nullable|string|max:100',
-            'hp_wali' => 'nullable|string|max:20',
+            'hp_wali' => 'nullable|string|max:20|regex:/^[0-9+\-\s]{9,20}$/',
             'program_pilihan' => 'nullable|string|max:100',
-            'catatan' => 'nullable|string',
-            'tanggal_pengisian' => 'required|date',
+            'catatan' => 'nullable|string|max:2000',
+            'tanggal_pengisian' => 'required|date|before_or_equal:today',
             'file_ijazah' => $fileRules,
             'file_kk' => 'required|file|mimes:pdf,doc,docx,jpg,jpeg,png|max:4096',
             'file_kip' => $fileRules,
+        ], [
+            'nik.regex' => 'NIK harus 16 digit angka sesuai KK.',
+            'no_hp.regex' => 'Nomor HP tidak valid (9-20 karakter, angka / + / - / spasi).',
+            'hp_wali.regex' => 'Nomor HP wali tidak valid.',
+            'tanggal_lahir.before' => 'Tanggal lahir harus sebelum hari ini.',
+            'tanggal_pengisian.before_or_equal' => 'Tanggal pengisian maksimal hari ini.',
         ]);
 
         if (! Turnstile::verify($request->input('cf-turnstile-response'), $request->ip())) {
@@ -71,6 +78,18 @@ class PendaftaranController extends Controller
 
         $pendaftaran = Pendaftaran::create($data);
 
+        // Notifikasi email ke admin (best-effort, gagal kirim tidak menggagalkan daftar).
+        try {
+            $adminEmail = \App\Models\Setting::get('kontak_email');
+            if ($adminEmail && filter_var($adminEmail, FILTER_VALIDATE_EMAIL) && ! str_ends_with($adminEmail, '@example.com')) {
+                \Illuminate\Support\Facades\Mail::raw(
+                    "Pendaftar baru: {$pendaftaran->nama_lengkap} ({$pendaftaran->nomor_pendaftaran}, {$pendaftaran->jenjang}). Cek di panel admin.",
+                    function ($m) use ($adminEmail) { $m->to($adminEmail)->subject('PPDB baru masuk'); }
+                );
+            }
+        } catch (\Throwable $e) {
+        }
+
         return redirect()->route('ppdb.sukses', $pendaftaran->nomor_pendaftaran);
     }
 
@@ -78,6 +97,20 @@ class PendaftaranController extends Controller
     {
         $pendaftaran = Pendaftaran::where('nomor_pendaftaran', $nomor)->firstOrFail();
         return view('ppdb-sukses', compact('pendaftaran'));
+    }
+
+    public function cek(Request $request): View
+    {
+        $request->validate([
+            'nomor' => 'nullable|string|max:30',
+        ]);
+        $nomor = trim((string) $request->query('nomor', ''));
+        $pendaftaran = null;
+        $dicari = $nomor !== '';
+        if ($dicari) {
+            $pendaftaran = Pendaftaran::where('nomor_pendaftaran', $nomor)->first();
+        }
+        return view('ppdb-cek', compact('nomor', 'pendaftaran', 'dicari'));
     }
 
     public function galeri(): View

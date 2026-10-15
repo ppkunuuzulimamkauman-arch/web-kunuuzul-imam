@@ -25,6 +25,45 @@
 <meta name="twitter:title" content="@yield('title', 'PP Kunuuzul Imam Kauman')">
 <meta name="twitter:description" content="{{ $metaDesc }}">
 <meta name="twitter:image" content="{{ $metaImg }}">
+@if(env('GOOGLE_SITE_VERIFICATION'))
+<meta name="google-site-verification" content="{{ env('GOOGLE_SITE_VERIFICATION') }}">
+@endif
+@php
+  $orgSameAs = collect([
+    \App\Models\Setting::get('sosmed_instagram_url'),
+    \App\Models\Setting::get('sosmed_youtube_url'),
+    \App\Models\Setting::get('sosmed_tiktok_url'),
+    \App\Models\Setting::get('sosmed_facebook_url'),
+    'https://makunuuzulimamkauman.sch.id/',
+    'https://www.instagram.com/pp.kunuuzulimamkauman',
+  ])->map(fn($u) => trim((string) $u))->filter(fn($u) => $u !== '' && $u !== '#' && str_starts_with($u, 'http'))->unique()->values()->all();
+  // Kunci '@...' disusun via chr(64) agar tidak dibaca sebagai Blade directive.
+  $at = chr(64);
+  $ld = [
+    $at . 'context' => 'https://schema.org',
+    $at . 'graph' => [
+      [
+        $at . 'type' => 'Organization',
+        $at . 'id' => url('/') . '#organisasi',
+        'name' => 'PP Kunuuzul Imam Kauman',
+        'alternateName' => ['Pondok Pesantren Kunuuzul Imam Kauman', 'Kunuuzul Imam Kauman', 'kunuuzulimamkauman'],
+        'url' => url('/'),
+        'logo' => asset('images/logo-pondok.png'),
+        'sameAs' => $orgSameAs,
+      ],
+      [
+        $at . 'type' => 'WebSite',
+        $at . 'id' => url('/') . '#website',
+        'url' => url('/'),
+        'name' => 'PP Kunuuzul Imam Kauman',
+        'alternateName' => 'kunuuzulimamkauman',
+        'publisher' => [$at . 'id' => url('/') . '#organisasi'],
+        'inLanguage' => 'id-ID',
+      ],
+    ],
+  ];
+  echo '<script type="application/ld+json">' . json_encode($ld, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE) . '</script>';
+@endphp
 <script>document.documentElement.classList.add('js');</script>
 <style>html{background:#fafaf9;}</style>
 <link rel="preload" as="image" href="/images/hero/slide-1.jpg" fetchpriority="high">
@@ -221,8 +260,9 @@
     </div>
   </div>
   <div class="border-t border-white/10">
-    <div class="max-w-7xl mx-auto px-4 py-4 text-xs text-primary-100/70">
+    <div class="max-w-7xl mx-auto px-4 py-4 text-xs text-primary-100/70 flex flex-wrap gap-x-4 gap-y-1 items-center justify-between">
       <p>Copyright © {{ date('Y') }} {{ \App\Models\Setting::get('footer_copyright', 'Pondok Pesantren Kunuuzul Imam Kauman') }}</p>
+      <p><a href="{{ route('privasi') }}" class="hover:text-amber-300 transition">Kebijakan Privasi</a><span class="mx-2">•</span><a href="{{ route('kontak') }}" class="hover:text-amber-300 transition">Kontak</a><span class="mx-2">•</span><a href="{{ route('ppdb.cek') }}" class="hover:text-amber-300 transition">Cek Status PSB</a></p>
     </div>
   </div>
 </footer>

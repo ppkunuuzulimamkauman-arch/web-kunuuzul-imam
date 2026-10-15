@@ -27,7 +27,7 @@ class UserController extends Controller
         $data = $request->validate([
             'name' => 'required|string|max:100',
             'email' => 'required|email|unique:users,email',
-            'password' => 'required|string|min:6|confirmed',
+            'password' => 'required|string|min:8|confirmed',
         ]);
 
         User::create([
@@ -51,7 +51,7 @@ class UserController extends Controller
         $data = $request->validate([
             'name' => 'required|string|max:100',
             'email' => ['required', 'email', Rule::unique('users')->ignore($user->id)],
-            'password' => 'nullable|string|min:6|confirmed',
+            'password' => 'nullable|string|min:8|confirmed',
         ]);
 
         $user->name = $data['name'];

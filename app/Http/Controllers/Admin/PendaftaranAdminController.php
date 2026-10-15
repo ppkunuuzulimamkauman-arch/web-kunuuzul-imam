@@ -43,4 +43,20 @@ class PendaftaranAdminController extends Controller
         $pendaftaran->delete();
         return redirect()->route('admin.pendaftaran.index')->with('sukses', 'Data pendaftar dihapus.');
     }
+
+    public function export(Request $request): \Symfony\Component\HttpFoundation\StreamedResponse
+    {
+        $rows = Pendaftaran::when($request->status, fn ($q) => $q->where('status', $request->status))
+            ->when($request->q, fn ($q) => $q->where(fn ($w) => $w->where('nama_lengkap', 'like', '%'.$request->q.'%')->orWhere('nomor_pendaftaran', 'like', '%'.$request->q.'%')))
+            ->orderBy('created_at')->get();
+        $filename = 'ppdb-'.now()->format('Ymd-His').'.csv';
+        return response()->streamDownload(function () use ($rows) {
+            $out = fopen('php://output', 'w');
+            fputcsv($out, ['nomor', 'nama', 'nik', 'jk', 'ttl', 'alamat', 'ayah', 'ibu', 'hp', 'jenjang', 'asal_sekolah', 'status', 'dibuat']);
+            foreach ($rows as $p) {
+                fputcsv($out, [$p->nomor_pendaftaran, $p->nama_lengkap, $p->nik, $p->jenis_kelamin, ($p->tempat_lahir ?? '').', '.($p->tanggal_lahir?->format('Y-m-d') ?? ''), $p->alamat, $p->nama_ayah ?? $p->nama_wali, $p->nama_ibu, $p->no_hp ?? $p->hp_wali, $p->jenjang, $p->asal_sekolah, $p->status, $p->created_at?->format('Y-m-d H:i')]);
+            }
+            fclose($out);
+        }, $filename, ['Content-Type' => 'text/csv']);
+    }
 }

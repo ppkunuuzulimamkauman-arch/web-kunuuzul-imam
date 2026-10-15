@@ -53,6 +53,17 @@ class KonsultasiController extends Controller
             'pesan' => $data['pesan'],
         ]);
 
+        try {
+            $adminEmail = \App\Models\Setting::get('kontak_email');
+            if ($adminEmail && filter_var($adminEmail, FILTER_VALIDATE_EMAIL) && ! str_ends_with($adminEmail, '@example.com')) {
+                \Illuminate\Support\Facades\Mail::raw(
+                    "Konsultasi [{$label}] dari {$data['nama']} ({$data['no_hp']}):\n\n".\Illuminate\Support\Str::limit($data['pesan'], 1000),
+                    function ($m) use ($adminEmail) { $m->to($adminEmail)->subject('Konsultasi baru masuk'); }
+                );
+            }
+        } catch (\Throwable $e) {
+        }
+
         return back()->with('sukses', 'Pertanyaan konsultasi Anda berhasil dikirim. Jazakumullah khairan.');
     }
 }

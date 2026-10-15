@@ -36,6 +36,17 @@ class KontakController extends Controller
 
         Pesan::create($data);
 
+        try {
+            $adminEmail = \App\Models\Setting::get('kontak_email');
+            if ($adminEmail && filter_var($adminEmail, FILTER_VALIDATE_EMAIL) && ! str_ends_with($adminEmail, '@example.com')) {
+                \Illuminate\Support\Facades\Mail::raw(
+                    "Pesan kontak dari {$data['nama']}: ".($data['subjek'] ?? '(tanpa subjek)')."\n\n".\Illuminate\Support\Str::limit($data['pesan'], 1000),
+                    function ($m) use ($adminEmail) { $m->to($adminEmail)->subject('Pesan kontak baru'); }
+                );
+            }
+        } catch (\Throwable $e) {
+        }
+
         return back()->with('sukses', 'Pesan Anda berhasil dikirim. Jazakumullah khairan, akan segera kami balas.');
     }
 }

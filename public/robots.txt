@@ -1,2 +1,5 @@
 User-agent: *
-Disallow:
+Disallow: /admin/
+Disallow: /ppdb/sukses/
+
+Sitemap: https://kunuuzulimamkauman.net/sitemap.xml

@@ -23,24 +23,46 @@ use Illuminate\Support\Facades\Route;
 
 Route::get('/', [HomeController::class, 'index'])->name('home');
 
+Route::get('/healthz', function () {
+    return response()->json(['ok' => true, 'time' => now()->toIso8601String()]);
+})->name('healthz');
+
+Route::view('/privasi', 'privasi')->name('privasi');
+
 // Sitemap dinamis untuk Google (halaman statis + berita + program + organisasi)
 Route::get('/sitemap.xml', function () {
+    // Normalisasi host ke domain yang sedang diakses agar sitemap tidak
+    // bocor ke domain staging (mis. APP_URL masih xxx.up.railway.app).
+    $root = request()->root();
+    $canon = function (string $url) use ($root) {
+        try {
+            $want = parse_url($root);
+            $parts = parse_url($url);
+            if (! isset($parts['host']) || ! isset($want['host'])) return $url;
+            $parts['host'] = $want['host'];
+            $parts['scheme'] = $want['scheme'] ?? $parts['scheme'] ?? 'https';
+            unset($parts['port']);
+            $out = ($parts['scheme'] ?? 'https') . '://' . $parts['host'] . ($parts['path'] ?? '/');
+            if (! empty($parts['query'])) $out .= '?' . $parts['query'];
+            return $out;
+        } catch (\Throwable $e) { return $url; }
+    };
     $urls = [];
-    foreach (['home','profil','profil.sejarah','profil.struktur','profil.visi','lembaga','organisasi','program.index','berita.index','artikel.index','galeri.index','ppdb.form','kontak','konsultasi'] as $name) {
-        try { $urls[] = ['loc' => route($name), 'lastmod' => now()]; } catch (\Throwable $e) {}
+    foreach (['home','profil','profil.sejarah','profil.struktur','profil.visi','lembaga','organisasi','program.index','berita.index','artikel.index','galeri.index','santri.index','ppdb.form','ppdb.cek','kontak','konsultasi','privasi'] as $name) {
+        try { $urls[] = ['loc' => $canon(route($name)), 'lastmod' => now()]; } catch (\Throwable $e) {}
     }
     try {
         $beritas = \App\Models\Berita::where('is_published', true)->latest('published_at')->get();
         foreach ($beritas as $b) {
-            $urls[] = ['loc' => route('berita.show', $b->slug), 'lastmod' => $b->updated_at ?? $b->published_at ?? now()];
+            $urls[] = ['loc' => $canon(route('berita.show', $b->slug)), 'lastmod' => $b->updated_at ?? $b->published_at ?? now()];
         }
         $programs = \App\Models\Program::where('is_aktif', true)->orderBy('urutan')->get();
         foreach ($programs as $p) {
-            $urls[] = ['loc' => route('program.show', $p->slug), 'lastmod' => $p->updated_at ?? now()];
+            $urls[] = ['loc' => $canon(route('program.show', $p->slug)), 'lastmod' => $p->updated_at ?? now()];
         }
         $orgs = \App\Models\Organisasi::where('is_aktif', true)->orderBy('urutan')->get();
         foreach ($orgs as $o) {
-            $urls[] = ['loc' => route('organisasi.show', $o->slug), 'lastmod' => $o->updated_at ?? now()];
+            $urls[] = ['loc' => $canon(route('organisasi.show', $o->slug)), 'lastmod' => $o->updated_at ?? now()];
         }
     } catch (\Throwable $e) {
         // DB bermasalah: tetap tampilkan URL statis
@@ -66,6 +88,7 @@ Route::get('/galeri', [PendaftaranController::class, 'galeri'])->name('galeri.in
 
 Route::get('/ppdb', [PendaftaranController::class, 'create'])->name('ppdb.form');
 Route::post('/ppdb', [PendaftaranController::class, 'store'])->middleware('throttle:10,1')->name('ppdb.store');
+Route::get('/ppdb/cek', [PendaftaranController::class, 'cek'])->name('ppdb.cek');
 Route::get('/ppdb/sukses/{nomor}', [PendaftaranController::class, 'sukses'])->name('ppdb.sukses');
 
 Route::get('/kontak', [KontakController::class, 'index'])->name('kontak');
@@ -122,6 +145,7 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'admin'])->group(fun
 
     // PPDB / Pendaftaran santri
     Route::get('pendaftaran', [PendaftaranAdminController::class, 'index'])->name('pendaftaran.index');
+    Route::get('pendaftaran/export', [PendaftaranAdminController::class, 'export'])->name('pendaftaran.export');
     Route::get('pendaftaran/{pendaftaran}', [PendaftaranAdminController::class, 'show'])->name('pendaftaran.show');
     Route::patch('pendaftaran/{pendaftaran}/status', [PendaftaranAdminController::class, 'updateStatus'])->name('pendaftaran.status');
     Route::delete('pendaftaran/{pendaftaran}', [PendaftaranAdminController::class, 'destroy'])->name('pendaftaran.destroy');
