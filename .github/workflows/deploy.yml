@@ -45,7 +45,12 @@ jobs:
           server: ${{ secrets.FTP_HOST }}
           username: ${{ secrets.FTP_USERNAME }}
           password: ${{ secrets.FTP_PASSWORD }}
-          protocol: ftps
+          # FTPS (eksplisit TLS) putus di sisi server (ECONNRESET/TLS decode
+          # error tiap transfer data). SSH juga diblokir firewall hosting,
+          # jadi pakai FTP biasa agar deploy bisa jalan. Akun FTP sebaiknya
+          # di-jail ke folder aplikasi saja. Jika host perbaiki FTPS,
+          # kembalikan ke: protocol: ftps
+          protocol: ftp
           local-dir: ./
           # PENTING: user FTP mendarat di /home/kunuuzu, sedangkan aplikasi
           # live ada di kunuuzulimamkauman.net/laravel/ (lihat cPanel File Manager).
