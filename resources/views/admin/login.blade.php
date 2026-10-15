@@ -69,6 +69,10 @@
   }
   .field:focus::placeholder { opacity: 0; transform: translateX(10px); }
   .row { display: flex; align-items: center; justify-content: space-between; margin: 10px 2px 2px; font-size: 12.5px; color: var(--text-muted); }
+  .pw-login { position: relative; }
+  .pw-login .field { padding-right: 48px; }
+  .pw-login-eye { position: absolute; right: 10px; top: 50%; transform: translateY(-50%); border: 0; background: transparent; color: var(--text-muted); cursor: pointer; font-size: 15px; padding: 8px; }
+  .pw-login-eye:hover { color: var(--text-dark); }
   .row label { display: flex; align-items: center; gap: 6px; cursor: pointer; }
   .row a { color: var(--text-muted); text-decoration: none; cursor: pointer; }
   .row a:hover { color: var(--text-dark); text-decoration: underline; }
@@ -175,7 +179,7 @@
       @endif
       <div class="social"><span><i class="fab fa-facebook-f"></i></span><span><i class="fab fa-linkedin-in"></i></span><span><i class="fab fa-x-twitter"></i></span></div>
       <input class="field" type="email" name="email" value="{{ old('email') }}" placeholder="Email" required autofocus>
-      <input class="field" type="password" name="password" placeholder="Password" required>
+      <div class="pw-login"><input class="field" type="password" name="password" id="loginPass" placeholder="Password" required><button type="button" class="pw-login-eye" id="loginEye" aria-label="Tampilkan sandi"><i class="fa-solid fa-eye"></i></button></div>
       <div class="row">
         <label><input type="checkbox" name="remember"> Ingat saya</label>
         <a id="linkForgot">Forgot your password?</a>
@@ -234,6 +238,16 @@
   document.querySelector('#btnToRequest').addEventListener('click', () => changeForm(true));
   document.querySelector('#btnToSignIn').addEventListener('click', () => changeForm(false));
   document.querySelector('#linkForgot').addEventListener('click', () => changeForm(true));
+  (function(){
+    const eye = document.querySelector('#loginEye'), pass = document.querySelector('#loginPass');
+    if(!eye || !pass) return;
+    eye.addEventListener('click', () => {
+      const show = pass.type === 'password';
+      pass.type = show ? 'text' : 'password';
+      eye.querySelector('i').className = show ? 'fa-solid fa-eye-slash' : 'fa-solid fa-eye';
+      eye.setAttribute('aria-label', show ? 'Sembunyikan sandi' : 'Tampilkan sandi');
+    });
+  })();
   @if(session('sukses'))
     changeForm(true);
   @endif
