@@ -19,56 +19,17 @@ use App\Http\Controllers\KontakController;
 use App\Http\Controllers\KonsultasiController;
 use App\Http\Controllers\PendaftaranController;
 use App\Http\Controllers\PublicBeritaController;
+use App\Http\Controllers\SiteController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', [HomeController::class, 'index'])->name('home');
 
-Route::get('/healthz', function () {
-    return response()->json(['ok' => true, 'time' => now()->toIso8601String()]);
-})->name('healthz');
+Route::get('/healthz', [SiteController::class, 'healthz'])->name('healthz');
 
 Route::view('/privasi', 'privasi')->name('privasi');
 
 // Sitemap dinamis untuk Google (halaman statis + berita + program + organisasi)
-Route::get('/sitemap.xml', function () {
-    // Normalisasi host ke domain yang sedang diakses agar sitemap tidak
-    // bocor ke domain staging (mis. APP_URL masih xxx.up.railway.app).
-    $root = request()->root();
-    $canon = function (string $url) use ($root) {
-        try {
-            $want = parse_url($root);
-            $parts = parse_url($url);
-            if (! isset($parts['host']) || ! isset($want['host'])) return $url;
-            $parts['host'] = $want['host'];
-            $parts['scheme'] = $want['scheme'] ?? $parts['scheme'] ?? 'https';
-            unset($parts['port']);
-            $out = ($parts['scheme'] ?? 'https') . '://' . $parts['host'] . ($parts['path'] ?? '/');
-            if (! empty($parts['query'])) $out .= '?' . $parts['query'];
-            return $out;
-        } catch (\Throwable $e) { return $url; }
-    };
-    $urls = [];
-    foreach (['home','profil','profil.sejarah','profil.struktur','profil.visi','lembaga','organisasi','program.index','berita.index','artikel.index','galeri.index','santri.index','ppdb.form','ppdb.cek','kontak','konsultasi','privasi'] as $name) {
-        try { $urls[] = ['loc' => $canon(route($name)), 'lastmod' => now()]; } catch (\Throwable $e) {}
-    }
-    try {
-        $beritas = \App\Models\Berita::where('is_published', true)->latest('published_at')->get();
-        foreach ($beritas as $b) {
-            $urls[] = ['loc' => $canon(route('berita.show', $b->slug)), 'lastmod' => $b->updated_at ?? $b->published_at ?? now()];
-        }
-        $programs = \App\Models\Program::where('is_aktif', true)->orderBy('urutan')->get();
-        foreach ($programs as $p) {
-            $urls[] = ['loc' => $canon(route('program.show', $p->slug)), 'lastmod' => $p->updated_at ?? now()];
-        }
-        $orgs = \App\Models\Organisasi::where('is_aktif', true)->orderBy('urutan')->get();
-        foreach ($orgs as $o) {
-            $urls[] = ['loc' => $canon(route('organisasi.show', $o->slug)), 'lastmod' => $o->updated_at ?? now()];
-        }
-    } catch (\Throwable $e) {
-        // DB bermasalah: tetap tampilkan URL statis
-    }
-    return response()->view('sitemap', compact('urls'))->header('Content-Type', 'text/xml');
-});
+Route::get('/sitemap.xml', [SiteController::class, 'sitemap']);
 Route::get('/profil', [HomeController::class, 'profil'])->name('profil');
 Route::get('/profil/sejarah', [HomeController::class, 'sejarah'])->name('profil.sejarah');
 Route::get('/profil/struktur', [HomeController::class, 'struktur'])->name('profil.struktur');
@@ -97,54 +58,9 @@ Route::post('/kontak', [KontakController::class, 'store'])->middleware('throttle
 Route::get('/konsultasi', [KonsultasiController::class, 'index'])->name('konsultasi');
 Route::post('/konsultasi', [KonsultasiController::class, 'store'])->middleware('throttle:10,1')->name('konsultasi.store');
 
-// Webhook deploy otomatis dari GitHub Actions.
-// Diproteksi token (DEPLOY_TOKEN di .env) + throttle. Menjalankan
-// migrate --force, sinkron public/ -> public_html (copy lokal, tanpa FTP),
-// dan optimize:clear. Tanpa akses shell.
-Route::post('/deploy-hook', function (\Illuminate\Http\Request $request) {
-    $token = (string) env('DEPLOY_TOKEN', '');
-    abort_unless($token !== '' && hash_equals($token, (string) $request->input('token')), 403);
-    \Illuminate\Support\Facades\Artisan::call('migrate', ['--force' => true]);
-    $migrate = \Illuminate\Support\Facades\Artisan::output();
-    // public_html adalah copy terpisah dari laravel/public (bukan symlink),
-    // jadi hasil build Vite + favicon + robots + images disalin di sini.
-    // index.php/.htaccess milik server tidak disentuh.
-    $sync = ['target' => null, 'copied' => 0, 'skipped' => false];
-    try {
-        $src = realpath(public_path()) ?: public_path();
-        $dst = realpath(base_path('../public_html')) ?: null;
-        $sync['target'] = $dst;
-        if ($dst && is_dir($dst) && is_file($dst . '/index.php')) {
-            $it = new \RecursiveIteratorIterator(
-                new \RecursiveDirectoryIterator($src, \FilesystemIterator::SKIP_DOTS),
-                \RecursiveIteratorIterator::SELF_FIRST
-            );
-            foreach ($it as $file) {
-                $rel = ltrim(str_replace('\\', '/', substr($file->getPathname(), strlen($src))), '/');
-                if (in_array($rel, ['index.php', '.htaccess'], true)) continue;
-                $dest = $dst . '/' . $rel;
-                if ($file->isDir()) {
-                    if (! is_dir($dest)) mkdir($dest, 0755, true);
-                    continue;
-                }
-                if (! is_file($dest) || filesize($dest) !== $file->getSize()
-                    || filemtime($dest) !== $file->getMTime()) {
-                    @mkdir(dirname($dest), 0755, true);
-                    if (@copy($file->getPathname(), $dest)) {
-                        @touch($dest, $file->getMTime());
-                        $sync['copied']++;
-                    }
-                }
-            }
-        } else {
-            $sync['skipped'] = true;
-        }
-    } catch (\Throwable $e) {
-        $sync['error'] = substr($e->getMessage(), 0, 200);
-    }
-    \Illuminate\Support\Facades\Artisan::call('optimize:clear');
-    return response()->json(['ok' => true, 'migrate' => $migrate, 'public_sync' => $sync]);
-})->middleware('throttle:5,1')->name('deploy.hook');
+// Webhook deploy (diproteksi token DEPLOY_TOKEN + throttle).
+// Lihat SiteController@deployHook: migrate + sinkron public + optimize:clear.
+Route::post('/deploy-hook', [SiteController::class, 'deployHook'])->middleware('throttle:5,1')->name('deploy.hook');
 
 // === Auth Admin ===
 Route::get('/admin/login', [AuthController::class, 'login'])->name('login')->middleware('guest');

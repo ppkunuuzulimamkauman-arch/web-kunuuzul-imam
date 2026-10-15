@@ -36,4 +36,14 @@ return [
         'secret' => env('TURNSTILE_SECRET_KEY'),
     ],
 
+    'google' => [
+        'verification' => env('GOOGLE_SITE_VERIFICATION'),
+    ],
+
+    'deploy' => [
+        // Token webhook deploy. Dibaca via config agar tetap jalan
+        // saat config:cache aktif (env() langsung return null bila di-cache).
+        'token' => env('DEPLOY_TOKEN'),
+    ],
+
 ];

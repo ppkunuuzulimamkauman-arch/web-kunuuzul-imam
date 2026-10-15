@@ -25,8 +25,8 @@
 <meta name="twitter:title" content="@yield('title', 'PP Kunuuzul Imam Kauman')">
 <meta name="twitter:description" content="{{ $metaDesc }}">
 <meta name="twitter:image" content="{{ $metaImg }}">
-@if(env('GOOGLE_SITE_VERIFICATION'))
-<meta name="google-site-verification" content="{{ env('GOOGLE_SITE_VERIFICATION') }}">
+@if(config('services.google.verification'))
+<meta name="google-site-verification" content="{{ config('services.google.verification') }}">
 @endif
 @php
   $orgSameAs = collect([
