@@ -15,7 +15,6 @@
     <p class="text-stone-600">{{ $a['alamat'] }}</p>
     @if($a['wa'] !== '' && $waLink($a['wa']))
       <p class="mt-2 flex items-center gap-2"><i class="fa-brands fa-whatsapp text-emerald-600 text-[20px]"></i><a href="{{ $waLink($a['wa']) }}" target="_blank" rel="noopener" class="font-extrabold text-emerald-900 text-[17px] hover:underline">{{ $a['wa'] }}</a></p>
-      <a href="{{ $waLink($a['wa']) }}" target="_blank" rel="noopener" class="inline-flex items-center gap-1.5 mt-2 text-[12.5px] font-bold text-white bg-emerald-700 hover:bg-emerald-600 rounded-full px-5 py-2 transition">Chat WhatsApp →</a>
     @elseif($a['wa'] !== '')
       <p class="text-stone-600 mt-1">📞 {{ $a['wa'] }}</p>
     @endif
