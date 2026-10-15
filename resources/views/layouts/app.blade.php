@@ -113,6 +113,7 @@
         <button onclick="toggleMainDrop('md-santri',event)" class="nav-link flex items-center gap-1 py-4">SANTRI <span class="text-[10px]">▾</span></button>
         <div id="md-santri" class="maindrop hidden absolute left-1/2 -translate-x-1/2 top-full pt-2 z-50 normal-case tracking-normal">
           <div class="bg-white rounded-none shadow-xl border w-52 py-2 text-stone-700">
+            <a href="{{ route('santri.index') }}" class="block px-4 py-2.5 hover:bg-stone-100 text-[13px] font-bold">Kehidupan Santri</a>
             <a href="{{ route('galeri.index') }}" class="block px-4 py-2.5 hover:bg-stone-100 text-[13px] font-bold">Galeri</a>
             <a href="{{ route('berita.index', ['kategori' => 'prestasi']) }}" class="block px-4 py-2.5 hover:bg-stone-100 text-[13px] font-bold">Prestasi</a>
           </div>
@@ -160,11 +161,12 @@
         </li>
         <li class="{{ request()->routeIs('berita.index') && request('kategori') !== 'prestasi' ? 'active' : '' }}"><a href="{{ route('berita.index') }}">Berita</a></li>
         <li class="{{ request()->routeIs('artikel.index') ? 'active' : '' }}"><a href="{{ route('artikel.index') }}">Artikel</a></li>
-        @php $santriActive = request()->routeIs('galeri.*') || (request()->routeIs('berita.index') && request('kategori') === 'prestasi'); @endphp
+        @php $santriActive = request()->routeIs('santri.*', 'galeri.*') || (request()->routeIs('berita.index') && request('kategori') === 'prestasi'); @endphp
         <li class="mnav-group {{ $santriActive ? 'has-active' : '' }}">
           <details @if($santriActive) open @endif>
             <summary>Santri <span class="mnav-chev">▾</span></summary>
             <ul class="mnav-sublist">
+              <li class="mnav-sub {{ request()->routeIs('santri.*') ? 'active' : '' }}"><a href="{{ route('santri.index') }}">Kehidupan Santri</a></li>
               <li class="mnav-sub {{ request()->routeIs('galeri.*') ? 'active' : '' }}"><a href="{{ route('galeri.index') }}">Galeri</a></li>
               <li class="mnav-sub {{ request()->routeIs('berita.index') && request('kategori') === 'prestasi' ? 'active' : '' }}"><a href="{{ route('berita.index', ['kategori' => 'prestasi']) }}">Prestasi</a></li>
             </ul>
