@@ -10,15 +10,15 @@ class AdminSeeder extends Seeder
 {
     public function run(): void
     {
-        // Satu role saja: admin.
+        // Akun bawaan = admin utama (superadmin).
         User::firstOrCreate(['email' => 'admin@kunuuzul.id'], [
             'name' => 'Admin Pondok',
             'password' => Hash::make('password'),
-            'role' => 'admin',
+            'role' => 'superadmin',
             'is_active' => true,
         ]);
 
-        // Normalisasi: akun lama (superadmin/operator) jadi admin agar tetap bisa login.
-        User::where('role', '!=', 'admin')->update(['role' => 'admin']);
+        // Normalisasi: role lama 'admin' naik jadi superadmin agar tetap bisa login.
+        User::where('role', 'admin')->update(['role' => 'superadmin']);
     }
 }

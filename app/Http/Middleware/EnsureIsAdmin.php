@@ -9,7 +9,7 @@ use Symfony\Component\HttpFoundation\Response;
 class EnsureIsAdmin
 {
     /**
-     * Satu-satunya role: admin yang aktif.
+     * Role yang boleh masuk panel: utama (superadmin) & pengelola (operator).
      */
     public function handle(Request $request, Closure $next): Response
     {
@@ -26,8 +26,8 @@ class EnsureIsAdmin
             return redirect()->route('login')->withErrors(['email' => 'Akun Anda dinonaktifkan.']);
         }
 
-        if ($user->role !== 'admin') {
-            abort(403, 'Akses khusus admin.');
+        if (! $user->isAdmin()) {
+            abort(403, 'Akses khusus pengelola web.');
         }
 
         return $next($request);

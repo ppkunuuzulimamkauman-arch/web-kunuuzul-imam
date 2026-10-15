@@ -42,8 +42,8 @@ class AuthController extends Controller
                 return back()->withErrors(['email' => 'Akun Anda dinonaktifkan.'])->onlyInput('email');
             }
 
-            // Hanya role admin.
-            if ($user->role !== 'admin') {
+            // Hanya role pengelola web (utama & operator).
+            if (! $user->isAdmin()) {
                 Auth::logout();
                 $request->session()->invalidate();
                 $request->session()->regenerateToken();

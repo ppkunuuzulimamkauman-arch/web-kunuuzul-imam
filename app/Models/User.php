@@ -47,15 +47,25 @@ class User extends Authenticatable
         'password' => 'hashed',
     ];
 
-    public const ROLES = ['admin'];
+    public const ROLES = ['superadmin', 'operator'];
 
     public function isAdmin(): bool
     {
-        return $this->role === 'admin';
+        return in_array($this->role, ['superadmin', 'operator', 'admin'], true);
+    }
+
+    /** Admin utama: melihat & mengelola semua akun termasuk operator. */
+    public function isUtama(): bool
+    {
+        return in_array($this->role, ['superadmin', 'admin'], true);
     }
 
     public function roleLabel(): string
     {
-        return 'Admin';
+        return match ($this->role) {
+            'superadmin', 'admin' => 'Utama',
+            'operator' => 'Pengelola',
+            default => ucfirst((string) $this->role),
+        };
     }
 }
