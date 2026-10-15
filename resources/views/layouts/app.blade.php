@@ -12,7 +12,8 @@
 <meta name="description" content="{{ $metaDesc }}">
 <link rel="canonical" href="{{ $metaUrl }}">
 <meta name="theme-color" content="#064e3b">
-<link rel="icon" type="image/x-icon" href="{{ asset('favicon.ico') }}">
+<link rel="icon" type="image/x-icon" href="{{ asset('favicon.ico') }}?v=2">
+<link rel="shortcut icon" type="image/x-icon" href="{{ asset('favicon.ico') }}?v=2">
 <link rel="apple-touch-icon" href="{{ asset('images/logo-pondok.png') }}">
 <meta property="og:site_name" content="PP Kunuuzul Imam Kauman">
 <meta property="og:locale" content="id_ID">
