@@ -250,6 +250,19 @@ try {
 
 @section('content')
 
+<!-- ============ STATISTIK PONDOK (dari Pengaturan > Santri) ============ -->
+@php $SS = \App\Models\Setting::class; @endphp
+<section class="bg-emerald-950 text-white">
+  <div class="max-w-7xl mx-auto px-4 py-6 grid grid-cols-2 lg:grid-cols-4 gap-4 text-center">
+    @foreach([1,2,3,4] as $i)
+    <a href="{{ route('santri.index') }}" class="reveal group py-2" @if($i>1)data-delay="{{ $i-1 }}"@endif>
+      <p class="font-extrabold text-[28px] md:text-[32px] leading-none text-amber-400"><span data-count="{{ $SS::get("santri_stat_{$i}_angka", [500,30,40,24][$i-1]) }}">0</span><span class="text-[16px]">{{ $SS::get("santri_stat_{$i}_satuan", ['+','Juz','+','Jam'][$i-1]) }}</span></p>
+      <p class="text-[11px] font-bold tracking-[0.15em] text-emerald-100 mt-1.5 group-hover:text-amber-300 transition">{{ strtoupper($SS::get("santri_stat_{$i}_label", ['Santri Mukim','Target Tahfidz','Ustadz & Musyrif','Pembinaan'][$i-1])) }}</p>
+    </a>
+    @endforeach
+  </div>
+</section>
+
 <!-- ============ SOROTAN KAUMAN : model orisinal ============ -->
 @php
   $heroImgs = ['/images/hero/slide-1.jpg','/images/hero/slide-2.jpg','/images/hero/slide-3.jpg','/images/hero/slide-4.jpg'];
