@@ -1,5 +1,5 @@
 @extends('layouts.app')
-@section('title', 'Cek Status Pendaftaran')
+@section('title', 'Cek Status Pendaftaran PSB')
 @section('content')
 <div class="bg-white">
 <div class="max-w-xl mx-auto px-4 py-8 md:py-10">

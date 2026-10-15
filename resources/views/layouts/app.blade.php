@@ -3,7 +3,11 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>@yield('title', 'PP Kunuuzul Imam Kauman')</title>
+<title>@php
+  $__siteName = 'PP Kunuuzul Imam Kauman';
+  $__pageTitle = trim($__env->yieldContent('title'));
+  echo ($__pageTitle === '' || $__pageTitle === $__siteName) ? $__siteName : $__pageTitle . ' | ' . $__siteName;
+@endphp</title>
 @php
   $metaDesc = trim($__env->yieldContent('meta_description')) ?: "Pondok Pesantren Kunuuzul Imam Kauman — Tahfidzul Qur'an 30 juz, kajian kitab kuning, sekolah formal MTs-MA, dan tarbiyah akhlak 24 jam.";
   $metaImg = trim($__env->yieldContent('meta_image')) ?: asset('images/tirai.jpg');

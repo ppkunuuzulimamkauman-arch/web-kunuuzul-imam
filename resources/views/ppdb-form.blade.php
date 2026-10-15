@@ -1,5 +1,5 @@
 @extends('layouts.app')
-@section('title', 'Formulir PSB')
+@section('title', 'Pendaftaran Santri Baru (PSB)')
 @section('content')
 <div class="bg-white">
 <div class="max-w-3xl mx-auto px-4 py-8 md:py-10">

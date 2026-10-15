@@ -1,5 +1,5 @@
 @extends('layouts.app')
-@section('title', 'Galeri')
+@section('title', 'Galeri Santri')
 @section('content')
 <div class="bg-white">
 <div class="max-w-7xl mx-auto px-4 py-8 md:py-10">

@@ -1,5 +1,5 @@
 @extends('layouts.app')
-@section('title', 'Konsultasi')
+@section('title', 'Konsultasi Pondok')
 @section('content')
 <div class="bg-white">
 <div class="max-w-5xl mx-auto px-4 py-8 md:py-10">

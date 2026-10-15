@@ -1,5 +1,5 @@
 @extends('layouts.app')
-@section('title', 'Beranda - PP Kunuuzul Imam Kauman')
+@section('title', 'PP Kunuuzul Imam Kauman')
 
 @if(false) {{-- hero dihapus, navigasi tetap di layout --}}
 <!-- HERO : tanpa navbar sendiri, pakai navbar utama yang sama di semua halaman -->
