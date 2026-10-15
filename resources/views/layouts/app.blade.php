@@ -9,7 +9,7 @@
   echo ($__pageTitle === '' || $__pageTitle === $__siteName) ? $__siteName : $__pageTitle . ' | ' . $__siteName;
 @endphp</title>
 @php
-  $metaDesc = trim($__env->yieldContent('meta_description')) ?: "Pondok Pesantren Kunuuzul Imam Kauman — Tahfidzul Qur'an 30 juz, kajian kitab kuning, sekolah formal MTs-MA, dan tarbiyah akhlak 24 jam.";
+  $metaDesc = trim($__env->yieldContent('meta_description')) ?: \App\Models\Setting::get('site_deskripsi', "Pondok Pesantren Kunuuzul Imam Kauman — Tahfidzul Qur'an 30 juz, kajian kitab kuning, sekolah formal MTs-MA, dan tarbiyah akhlak 24 jam.");
   $metaImg = trim($__env->yieldContent('meta_image')) ?: asset('images/tirai.jpg');
   $metaUrl = url()->current();
 @endphp

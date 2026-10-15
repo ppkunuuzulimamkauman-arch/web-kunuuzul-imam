@@ -38,6 +38,7 @@ class Setting extends Model
         return [
             // Umum
             'site_tagline' => 'Tahfidz 30 juz, kitab kuning, sekolah formal MTs-MA, dan pembinaan akhlak 24 jam untuk 500+ santri di Kauman.',
+            'site_deskripsi' => "Pondok Pesantren Kunuuzul Imam Kauman — Tahfidzul Qur'an 30 juz, kajian kitab kuning, sekolah formal MTs-MA, dan tarbiyah akhlak 24 jam.",
             // Kontak
             'kontak_alamat' => 'Jl. Kauman No. 1, Jawa Tengah',
             'kontak_telp' => '0812-3456-7890',
@@ -97,6 +98,7 @@ class Setting extends Model
                 'desc' => 'Tagline & identitas singkat website.',
                 'fields' => [
                     'site_tagline' => ['label' => 'Tagline Website', 'type' => 'textarea', 'hint' => 'Tampil di hero landing page.'],
+                    'site_deskripsi' => ['label' => 'Deskripsi Situs (SEO)', 'type' => 'textarea', 'hint' => 'Tampil di hasil Google sebagai cuplikan + meta description. Maks ~160 karakter.'],
                 ],
             ],
             'footer' => [
