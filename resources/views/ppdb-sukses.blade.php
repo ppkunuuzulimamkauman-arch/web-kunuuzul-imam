@@ -7,7 +7,7 @@
     <h1 class="text-2xl font-extrabold text-primary-900 mt-3">Pendaftaran Berhasil!</h1>
     <p class="text-sm text-stone-500 mt-2">Jazakumullah khairan, {{ $pendaftaran->nama_lengkap }}. Simpan nomor pendaftaran berikut:</p>
     <p class="text-2xl font-extrabold bg-primary-50 text-primary-800 rounded-xl py-3 mt-4">{{ $pendaftaran->nomor_pendaftaran }}</p>
-    <p class="text-sm mt-4">Langkah selanjutnya: hubungi panitia via WA <b>0812-3456-7890</b> dengan mengirim nomor pendaftaran + foto KK untuk verifikasi.</p>
+    <p class="text-sm mt-4">Langkah selanjutnya: hubungi panitia via WA @php $waS = trim((string) \App\Models\Setting::get('kontak_wa_1', '')); $waD = preg_replace('/[^0-9]/', '', $waS); if (str_starts_with($waD, '0')) $waD = '62' . substr($waD, 1); @endphp @if(strlen($waD) >= 10 && ! str_contains($waS, 'x'))<a href="https://wa.me/{{ $waD }}" target="_blank" rel="noopener" class="font-bold text-emerald-800 hover:underline">{{ $waS }}</a>@else<b>{{ $waS }}</b>@endif dengan mengirim nomor pendaftaran + foto KK untuk verifikasi.</p>
     <a href="{{ route('home') }}" class="inline-block mt-5 bg-primary-700 text-white px-6 py-2 rounded-full font-bold">Kembali ke Beranda</a>
   </div>
 </div>

@@ -40,9 +40,11 @@ class Setting extends Model
             'site_tagline' => 'Tahfidz 30 juz, kitab kuning, sekolah formal MTs-MA, dan pembinaan akhlak 24 jam untuk 500+ santri di Kauman.',
             'site_deskripsi' => "Pondok Pesantren Kunuuzul Imam Kauman — Tahfidzul Qur'an 30 juz, kajian kitab kuning, sekolah formal MTs-MA, dan tarbiyah akhlak 24 jam.",
             // Kontak
-            'kontak_alamat' => 'Jl. Kauman No. 1, Jawa Tengah',
-            'kontak_telp' => '0812-3456-7890',
-            'kontak_email' => 'info@kunuuzulimam.or.id',
+            'kontak_alamat_1' => 'ALAMAT ASRAMA 1 (ganti di Pengaturan)',
+            'kontak_alamat_2' => 'ALAMAT ASRAMA 2 (ganti di Pengaturan)',
+            'kontak_wa_1' => '08xxxxxxxxxx',
+            'kontak_wa_2' => '08xxxxxxxxxx',
+            'kontak_email' => '',
             'kontak_jam' => 'Senin–Sabtu 08.00–15.00',
             // Footer (full kontrol)
             'footer_deskripsi' => "Pondok Pesantren Ahlussunnah wal Jama'ah. Fokus Tahfidzul Qur'an, Kajian Kitab Kuning, dan Tarbiyah Akhlak.",
@@ -118,11 +120,12 @@ class Setting extends Model
             'kontak' => [
                 'label' => 'Kontak',
                 'icon' => 'fa-solid fa-phone',
-                'desc' => 'Alamat, telepon, email & jam — tampil di footer dan halaman kontak.',
+                'desc' => 'Alamat & WA Asrama 1/2 + jam — tampil di footer dan halaman kontak.',
                 'fields' => [
-                    'kontak_alamat' => ['label' => 'Alamat', 'type' => 'text', 'hint' => ''],
-                    'kontak_telp' => ['label' => 'Telepon / WA', 'type' => 'text', 'hint' => ''],
-                    'kontak_email' => ['label' => 'Email', 'type' => 'text', 'hint' => ''],
+                    'kontak_alamat_1' => ['label' => 'Alamat Asrama 1', 'type' => 'text', 'hint' => ''],
+                    'kontak_wa_1' => ['label' => 'No. WA Asrama 1', 'type' => 'text', 'hint' => 'Contoh: 081234567890'],
+                    'kontak_alamat_2' => ['label' => 'Alamat Asrama 2', 'type' => 'text', 'hint' => ''],
+                    'kontak_wa_2' => ['label' => 'No. WA Asrama 2', 'type' => 'text', 'hint' => 'Contoh: 081234567890'],
                     'kontak_jam' => ['label' => 'Jam Pelayanan', 'type' => 'text', 'hint' => ''],
                 ],
             ],

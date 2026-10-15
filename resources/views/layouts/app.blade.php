@@ -257,9 +257,19 @@
       <p class="font-bold text-white mb-1">{{ \App\Models\Setting::get('footer_kontak_judul', 'Kontak') }}</p>
       <div class="w-8 h-0.5 bg-amber-400 rounded-full mb-4"></div>
       <ul class="text-sm space-y-2.5 text-primary-100/80">
-        <li>📍 {{ \App\Models\Setting::get('kontak_alamat', 'Kauman, Jawa Tengah, Indonesia') }}</li>
-        <li>📞 {{ \App\Models\Setting::get('kontak_telp', '0812-3456-7890') }} (Ust. Ahmad)</li>
-        <li>✉️ {{ \App\Models\Setting::get('kontak_email', 'info@kunuuzulimam.or.id') }}</li>
+        @php
+          $wa1 = trim((string) \App\Models\Setting::get('kontak_wa_1', ''));
+          $wa2 = trim((string) \App\Models\Setting::get('kontak_wa_2', ''));
+          $waUrl = function ($no) {
+            $d = preg_replace('/[^0-9]/', '', (string) $no);
+            if (str_starts_with($d, '0')) $d = '62' . substr($d, 1);
+            return strlen($d) >= 10 && ! str_contains((string) $no, 'x') ? 'https://wa.me/' . $d : null;
+          };
+        @endphp
+        <li>📍 <b class="text-white">Asrama 1:</b> {{ \App\Models\Setting::get('kontak_alamat_1', '') }}</li>
+        @if($wa1 !== '')<li>📞 <b class="text-white">WA Asrama 1:</b> @if($waUrl($wa1))<a href="{{ $waUrl($wa1) }}" target="_blank" rel="noopener" class="hover:text-amber-300 transition">{{ $wa1 }}</a>@else{{ $wa1 }}@endif</li>@endif
+        <li>📍 <b class="text-white">Asrama 2:</b> {{ \App\Models\Setting::get('kontak_alamat_2', '') }}</li>
+        @if($wa2 !== '')<li>📞 <b class="text-white">WA Asrama 2:</b> @if($waUrl($wa2))<a href="{{ $waUrl($wa2) }}" target="_blank" rel="noopener" class="hover:text-amber-300 transition">{{ $wa2 }}</a>@else{{ $wa2 }}@endif</li>@endif
         <li>🕐 {{ \App\Models\Setting::get('kontak_jam', 'Senin–Sabtu 08.00–15.00') }}</li>
       </ul>
     </div>

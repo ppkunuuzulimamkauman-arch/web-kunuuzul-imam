@@ -9,14 +9,7 @@
   <p class="text-[14px] text-stone-500 leading-relaxed max-w-2xl">Ada yang ingin ditanyakan seputar pendidikan, tahfidz, PPDB, atau keluarga? Pilih kategori, tulis pertanyaan Anda — insyaAllah kami balas via WA.</p>
 
   <div class="grid md:grid-cols-2 gap-6 items-start mt-6">
-    <div class="reveal border border-stone-200 rounded-2xl p-6 text-[14px] space-y-3 bg-white">
-      @php $S = \App\Models\Setting::class; @endphp
-      <p class="flex gap-3"><span class="text-lg">📍</span><span><b>Alamat:</b> {{ $S::get('kontak_alamat', 'Jl. Kauman No. 1, Jawa Tengah') }}</span></p>
-      <p class="flex gap-3"><span class="text-lg">📞</span><span><b>Telp/WA:</b> {{ $S::get('kontak_telp', '0812-3456-7890') }}</span></p>
-      <p class="flex gap-3"><span class="text-lg">✉️</span><span><b>Email:</b> {{ $S::get('kontak_email', 'info@kunuuzulimam.or.id') }}</span></p>
-      <p class="flex gap-3"><span class="text-lg">🕐</span><span><b>Jam:</b> {{ $S::get('kontak_jam', 'Senin–Sabtu 08.00–15.00') }}</span></p>
-      <div class="rounded-xl overflow-hidden border border-stone-200"><iframe src="https://maps.google.com/maps?q=Kauman&t=&z=15&ie=UTF8&iwloc=&output=embed" class="w-full h-56" loading="lazy"></iframe></div>
-    </div>
+    @include('partials.kontak-info')
     <div class="reveal border border-stone-200 rounded-2xl p-6 bg-white">
       @if(session('sukses'))<div class="bg-green-50 border border-green-200 text-green-800 rounded-xl p-3 text-sm mb-3">{{ session('sukses') }}</div>@endif
       <form action="{{ route('konsultasi.store') }}" method="POST" class="space-y-3">
