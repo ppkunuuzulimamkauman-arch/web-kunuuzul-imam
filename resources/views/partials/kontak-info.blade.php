@@ -12,8 +12,7 @@
 <div class="reveal border border-stone-200 rounded-2xl p-6 text-[14px] space-y-5 bg-white">
   @foreach($asramas as $a)
   <div>
-    <p class="font-extrabold text-emerald-950 text-[15px]">📍 {{ $a['label'] }}</p>
-    <p class="text-stone-600 mt-1">{{ $a['alamat'] }}</p>
+    <p class="text-stone-600">📍 {{ $a['alamat'] }}</p>
     @if($a['wa'] !== '' && $waLink($a['wa']))
       <a href="{{ $waLink($a['wa']) }}" target="_blank" rel="noopener" class="inline-flex items-center gap-1.5 mt-2 text-[12.5px] font-bold text-white bg-emerald-700 hover:bg-emerald-600 rounded-full px-4 py-1.5 transition"><i class="fa-brands fa-whatsapp"></i> {{ $a['wa'] }}</a>
     @elseif($a['wa'] !== '')
