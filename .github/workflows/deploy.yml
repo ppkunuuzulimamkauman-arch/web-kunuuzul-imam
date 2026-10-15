@@ -1,20 +1,23 @@
-name: Deploy ke ArenHost
+name: Build ZIP Deploy
 
-# Berjalan otomatis setiap ada push ke branch main:
-# install -> build assets -> upload via FTP -> migrate via webhook.
+# Alur deploy sekarang (FTP hosting rusak: FTPS putus terus, user FTP
+# di-jail dan tidak bisa menjangkau /home/kunuuzu/laravel):
+# 1. Setiap push ke main -> GitHub membangun deploy.zip (kode + hasil Vite).
+# 2. Download deploy.zip dari halaman Actions run (bagian Artifacts).
+# 3. Upload deploy.zip via cPanel File Manager ke /home/kunuuzu/laravel/
+#    lalu Extract di sana (timpa). Hapus zip setelahnya.
+# 4. Pastikan .env live punya DEPLOY_TOKEN + GOOGLE_SITE_VERIFICATION,
+#    lalu picu webhook (atau minta asisten): akan migrate + sinkron
+#    public/ -> public_html + optimize:clear.
 #
-# Yang dilindungi (tidak ikut tertimpa di server):
-# .env, database sqlite lokal, folder storage/ (isi upload),
-# public/index.php + public/.htaccess (sudah disesuaikan server).
-# vendor/ juga tidak ikut upload (ribuan file, bikin FTP macet) —
-# vendor server diasumsikan sudah cocok dengan composer.lock.
-# Jika composer.json/lock berubah, upload vendor manual via cPanel.
+# Yang TIDAK ikut ke zip (dilindungi): .env*, database sqlite, storage/,
+# vendor/ (sudah ada di server), node_modules, public/index.php + .htaccess.
 "on":
   push:
     branches: [main]
 
 jobs:
-  deploy:
+  build-zip:
     runs-on: ubuntu-latest
     steps:
       - name: Ambil kode
@@ -39,46 +42,17 @@ jobs:
           npm ci --no-audit --no-fund
           npm run build
 
-      - name: Upload via FTP
-        uses: SamKirkland/FTP-Deploy-Action@v4.4.0
-        with:
-          server: ${{ secrets.FTP_HOST }}
-          username: ${{ secrets.FTP_USERNAME }}
-          password: ${{ secrets.FTP_PASSWORD }}
-          # FTPS (eksplisit TLS) putus di sisi server (ECONNRESET/TLS decode
-          # error tiap transfer data). SSH juga diblokir firewall hosting,
-          # jadi pakai FTP biasa agar deploy bisa jalan. Akun FTP sebaiknya
-          # di-jail ke folder aplikasi saja. Jika host perbaiki FTPS,
-          # kembalikan ke: protocol: ftps
-          protocol: ftp
-          local-dir: ./
-          # PENTING (hasil investigasi 15 Okt 2026 via cPanel File Manager):
-          # - User FTP mendarat di kunuuzulimamkauman.net/deploy/ (bukan home).
-          # - Aplikasi LIVE ada di /home/kunuuzu/laravel/ karena
-          #   public_html/index.php require __DIR__.'/../laravel/...'.
-          # - Folder public live = /home/kunuuzu/public_html (copy terpisah,
-          #   bukan symlink), jadi assets public disinkron terpisah di bawah.
-          server-dir: ../../laravel/
-          exclude: |
-            **/.git*
-            **/.git*/**
-            **/node_modules/**
-            vendor/**
-            tests/**
-            .github/**
-            .env
-            .env.backup
-            .env.production
-            database/*.sqlite*
-            storage/**
-            public/index.php
-            public/.htaccess
-
-      # Catatan: sinkron public/ -> public_html TIDAK lewat FTP (koneksi data
-      # FTP ke hosting ini sering ECONNRESET). Sebagai gantinya, deploy-hook
-      # di bawah menyalinnya secara lokal di server (cepat & andal).
-      - name: Migrate database via webhook
+      - name: Rakit deploy.zip
         run: |
-          curl -sS -X POST "https://kunuuzulimamkauman.net/deploy-hook" \
-            --data-urlencode "token=${{ secrets.DEPLOY_TOKEN }}" \
-            --fail --max-time 300
+          rm -rf /tmp/deploy && mkdir -p /tmp/deploy
+          git archive HEAD | tar -x -C /tmp/deploy
+          rm -f /tmp/deploy/public/index.php /tmp/deploy/public/.htaccess
+          cp -r public/build /tmp/deploy/public/build
+          cd /tmp/deploy && zip -qr "$GITHUB_WORKSPACE/deploy.zip" .
+
+      - name: Upload artifact deploy.zip
+        uses: actions/upload-artifact@v4
+        with:
+          name: deploy
+          path: deploy.zip
+          retention-days: 14
