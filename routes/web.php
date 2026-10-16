@@ -108,6 +108,7 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'admin'])->group(fun
     Route::get('pesan', [PesanController::class, 'index'])->name('pesan.index');
     Route::get('pesan/{pesan}', [PesanController::class, 'show'])->name('pesan.show');
     Route::post('pesan/{pesan}/dibaca', [PesanController::class, 'tandaiDibaca'])->name('pesan.dibaca');
+    Route::post('pesan/{pesan}/jawab', [PesanController::class, 'jawab'])->name('pesan.jawab');
     Route::delete('pesan/{pesan}', [PesanController::class, 'destroy'])->name('pesan.destroy');
 
     // Pengaturan website

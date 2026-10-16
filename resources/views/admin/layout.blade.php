@@ -117,7 +117,6 @@ label.f{display:block;margin-bottom:12px;font-size:13px;font-weight:700}label.f 
     <a href="{{ route('admin.berita.index') }}" class="{{ request()->routeIs('admin.berita.*')?'active':'' }}"><i class="fa-solid fa-newspaper"></i> Berita & Artikel</a>
     <a href="{{ route('admin.program.index') }}" class="{{ request()->routeIs('admin.program.*')?'active':'' }}"><i class="fa-solid fa-book-open"></i> Program</a>
     <a href="{{ route('admin.galeri.index') }}" class="{{ request()->routeIs('admin.galeri.*')?'active':'' }}"><i class="fa-solid fa-images"></i> Galeri</a>
-    <a href="{{ route('admin.hero.index') }}" class="{{ request()->routeIs('admin.hero.*')?'active':'' }}"><i class="fa-solid fa-clapperboard"></i> Hero Slides</a>
     <a href="{{ route('admin.lembaga.index') }}" class="{{ request()->routeIs('admin.lembaga.*')?'active':'' }}"><i class="fa-solid fa-mosque"></i> Lembaga</a>
     <a href="{{ route('admin.organisasi.index') }}" class="{{ request()->routeIs('admin.organisasi.*')?'active':'' }}"><i class="fa-solid fa-sitemap"></i> Organisasi</a>
     <a href="{{ route('admin.pengasuh.index') }}" class="{{ request()->routeIs('admin.pengasuh.*')?'active':'' }}"><i class="fa-solid fa-users"></i> Pengasuh</a>
@@ -147,7 +146,6 @@ label.f{display:block;margin-bottom:12px;font-size:13px;font-weight:700}label.f 
           <a href="{{ route('admin.berita.create') }}"><i class="fa-solid fa-newspaper"></i> Tulis Berita</a>
           <a href="{{ route('admin.program.create') }}"><i class="fa-solid fa-book-open"></i> Tambah Program</a>
           <a href="{{ route('admin.galeri.create') }}"><i class="fa-solid fa-image"></i> Upload Galeri</a>
-          <a href="{{ route('admin.hero.create') }}"><i class="fa-solid fa-clapperboard"></i> Tambah Hero Slide</a>
           <a href="{{ route('admin.lembaga.create') }}"><i class="fa-solid fa-mosque"></i> Tambah Lembaga</a>
           <a href="{{ route('admin.organisasi.create') }}"><i class="fa-solid fa-sitemap"></i> Tambah Organisasi</a>
           <a href="{{ route('admin.pengasuh.create') }}"><i class="fa-solid fa-user"></i> Tambah Pengasuh</a>

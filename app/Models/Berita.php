@@ -16,5 +16,5 @@ class Berita extends Model
 
     protected $casts = ['published_at' => 'datetime', 'is_published' => 'boolean', 'is_hero' => 'boolean'];
 
-    public const MAX_HERO = 5;
+    public const MAX_HERO = 1;
 }

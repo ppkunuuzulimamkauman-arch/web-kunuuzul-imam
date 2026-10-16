@@ -301,11 +301,13 @@ try {
       <div class="absolute top-5 left-5 right-5 flex items-center gap-2 flex-wrap">
         <span class="text-[11px] font-extrabold bg-amber-400 text-emerald-950 px-3 py-1.5 rounded-full">★ SOROTAN UTAMA</span>
         <span id="sorotan-kat" class="text-[11px] font-bold bg-white/15 backdrop-blur text-white px-3 py-1.5 rounded-full border border-white/20">{{ strtoupper($b0->kategori ?? 'Pondok') }}</span>
+        @if($sorotanSlides->count() > 1)
         <span class="ml-auto flex items-center gap-1.5" id="sorotan-dots">
           @foreach($sorotanSlides as $i => $s)
           <button data-dot="{{ $i }}" aria-label="Slide {{ $i+1 }}" class="sor-dot{{ $i===0 ? ' active' : '' }}"></button>
           @endforeach
         </span>
+        @endif
       </div>
       <div class="relative mt-auto p-6 md:p-8 text-white w-full">
         <a id="sorotan-link" href="{{ $b0 ? route('berita.show',$b0->slug) : route('berita.index') }}"><h2 id="sorotan-judul" class="font-extrabold text-[22px] md:text-[2rem] leading-[1.15] max-w-2xl text-balance">{{ $b0->judul ?? 'Membentuk Generasi Qurani: Ikhtiar Baru Kunuuzul Imam Kauman' }}</h2></a>
@@ -338,12 +340,12 @@ try {
   </div>
 
 <style>
-.sorotan-img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:0;transition:opacity 1.5s ease;}
+.sorotan-img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:0;transition:opacity 1.5s ease;will-change:transform;}
 .sorotan-img.active{opacity:1;}
-.sorotan-img.kb-in.active{animation:sorIn 5.5s ease-in-out forwards;}
-.sorotan-img.kb-out.active{animation:sorOut 5.5s ease-in-out forwards;}
-@keyframes sorIn{0%{transform:scale(1.05)}50%{transform:scale(1.14)}100%{transform:scale(1.05)}}
-@keyframes sorOut{0%{transform:scale(1.14)}50%{transform:scale(1.05)}100%{transform:scale(1.14)}}
+.sorotan-img.kb-in.active{animation:sorIn 16s ease-in-out infinite;}
+.sorotan-img.kb-out.active{animation:sorOut 16s ease-in-out infinite;}
+@keyframes sorIn{0%{transform:scale(1.05)}50%{transform:scale(1.16)}100%{transform:scale(1.05)}}
+@keyframes sorOut{0%{transform:scale(1.16)}50%{transform:scale(1.05)}100%{transform:scale(1.16)}}
 #sorotan-judul,#sorotan-excerpt{transition:opacity .35s ease;}
 .sor-fade{opacity:0;}
 .sor-dot{width:8px;height:8px;border-radius:9999px;background:rgba(255,255,255,.4);transition:all .3s ease;padding:0;border:0;cursor:pointer;}
@@ -354,9 +356,19 @@ try {
 (function(){
   if(window.__sorTimer){ try{clearTimeout(window.__sorTimer);}catch(_){} try{clearInterval(window.__sorTimer);}catch(_){} window.__sorTimer=null; }
   const slides = {!! $sorotanJson !!};
-  if(!slides || slides.length < 2) return;
   const card = document.getElementById('sorotan-card');
   const imgs = [...document.querySelectorAll('#sorotan-imgs .sorotan-img')];
+  if(!slides || slides.length < 2){
+    // Mode 1 berita: pastikan zoom lambat jalan terus (infinite via CSS),
+    // restart sekali biar tidak berhenti di frame akhir cache lama.
+    const one = document.querySelector('#sorotan-imgs .sorotan-img');
+    if(one){
+      one.classList.add('active');
+      if(!one.classList.contains('kb-in') && !one.classList.contains('kb-out')) one.classList.add('kb-in');
+      void one.offsetWidth;
+    }
+    return;
+  }
   const dots = [...document.querySelectorAll('#sorotan-dots .sor-dot')];
   const judul = document.getElementById('sorotan-judul');
   const excerpt = document.getElementById('sorotan-excerpt');

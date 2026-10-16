@@ -70,6 +70,25 @@ class HomeController extends Controller
                 ->whereNotIn('id', $topIds)
                 ->latest('published_at')->take(35)->get();
         } catch (\Throwable $e) { $pool = collect(); }
+        // Sorotan Utama = 1 berita bertanda ⭐ (is_hero). Kalau belum ada yang
+        // ditandai, fallback ke berita terbaru. Linimasa = 3 berita terbaru
+        // berikutnya (tidak termasuk sorotan) agar tidak dobel.
+        try {
+            $sorotanFlagged = Berita::where('is_published', true)->where('is_hero', true)
+                ->whereNotIn('kategori', ['artikel', 'maklumat', 'dawuh', 'bahtsul'])
+                ->latest('published_at')->take(1)->get();
+        } catch (\Throwable $e) { $sorotanFlagged = collect(); }
+        $sorotanItem = $sorotanFlagged->first() ?? $pool->first();
+        $sorotan = $sorotanItem ? collect([$sorotanItem]) : collect();
+        $rest = $pool;
+        if ($sorotanItem) {
+            $rest = $pool->reject(fn ($b) => $b->id === $sorotanItem->id)->values();
+            // Kalau berita bintang lebih lama dari 35 terbaru (tidak masuk pool),
+            // tetap tampil sebagai sorotan + pool tetap utuh untuk linimasa.
+            if ($pool->isEmpty() && $sorotanFlagged->isNotEmpty()) {
+                $rest = collect();
+            }
+        }
         try { $programs = Program::where('is_aktif', true)->orderBy('urutan')->take(6)->get(); }
         catch (\Throwable $e) { $programs = collect(); }
         try { $beritas = Berita::where('is_published', true)->latest('published_at')->take(7)->get(); }
@@ -86,17 +105,17 @@ class HomeController extends Controller
             'dawuhs' => $kat('dawuh'),
             'bahtsul' => $kat('bahtsul'),
             'topiks' => $topiks,
-            'sorotan' => $pool->slice(0, 4)->values(),
-            'linimasa' => $pool->slice(4, 3)->values(),
-            'cerita' => $pool->slice(7, 4)->values(),
+            'sorotan' => $sorotan,
+            'linimasa' => $rest->slice(0, 3)->values(),
+            'cerita' => $rest->slice(3, 4)->values(),
             'palingdibaca' => $palingdibaca,
-            'recentList' => $pool->slice(11, 4)->values(),
-            'popularList' => $pool->slice(15, 4)->values(),
-            'featSlides' => $pool->slice(19, 3)->values(),
-            'featSubs' => $pool->slice(22, 2)->values(),
-            'terbaruList' => $pool->slice(24, 3)->values(),
-            'rekomendasi' => $pool->slice(27, 2)->values(),
-            'populerList' => $pool->slice(29, 3)->values(),
+            'recentList' => $rest->slice(7, 4)->values(),
+            'popularList' => $rest->slice(11, 4)->values(),
+            'featSlides' => $rest->slice(15, 3)->values(),
+            'featSubs' => $rest->slice(18, 2)->values(),
+            'terbaruList' => $rest->slice(20, 3)->values(),
+            'rekomendasi' => $rest->slice(23, 2)->values(),
+            'populerList' => $rest->slice(25, 3)->values(),
         ]);
     }
 
