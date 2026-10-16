@@ -21,11 +21,18 @@
       <a href="{{ route('profil.visi') }}" class="inline-block mt-4 text-[13px] font-extrabold text-orange-600 hover:translate-x-1 transition-transform">Selengkapnya →</a>
     </div>
     <div class="reveal border border-stone-200 rounded-2xl p-6 bg-white hover:shadow-lg transition">
-      <h2 class="font-extrabold text-lg text-stone-900">Pengasuh & Dewan Ustadz</h2>
+      <h2 class="font-extrabold text-lg text-stone-900">Masyayikh</h2>
+      @php
+        $ringkas = (isset($pengasuhs) && $pengasuhs->count()) ? $pengasuhs : collect([
+          (object)['nama' => 'KH. Imam Kauman', 'jabatan' => 'Pengasuh'],
+          (object)['nama' => 'Ust. Ahmad Fauzi, Lc.', 'jabatan' => "Mudir Ma'had"],
+          (object)['nama' => 'Ustzh. Maryam Hafizhah', 'jabatan' => 'Musyrifah Putri'],
+        ]);
+      @endphp
       <ul class="text-[14px] mt-3 space-y-2.5 text-stone-600">
-        <li><b class="text-stone-800">KH. Imam Kauman</b> — Pengasuh</li>
-        <li><b class="text-stone-800">Ust. Ahmad Fauzi, Lc.</b> — Mudir Ma'had</li>
-        <li><b class="text-stone-800">Ustzh. Maryam Hafizhah</b> — Musyrifah Putri</li>
+        @foreach($ringkas as $u)
+        <li><b class="text-stone-800">{{ $u->nama }}</b> — {{ explode('—', $u->jabatan)[0] }}</li>
+        @endforeach
       </ul>
       <a href="{{ route('profil.struktur') }}" class="inline-block mt-4 text-[13px] font-extrabold text-orange-600 hover:translate-x-1 transition-transform">Selengkapnya →</a>
     </div>

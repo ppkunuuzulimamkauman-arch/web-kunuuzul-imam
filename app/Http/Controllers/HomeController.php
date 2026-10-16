@@ -121,7 +121,9 @@ class HomeController extends Controller
 
     public function profil(): View
     {
-        return view('profil');
+        try { $pengasuhs = Pengasuh::where('is_aktif', true)->orderBy('urutan')->take(3)->get(); }
+        catch (\Throwable $e) { $pengasuhs = collect(); }
+        return view('profil', compact('pengasuhs'));
     }
 
     public function sejarah(): View
