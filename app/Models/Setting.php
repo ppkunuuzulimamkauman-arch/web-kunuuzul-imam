@@ -135,7 +135,7 @@ class Setting extends Model
                 'fields' => [
                     'profil_sejarah_singkat' => ['label' => 'Sejarah Singkat', 'type' => 'textarea', 'hint' => ''],
                     'profil_sejarah_lengkap' => ['label' => 'Sejarah Lengkap', 'type' => 'textarea', 'hint' => 'Pisahkan paragraf dengan SATU BARIS KOSONG.'],
-                    'profil_sejarah_gambar' => ['label' => 'Gambar Sampul Sejarah', 'type' => 'text', 'hint' => 'Path gambar, mis. /images/sejarah.jpg (upload dulu via Galeri lalu salin path-nya) atau URL https://… Kosongkan = tanpa sampul.'],
+                    'profil_sejarah_gambar' => ['label' => 'Gambar Sampul Sejarah', 'type' => 'image', 'hint' => 'JPG/PNG/WEBP, maks 4MB. Kosongkan = tanpa sampul.'],
                     'profil_visi' => ['label' => 'Visi', 'type' => 'textarea', 'hint' => ''],
                     'profil_misi' => ['label' => 'Misi', 'type' => 'textarea', 'hint' => 'Satu baris satu poin.'],
                     'profil_fasilitas' => ['label' => 'Fasilitas', 'type' => 'textarea', 'hint' => 'Satu baris satu fasilitas.'],

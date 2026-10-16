@@ -38,7 +38,7 @@
       </div>
     </div>
 
-    <form method="POST" action="{{ route('admin.setting.update') }}">@csrf
+    <form method="POST" action="{{ route('admin.setting.update') }}" enctype="multipart/form-data">@csrf
       <input type="hidden" name="tab" value="{{ $tab }}">
       @foreach($groups[$tab]['fields'] as $key => $meta)
         @php
@@ -51,6 +51,11 @@
           <span style="font-weight:500;color:var(--muted);font-size:11.5px"> — {{ $key }}</span>
           @if($type === 'textarea')
             <textarea name="settings[{{ $key }}]" style="white-space:pre-line" rows="4">{{ $val }}</textarea>
+          @elseif($type === 'image')
+            @php $imgUrl = $val ? (str_starts_with($val, 'http') || str_starts_with($val, '/') ? $val : '/storage/' . ltrim($val, '/')) : null; @endphp
+            @if($imgUrl)<img src="{{ $imgUrl }}" alt="Pratinjau" style="max-width:220px;max-height:140px;object-fit:cover;border-radius:10px;border:1px solid var(--line);margin:6px 0" onerror="this.style.display='none'">@endif
+            <input type="file" name="settings_file[{{ $key }}]" accept=".jpg,.jpeg,.png,.webp">
+            <input type="hidden" name="settings[{{ $key }}]" value="{{ $val }}">
           @else
             <input name="settings[{{ $key }}]" value="{{ $val }}">
           @endif

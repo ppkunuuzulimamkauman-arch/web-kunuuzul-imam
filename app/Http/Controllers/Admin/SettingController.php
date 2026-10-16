@@ -36,9 +36,21 @@ class SettingController extends Controller
     public function update(Request $request): RedirectResponse
     {
         $request->validate(['settings' => 'nullable|array', 'settings.*' => 'nullable|string']);
+        // Upload gambar untuk field bertipe image (mis. sampul sejarah).
+        $request->validate(['settings_file' => 'nullable|array', 'settings_file.*' => 'nullable|image|max:4096']);
+        $images = [];
+        foreach ((array) $request->file('settings_file', []) as $key => $file) {
+            if (! $file || ! $file->isValid() || ! array_key_exists($key, Setting::defaults())) continue;
+            $old = Setting::get($key, '');
+            if ($old && ! str_starts_with($old, 'http') && ! str_starts_with($old, '/')) {
+                try { \Illuminate\Support\Facades\Storage::disk('public')->delete($old); } catch (\Throwable $e) {}
+            }
+            $images[$key] = $file->store('pengaturan', 'public');
+        }
         foreach ((array) $request->input('settings', []) as $key => $value) {
             if (array_key_exists($key, Setting::defaults())) {
-                Setting::set($key, $value);
+                // Nilai upload menang atas teks (agar gambar lama tidak menimpa).
+                Setting::set($key, $images[$key] ?? $value);
             }
         }
         $tab = $request->input('tab', 'footer');
