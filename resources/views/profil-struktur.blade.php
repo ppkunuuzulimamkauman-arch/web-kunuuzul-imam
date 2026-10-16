@@ -18,12 +18,15 @@
     @endphp
     @foreach($listPengasuh as $u)
     <div class="reveal border border-stone-200 rounded-2xl p-6 flex gap-4 items-start hover:shadow-lg hover:-translate-y-1 transition bg-white">
+      @if(!empty($u->foto))
+      <img src="{{ str_starts_with($u->foto, '/') || str_starts_with($u->foto, 'http') ? $u->foto : '/storage/'.$u->foto }}" alt="{{ $u->nama ?? '' }}" class="w-14 h-14 rounded-full object-cover shrink-0" loading="lazy" onerror="this.style.display='none'">
+      @else
       <div class="w-14 h-14 rounded-full bg-emerald-950 text-amber-400 flex items-center justify-center font-extrabold text-xl shrink-0">{{ mb_substr($u->nama ?? $u[0], 0, 1) }}</div>
+      @endif
       <div><h2 class="font-extrabold text-stone-900 text-[16px]">{{ $u->nama ?? $u[0] }}</h2><p class="text-stone-500 text-[13.5px] mt-1">{{ $u->jabatan ?? $u[1] }}</p>@if(!empty($u->bio))<p class="text-stone-500 text-[13px] mt-1">{{ $u->bio }}</p>@endif</div>
     </div>
     @endforeach
   </div>
-  <p class="text-[13px] text-stone-500 mt-5">Didukung 40+ ustadz/ustadzah lulusan pesantren & Timur Tengah.</p>
 </div>
 </div>
 @endsection
