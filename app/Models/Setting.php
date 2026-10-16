@@ -58,6 +58,7 @@ class Setting extends Model
             // Profil
             'profil_sejarah_singkat' => 'Pondok Pesantren Kunuuzul Imam Kauman didirikan sebagai wujud khidmah kepada umat di kawasan Kauman. Berawal dari majelis taklim dan halaqah tahfidz kecil, kini berkembang menjadi lembaga pendidikan Islam terpadu dengan jenjang MTs, MA, dan Ma\'had Aly (takhassus kitab).',
             'profil_sejarah_lengkap' => 'Berawal dari majelis taklim dan halaqah tahfidz kecil di Kauman, pondok berkembang menjadi lembaga pendidikan Islam terpadu: Madrasah Diniyah, MTs-MA, dan Ma\'had Aly. Kurikulum memadukan salaf (sorogan, bandongan, hafalan) dan khalaf (sekolah formal, bahasa, teknologi) dengan pengawasan musyrif 24 jam.',
+            'profil_sejarah_gambar' => '',
             'profil_visi' => 'Menjadi pondok pesantren unggul dalam tahfidz, ilmu syar\'i, dan akhlak karimah menuju generasi rabbani.',
             'profil_misi' => "1. Menyelenggarakan tahfidz 30 juz bersanad.\n2. Mengkaji kitab kuning secara intensif.\n3. Menyelenggarakan pendidikan formal bermutu.\n4. Membina akhlak dan kemandirian santri 24 jam.",
             'profil_fasilitas' => "Masjid & Aula\nAsrama Putra-Putri\nPerpustakaan\nLab Komputer\nLapangan & Panahan\nDapur & Kantin\nKlinik Santri\nKoperasi",
@@ -133,7 +134,8 @@ class Setting extends Model
                 'desc' => 'Teks halaman Sejarah, Visi & fasilitas.',
                 'fields' => [
                     'profil_sejarah_singkat' => ['label' => 'Sejarah Singkat', 'type' => 'textarea', 'hint' => ''],
-                    'profil_sejarah_lengkap' => ['label' => 'Sejarah Lengkap', 'type' => 'textarea', 'hint' => ''],
+                    'profil_sejarah_lengkap' => ['label' => 'Sejarah Lengkap', 'type' => 'textarea', 'hint' => 'Pisahkan paragraf dengan SATU BARIS KOSONG.'],
+                    'profil_sejarah_gambar' => ['label' => 'Gambar Sampul Sejarah', 'type' => 'text', 'hint' => 'Path gambar, mis. /images/sejarah.jpg (upload dulu via Galeri lalu salin path-nya) atau URL https://… Kosongkan = tanpa sampul.'],
                     'profil_visi' => ['label' => 'Visi', 'type' => 'textarea', 'hint' => ''],
                     'profil_misi' => ['label' => 'Misi', 'type' => 'textarea', 'hint' => 'Satu baris satu poin.'],
                     'profil_fasilitas' => ['label' => 'Fasilitas', 'type' => 'textarea', 'hint' => 'Satu baris satu fasilitas.'],

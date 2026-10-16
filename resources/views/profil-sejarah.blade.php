@@ -8,7 +8,20 @@
   <div class="w-16 h-1 bg-orange-400 rounded-full mt-3 mb-6"></div>
 
   <div class="reveal bg-white border border-stone-200 rounded-2xl p-6 md:p-8">
-    <p class="text-[15px] leading-relaxed text-stone-600 text-justify">{{ \App\Models\Setting::get('profil_sejarah_lengkap', 'Berawal dari majelis taklim dan halaqah tahfidz kecil di Kauman, pondok berkembang menjadi lembaga pendidikan Islam terpadu: Madrasah Diniyah, MTs-MA, dan Ma\'had Aly.') }}</p>
+    @php
+      $S = \App\Models\Setting::class;
+      $sampul = trim((string) $S::get('profil_sejarah_gambar', ''));
+      $parafs = preg_split('/\R{2,}/', trim((string) $S::get('profil_sejarah_lengkap', 'Berawal dari majelis taklim dan halaqah tahfidz kecil di Kauman.')));
+      $parafs = array_values(array_filter(array_map('trim', $parafs), fn($p) => $p !== ''));
+    @endphp
+    @if($sampul !== '')
+      <img src="{{ str_starts_with($sampul, 'http') || str_starts_with($sampul, '/') ? $sampul : '/storage/' . ltrim($sampul, '/') }}" alt="Sejarah Pondok" class="w-full max-h-[420px] object-cover rounded-xl mb-6" loading="lazy" onerror="this.style.display='none'">
+    @endif
+    @forelse($parafs as $p)
+      <p class="text-[15px] leading-relaxed text-stone-600 text-justify mb-4 last:mb-0">{!! nl2br(e($p)) !!}</p>
+    @empty
+      <p class="text-[15px] leading-relaxed text-stone-600 text-justify">Sejarah pondok segera dilengkapi.</p>
+    @endforelse
     <p class="text-[15px] mt-4 leading-relaxed text-stone-600 text-justify">Kurikulum memadukan salaf (sorogan, bandongan, hafalan) dan khalaf (sekolah formal, bahasa, teknologi) dengan pengawasan musyrif 24 jam.</p>
   </div>
 </div>
