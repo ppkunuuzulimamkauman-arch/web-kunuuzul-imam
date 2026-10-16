@@ -51,6 +51,7 @@ class AuthController extends Controller
             }
 
             $request->session()->regenerate();
+            $request->session()->put(\App\Http\Middleware\AdminIdleTimeout::SESSION_KEY, now()->timestamp);
             $user->forceFill(['last_login_at' => now()])->save();
 
             return redirect()->intended(route('admin.dashboard'))

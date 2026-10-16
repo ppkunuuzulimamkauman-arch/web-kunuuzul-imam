@@ -162,6 +162,17 @@ label.f{display:block;margin-bottom:12px;font-size:13px;font-weight:700}label.f 
   </div>
 </div>
 <script>
+// Kunci otomatis: 5 menit tanpa aktivitas (klik/ketik/sentuh) → kembali ke login.
+// Selaras dengan App\Http\Middleware\AdminIdleTimeout::TIMEOUT_MINUTES.
+(function(){
+  const IDLE_MS = 5 * 60 * 1000;
+  const LOGIN_URL = @json(route('login'));
+  let t = null;
+  function lock(){ window.location.href = LOGIN_URL; }
+  function arm(){ if(t) clearTimeout(t); t = setTimeout(lock, IDLE_MS); }
+  ['click','keydown','touchstart','mousemove'].forEach(ev=>document.addEventListener(ev,arm,{passive:true}));
+  arm();
+})();
 document.addEventListener('click',e=>{const dd=document.getElementById('ddTambah');if(dd&&!dd.contains(e.target))dd.classList.remove('open');});
 // Mode terang / gelap (tersimpan di browser)
 (function(){

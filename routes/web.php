@@ -68,7 +68,7 @@ Route::post('/admin/login', [AuthController::class, 'authenticate'])->middleware
 Route::post('/admin/logout', [AuthController::class, 'logout'])->name('admin.logout')->middleware('auth');
 
 // === Panel Admin (wajib login + role admin/operator/superadmin) ===
-Route::prefix('admin')->name('admin.')->middleware(['auth', 'admin'])->group(function () {
+Route::prefix('admin')->name('admin.')->middleware(['auth', 'admin', 'admin.idle'])->group(function () {
     Route::get('/', [DashboardController::class, 'index'])->name('dashboard');
 
     // Berita & Artikel
