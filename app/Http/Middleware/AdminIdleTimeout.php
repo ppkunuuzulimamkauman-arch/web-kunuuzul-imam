@@ -33,7 +33,11 @@ class AdminIdleTimeout
                 ->withCookie(Cookie::forget(auth()->getRecallerName()));
         }
 
-        $request->session()->put(self::SESSION_KEY, now()->timestamp);
+        // Permintaan ping (polling chat / badge) tidak dihitung sebagai aktivitas,
+        // agar kunci otomatis 5 menit tetap berjalan.
+        if (! $request->header('X-Ping')) {
+            $request->session()->put(self::SESSION_KEY, now()->timestamp);
+        }
 
         return $next($request);
     }

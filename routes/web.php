@@ -3,6 +3,7 @@
 use App\Http\Controllers\Admin\AuthController;
 use App\Http\Controllers\Admin\AgendaController;
 use App\Http\Controllers\Admin\BeritaController;
+use App\Http\Controllers\Admin\ChatController;
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\GaleriController;
 use App\Http\Controllers\Admin\HeroSlideController;
@@ -70,6 +71,13 @@ Route::post('/admin/logout', [AuthController::class, 'logout'])->name('admin.log
 // === Panel Admin (wajib login + role admin/operator/superadmin) ===
 Route::prefix('admin')->name('admin.')->middleware(['auth', 'admin', 'admin.idle', 'session.version'])->group(function () {
     Route::get('/', [DashboardController::class, 'index'])->name('dashboard');
+
+    // Chat antar admin
+    Route::get('chat', [ChatController::class, 'index'])->name('chat.index');
+    Route::get('chat/unread', [ChatController::class, 'unreadCount'])->name('chat.unread');
+    Route::get('chat/{user}', [ChatController::class, 'index'])->name('chat.show');
+    Route::post('chat/{user}', [ChatController::class, 'send'])->name('chat.send');
+    Route::get('chat/{user}/poll', [ChatController::class, 'poll'])->name('chat.poll');
 
     // Berita & Artikel
     Route::resource('berita', BeritaController::class)->except(['show'])->parameters(['berita' => 'berita']);
