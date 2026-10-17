@@ -8,14 +8,14 @@ use Illuminate\Support\Facades\Cookie;
 use Symfony\Component\HttpFoundation\Response;
 
 /**
- * Kunci otomatis panel admin setelah 5 menit tanpa aktivitas.
+ * Kunci otomatis panel admin setelah 15 menit tanpa aktivitas.
  * Setiap request admin yang lolos memperbarui penanda; kalau diam
  * lebih dari batas, sesi dihapus (termasuk remember-me) dan admin
  * dilempar ke halaman login.
  */
 class AdminIdleTimeout
 {
-    public const TIMEOUT_MINUTES = 5;
+    public const TIMEOUT_MINUTES = 15;
 
     public const SESSION_KEY = 'admin_last_activity';
 
@@ -29,7 +29,7 @@ class AdminIdleTimeout
             $request->session()->regenerateToken();
 
             return redirect()->route('login')
-                ->withErrors(['email' => 'Halaman terkunci karena 5 menit tidak ada aktivitas. Silakan login lagi.'])
+                ->withErrors(['email' => 'Sesi berakhir karena '.self::TIMEOUT_MINUTES.' menit tidak ada aktivitas. Silakan login lagi.'])
                 ->withCookie(Cookie::forget(auth()->getRecallerName()));
         }
 

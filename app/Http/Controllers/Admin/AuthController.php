@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Http\Middleware\AdminIdleTimeout;
 use App\Services\Turnstile;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -67,5 +68,15 @@ class AuthController extends Controller
         $request->session()->invalidate();
         $request->session()->regenerateToken();
         return redirect()->route('login')->with('sukses', 'Anda telah logout dengan aman.');
+    }
+
+    /** Dipanggil otomatis oleh panel saat idle: akhiri sesi lalu tampilkan halaman login. */
+    public function lock(Request $request): RedirectResponse
+    {
+        Auth::logout();
+        $request->session()->invalidate();
+        $request->session()->regenerateToken();
+        return redirect()->route('login')
+            ->withErrors(['email' => 'Sesi berakhir karena '.AdminIdleTimeout::TIMEOUT_MINUTES.' menit tidak ada aktivitas. Silakan login lagi.']);
     }
 }

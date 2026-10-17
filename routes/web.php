@@ -67,6 +67,7 @@ Route::post('/deploy-hook', [SiteController::class, 'deployHook'])->middleware('
 Route::get('/admin/login', [AuthController::class, 'login'])->name('login')->middleware('guest');
 Route::post('/admin/login', [AuthController::class, 'authenticate'])->middleware(['guest', 'throttle:5,1'])->name('login.post');
 Route::post('/admin/logout', [AuthController::class, 'logout'])->name('admin.logout')->middleware('auth');
+Route::post('/admin/lock', [AuthController::class, 'lock'])->name('admin.lock')->middleware('auth');
 
 // === Panel Admin (wajib login + role admin/operator/superadmin) ===
 Route::prefix('admin')->name('admin.')->middleware(['auth', 'admin', 'admin.idle', 'session.version'])->group(function () {

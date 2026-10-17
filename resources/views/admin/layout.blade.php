@@ -162,14 +162,17 @@ label.f{display:block;margin-bottom:12px;font-size:13px;font-weight:700}label.f 
     @yield('content')
   </div>
 </div>
+<form id="idleLockForm" method="POST" action="{{ route('admin.lock') }}" style="display:none">@csrf</form>
 <script>
-// Kunci otomatis: 5 menit tanpa aktivitas (klik/ketik/sentuh) → kembali ke login.
+// Kunci otomatis: 15 menit tanpa aktivitas (klik/ketik/sentuh) → akhiri sesi & tampilkan login.
 // Selaras dengan App\Http\Middleware\AdminIdleTimeout::TIMEOUT_MINUTES.
 (function(){
-  const IDLE_MS = 5 * 60 * 1000;
-  const LOGIN_URL = @json(route('login'));
+  const IDLE_MS = {{ \App\Http\Middleware\AdminIdleTimeout::TIMEOUT_MINUTES }} * 60 * 1000;
   let t = null;
-  function lock(){ window.location.href = LOGIN_URL; }
+  function lock(){
+    const f = document.getElementById('idleLockForm');
+    if(f){ f.submit(); } else { window.location.href = @json(route('login')); }
+  }
   function arm(){ if(t) clearTimeout(t); t = setTimeout(lock, IDLE_MS); }
   ['click','keydown','touchstart','mousemove'].forEach(ev=>document.addEventListener(ev,arm,{passive:true}));
   arm();
