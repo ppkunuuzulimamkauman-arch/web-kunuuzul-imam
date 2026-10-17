@@ -37,11 +37,6 @@
       </ul>
     </div>
   </div>
-
-  <div class="reveal max-w-3xl text-stone-600 text-[15px] leading-relaxed mt-6">
-    <p>{{ $S::get('santri_intro', 'Kehidupan santri berjalan 24 jam dalam pengawasan musyrif asrama.') }}</p>
-    <a href="{{ route('ppdb.form') }}" class="inline-block mt-4 bg-emerald-950 hover:bg-emerald-800 text-white text-[12.5px] font-extrabold tracking-widest px-6 py-3 rounded-full transition">DAFTAR JADI SANTRI →</a>
-  </div>
 </div>
 </div>
 @endsection
