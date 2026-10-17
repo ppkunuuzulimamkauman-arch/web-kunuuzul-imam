@@ -121,5 +121,5 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'admin', 'admin.idle
     // Akun admin (1 role: admin)
     Route::resource('users', UserController::class)->except(['show']);
     Route::post('users/{user}/toggle', [UserController::class, 'toggleActive'])->name('users.toggle');
-    Route::post('users/reset-sessions', [UserController::class, 'resetSessions'])->name('users.resetSessions');
+    Route::post('users/{user}/reset-session', [UserController::class, 'resetSession'])->name('users.resetSession');
 });

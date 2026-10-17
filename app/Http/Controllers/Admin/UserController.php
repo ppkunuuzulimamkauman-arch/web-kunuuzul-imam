@@ -114,12 +114,21 @@ class UserController extends Controller
         return back()->with('sukses', 'Status akun diubah.');
     }
 
-    /** Admin utama bisa mereset semua sesi agar semua aksa harus login ulang. */
-    public function resetSessions(Request $request): RedirectResponse
+    /** Reset sesi satu akun agar harus login ulang (sesi admin utama tidak pernah direset). */
+    public function resetSession(User $user): RedirectResponse
     {
-        $this->authorizeTarget(User::firstWhere('role', 'admin'));
-        User::query()->increment('session_version');
-        return back()->with('sukses', 'Semua sesi admin direset. Semua aksa harus login ulang.');
+        $this->authorizeTarget($user);
+
+        if ($user->is(auth()->user())) {
+            return back()->withErrors(['email' => 'Tidak boleh mereset sesi akun sendiri.']);
+        }
+        if ($user->isUtama()) {
+            return back()->withErrors(['email' => 'Sesi admin utama tidak dapat direset.']);
+        }
+
+        $user->increment('session_version');
+
+        return back()->with('sukses', 'Sesi akun '.$user->name.' direset. Akun tersebut harus login ulang.');
     }
 
     /** Pengelola tidak boleh menyentuh akun utama (bahkan via URL langsung). */
