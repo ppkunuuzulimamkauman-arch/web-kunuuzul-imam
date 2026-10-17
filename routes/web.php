@@ -76,6 +76,7 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'admin', 'admin.idle
     // Chat antar admin
     Route::get('chat', [ChatController::class, 'index'])->name('chat.index');
     Route::get('chat/unread', [ChatController::class, 'unreadCount'])->name('chat.unread');
+    Route::get('chat/inbox', [ChatController::class, 'inbox'])->name('chat.inbox');
     Route::get('chat/monitor', [ChatController::class, 'monitor'])->name('chat.monitor');
     Route::get('chat/monitor/{a}/{b}', [ChatController::class, 'monitor'])->name('chat.monitor.show');
     Route::post('chat/message/{message}/star', [ChatController::class, 'toggleStar'])->name('chat.star');

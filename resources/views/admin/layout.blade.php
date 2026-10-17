@@ -100,6 +100,19 @@ label.f{display:block;margin-bottom:12px;font-size:13px;font-weight:700}label.f 
 @media(max-width:1000px){.g4{grid-template-columns:1fr 1fr}.g2{grid-template-columns:1fr}}
 @media(max-width:860px){.sidebar{transform:translateX(-100%);transition:.3s}.sidebar.open{transform:none}.main{margin-left:0}.searchbar{display:none}.content{padding:16px}}
 .stat{display:flex;gap:14px;align-items:center}.stat .ic{width:48px;height:48px;border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:20px;color:#fff;flex-shrink:0}.stat b{font-size:24px;display:block}.stat span{font-size:12.5px;color:var(--muted)}
+/* ===== notifikasi chat realtime ===== */
+.icon-top.on{color:var(--green);border-color:var(--green)}
+#chatToasts{position:fixed;right:18px;bottom:18px;z-index:90;display:flex;flex-direction:column;gap:10px;max-width:min(360px,92vw)}
+.chat-toast{display:flex;align-items:center;gap:11px;background:var(--card);border:1px solid var(--line);border-left:4px solid var(--primary);border-radius:14px;padding:11px 13px;text-decoration:none;color:var(--ink);box-shadow:0 14px 36px rgba(20,18,46,.18);opacity:1;transform:none;transition:opacity .3s ease,transform .3s ease}
+.chat-toast.out{opacity:0;transform:translateY(10px)}
+.chat-toast .avatar{width:36px;height:36px}
+.chat-toast .ct-body{flex:1;min-width:0;display:flex;flex-direction:column;gap:1px}
+.chat-toast .ct-body b{font-size:13px;font-weight:800}
+.chat-toast .ct-body span{font-size:12px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:220px}
+.chat-toast > i.cic{color:var(--primary);font-size:15px}
+@keyframes toastIn{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}
+.chat-toast{animation:toastIn .32s cubic-bezier(.34,1.4,.64,1)}
+@media (prefers-reduced-motion:reduce){.chat-toast{animation:none}}
 </style>
 </head>
 <body>
@@ -143,6 +156,7 @@ label.f{display:block;margin-bottom:12px;font-size:13px;font-weight:700}label.f 
     <div style="margin-left:auto;display:flex;gap:10px;align-items:center">
       <form class="searchbar" action="{{ route('admin.pendaftaran.index') }}" method="GET"><i class="fa-solid fa-magnifying-glass"></i><input name="q" value="{{ request('q') }}" placeholder="Cari santri / nomor..."></form>
       <a class="icon-top" href="{{ route('admin.pesan.index') }}" title="Inbox"><i class="fa-regular fa-bell"></i>@if(($nPesan ?? 0)>0)<span class="dot">{{ $nPesan }}</span>@endif</a>
+      <button class="icon-top" id="notifToggle" type="button" title="Aktifkan notifikasi chat"><i class="fa-solid fa-bell"></i></button>
       <button class="icon-top" id="themeToggle" title="Mode terang / gelap"><i class="fa-regular fa-moon" id="themeIcon"></i></button>
       <div class="dd" id="ddTambah">
         <button class="btn" type="button" onclick="document.getElementById('ddTambah').classList.toggle('open')"><i class="fa-solid fa-plus"></i> Tambah Baru ▾</button>
@@ -166,6 +180,7 @@ label.f{display:block;margin-bottom:12px;font-size:13px;font-weight:700}label.f 
   </div>
 </div>
 <form id="idleLockForm" method="POST" action="{{ route('admin.lock') }}" style="display:none">@csrf</form>
+<div id="chatToasts"></div>
 <script>
 // Kunci otomatis: 15 menit tanpa aktivitas (klik/ketik/sentuh) → akhiri sesi & tampilkan login.
 // Selaras dengan App\Http\Middleware\AdminIdleTimeout::TIMEOUT_MINUTES.
@@ -190,18 +205,106 @@ document.addEventListener('click',e=>{const dd=document.getElementById('ddTambah
   applyIcon(); syncChart();
   if(btn)btn.addEventListener('click',e=>{e.stopPropagation();const next=root.dataset.theme==='dark'?'light':'dark';root.dataset.theme=next;try{localStorage.setItem('kunuuzul-theme',next);}catch(_){}btn.classList.remove('theme-spin');void btn.offsetWidth;btn.classList.add('theme-spin');applyIcon();syncChart();});
 })();
-// Badge Chat Admin: cek jumlah pesan belum dibaca tiap 15 detik (tanpa membatalkan auto-lock).
+// Notifikasi Chat Admin realtime: poll tiap 3 detik (15 detik saat tab tidak aktif).
+// Saat ada pesan masuk: badge + judul tab diperbarui, toast muncul, bunyi, dan
+// notifikasi desktop (bila diizinkan) — semua tanpa refresh dan tanpa membatalkan auto-lock.
 (function(){
-  var b=document.getElementById('chatBadge');
-  if(!b) return;
-  async function tick(){
+  var badge=document.getElementById('chatBadge');
+  var box=document.getElementById('chatToasts');
+  var baseTitle=document.title;
+  var inboxUrl='{{ route('admin.chat.inbox') }}';
+  var logoSrc='{{ asset('images/logo-pondok.png') }}';
+  var onChatPage=/\/admin\/chat(\/|$)/.test(location.pathname);
+  var lastId=null;
+
+  function esc(s){return String(s==null?'':s).replace(/[&<>"']/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];});}
+
+  var audioCtx=null;
+  function beep(){
     try{
-      var r=await fetch('{{ route('admin.chat.unread') }}',{headers:{'X-Requested-With':'XMLHttpRequest','Accept':'application/json','X-Ping':'1'}});
-      if(!r.ok) return; var d=await r.json();
-      if(typeof d.count==='number'){ b.textContent=d.count; b.style.display=d.count>0?'':'none'; }
+      var AC=window.AudioContext||window.webkitAudioContext; if(!AC) return;
+      audioCtx=audioCtx||new AC();
+      if(audioCtx.state==='suspended'){ audioCtx.resume(); }
+      var t0=audioCtx.currentTime;
+      [880,1245].forEach(function(freq,i){
+        var o=audioCtx.createOscillator(), g=audioCtx.createGain();
+        o.type='sine'; o.frequency.value=freq;
+        o.connect(g); g.connect(audioCtx.destination);
+        var s=t0+i*0.16;
+        g.gain.setValueAtTime(0.0001,s);
+        g.gain.exponentialRampToValueAtTime(0.22,s+0.02);
+        g.gain.exponentialRampToValueAtTime(0.0001,s+0.18);
+        o.start(s); o.stop(s+0.2);
+      });
     }catch(_){}
   }
-  setInterval(tick, 15000);
+
+  function toast(item){
+    if(!box) return;
+    var el=document.createElement('a');
+    el.className='chat-toast'; el.href=item.url;
+    el.innerHTML='<span class="avatar">'+esc((item.sender||'A').charAt(0).toUpperCase())+'</span>'
+      +'<span class="ct-body"><b>'+esc(item.sender)+'</b><span>'+esc(item.preview)+'</span></span>'
+      +'<i class="fa-solid fa-comment-dots cic"></i>';
+    box.appendChild(el);
+    setTimeout(function(){ el.classList.add('out'); setTimeout(function(){ el.remove(); },350); },6500);
+  }
+
+  function desktop(item){
+    try{
+      if(window.Notification && Notification.permission==='granted'){
+        var n=new Notification(item.sender+' mengirim pesan',{
+          body:item.preview, tag:'chat-'+item.id, icon:logoSrc, badge:logoSrc
+        });
+        n.onclick=function(){ try{window.focus();}catch(_){} location.href=item.url; };
+      }
+    }catch(_){}
+  }
+
+  async function tick(){
+    try{
+      var url=inboxUrl+(lastId===null?'':'?after='+lastId);
+      var r=await fetch(url,{headers:{'X-Requested-With':'XMLHttpRequest','Accept':'application/json','X-Ping':'1'}});
+      if(!r.ok) return;
+      var d=await r.json(); if(!d||!d.ok) return;
+
+      if(badge){ badge.textContent=d.count; badge.style.display=d.count>0?'':'none'; }
+      document.title=(d.count>0?'('+d.count+') ':'')+baseTitle;
+
+      if(lastId!==null && d.items && d.items.length){
+        d.items.forEach(function(it){ if(!onChatPage) toast(it); desktop(it); });
+        beep();
+      }
+      if(typeof d.max_id==='number' && (lastId===null || d.max_id>lastId)) lastId=d.max_id;
+    }catch(_){}
+  }
+
+  var timer=null;
+  function schedule(){ clearInterval(timer); timer=setInterval(tick, document.hidden?15000:3000); }
+  document.addEventListener('visibilitychange',function(){ schedule(); if(!document.hidden) tick(); });
+  tick(); schedule();
+
+  // Tombol izin notifikasi desktop (butuh gestur pengguna untuk meminta izin).
+  var nbtn=document.getElementById('notifToggle');
+  function syncBtn(){
+    if(!nbtn) return;
+    var can=!!window.Notification;
+    nbtn.style.display=can?'':'none';
+    var ok=can && Notification.permission==='granted';
+    nbtn.classList.toggle('on',ok);
+    nbtn.title=ok?'Notifikasi desktop aktif':'Aktifkan notifikasi desktop';
+  }
+  if(nbtn){
+    syncBtn();
+    nbtn.addEventListener('click',function(){
+      if(!window.Notification) return;
+      if(Notification.permission==='granted'){
+        try{ new Notification('Notifikasi sudah aktif',{body:'Anda akan diberi tahu saat ada pesan chat baru.',icon:logoSrc}); }catch(_){}
+        return;
+      }
+      Notification.requestPermission().then(function(){ syncBtn(); });
+    });
+  }
 })();
 </script>
 @yield('scripts')

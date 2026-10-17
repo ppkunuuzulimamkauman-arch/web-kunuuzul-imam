@@ -277,6 +277,46 @@ class ChatController extends Controller
         return response()->json(['ok' => true, 'count' => $count]);
     }
 
+    /**
+     * Denyut notifikasi chat: mengembalikan jumlah belum dibaca, id pesan masuk terbaru,
+     * dan daftar pesan baru (setelah `after`) untuk memicu notifikasi realtime tanpa refresh.
+     */
+    public function inbox(Request $request): JsonResponse
+    {
+        $me = auth()->user();
+        $after = $request->query('after');
+
+        $items = collect();
+        if ($after !== null && $after !== '') {
+            $items = AdminMessage::query()
+                ->where('receiver_id', $me->id)
+                ->where('id', '>', (int) $after)
+                ->with('sender')
+                ->orderBy('id')
+                ->get()
+                ->map(fn (AdminMessage $m) => [
+                    'id' => $m->id,
+                    'sender_id' => $m->sender_id,
+                    'sender' => $m->sender->name ?? 'Admin',
+                    'preview' => $m->type === 'text'
+                        ? Str::limit((string) $m->body, 90)
+                        : 'Lampiran ('.($m->type ?: 'file').')',
+                    'url' => route('admin.chat.show', $m->sender_id),
+                ])
+                ->values();
+        }
+
+        return response()->json([
+            'ok' => true,
+            'count' => AdminMessage::query()
+                ->where('receiver_id', $me->id)
+                ->whereNull('read_at')
+                ->count(),
+            'max_id' => (int) AdminMessage::query()->where('receiver_id', $me->id)->max('id'),
+            'items' => $items,
+        ]);
+    }
+
     public function search(Request $request, User $user): JsonResponse
     {
         $me = auth()->user();

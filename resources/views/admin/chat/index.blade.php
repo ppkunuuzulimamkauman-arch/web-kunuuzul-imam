@@ -380,7 +380,10 @@ window.__CHAT = {
       if(d.ok&&d.messages&&d.messages.length){ var add=false; d.messages.forEach(function(m){ if(!store[m.id]){appendMsg(m);add=true;} }); if(add)scroll(); }
     }catch(_){}
   }
-  setInterval(poll,4000);
+  var pollTimer=null;
+  function pollLoop(){ clearInterval(pollTimer); pollTimer=setInterval(poll, document.hidden?15000:2500); }
+  document.addEventListener('visibilitychange',function(){ pollLoop(); if(!document.hidden) poll(); });
+  pollLoop();
 
   // ---- konteks menu ----
   var ctx=document.getElementById('ctxMenu');

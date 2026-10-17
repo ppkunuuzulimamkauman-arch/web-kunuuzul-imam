@@ -91,4 +91,22 @@ class ChatTest extends TestCase
         $this->actingAs($op)->get(route('admin.chat.monitor'))->assertForbidden();
         $this->actingAs($utama)->get(route('admin.chat.monitor.show', ['a' => $op->id, 'b' => $op2->id]))->assertOk();
     }
+
+    public function test_inbox_realtime_primer_dan_mendeteksi_pesan_baru(): void
+    {
+        $me = $this->admin('Saya', 'saya-inbox@example.test', 'superadmin');
+        $other = $this->admin('Lain', 'lain-inbox@example.test');
+
+        AdminMessage::create(['sender_id' => $other->id, 'receiver_id' => $me->id, 'body' => 'Pesan baru']);
+
+        $prime = $this->actingAs($me)->getJson(route('admin.chat.inbox'))->assertOk()->json();
+        $this->assertSame(1, $prime['count']);
+        $this->assertGreaterThan(0, $prime['max_id']);
+        $this->assertCount(0, $prime['items']);
+
+        $after = $this->actingAs($me)->getJson(route('admin.chat.inbox').'?after=0')->assertOk()->json();
+        $this->assertCount(1, $after['items']);
+        $this->assertSame('Lain', $after['items'][0]['sender']);
+        $this->assertSame('Pesan baru', $after['items'][0]['preview']);
+    }
 }
