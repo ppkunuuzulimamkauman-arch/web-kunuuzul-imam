@@ -76,9 +76,17 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'admin', 'admin.idle
     // Chat antar admin
     Route::get('chat', [ChatController::class, 'index'])->name('chat.index');
     Route::get('chat/unread', [ChatController::class, 'unreadCount'])->name('chat.unread');
+    Route::get('chat/monitor', [ChatController::class, 'monitor'])->name('chat.monitor');
+    Route::get('chat/monitor/{a}/{b}', [ChatController::class, 'monitor'])->name('chat.monitor.show');
+    Route::post('chat/message/{message}/star', [ChatController::class, 'toggleStar'])->name('chat.star');
+    Route::post('chat/message/{message}/pin', [ChatController::class, 'togglePin'])->name('chat.pin');
+    Route::post('chat/message/{message}/forward', [ChatController::class, 'forward'])->name('chat.forward');
+    Route::delete('chat/message/{message}', [ChatController::class, 'destroyMessage'])->name('chat.message.destroy');
     Route::get('chat/{user}', [ChatController::class, 'index'])->name('chat.show');
-    Route::post('chat/{user}', [ChatController::class, 'send'])->name('chat.send');
     Route::get('chat/{user}/poll', [ChatController::class, 'poll'])->name('chat.poll');
+    Route::get('chat/{user}/search', [ChatController::class, 'search'])->name('chat.search');
+    Route::post('chat/{user}/clear', [ChatController::class, 'clear'])->name('chat.clear');
+    Route::post('chat/{user}', [ChatController::class, 'send'])->name('chat.send');
 
     // Berita & Artikel
     Route::resource('berita', BeritaController::class)->except(['show'])->parameters(['berita' => 'berita']);

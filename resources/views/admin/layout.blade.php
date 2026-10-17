@@ -114,6 +114,9 @@ label.f{display:block;margin-bottom:12px;font-size:13px;font-weight:700}label.f 
     <a href="{{ route('admin.pendaftaran.index') }}" class="{{ request()->routeIs('admin.pendaftaran.*')?'active':'' }}"><i class="fa-solid fa-user-plus"></i> PPDB Santri @php $nTunggu = \App\Models\Pendaftaran::where('status','menunggu')->count(); @endphp @if($nTunggu>0)<span class="badge">{{ $nTunggu }}</span>@endif</a>
     <a href="{{ route('admin.pesan.index') }}" class="{{ request()->routeIs('admin.pesan.*')?'active':'' }}"><i class="fa-solid fa-inbox"></i> Inbox Pesan @php try{$nPesan=\App\Models\Pesan::where('is_dibaca',false)->count();}catch(\Throwable $e){$nPesan=0;} @endphp @if($nPesan>0)<span class="badge">{{ $nPesan }}</span>@endif</a>
     <a href="{{ route('admin.chat.index') }}" class="{{ request()->routeIs('admin.chat.*')?'active':'' }}"><i class="fa-solid fa-comments"></i> Chat Admin @php try{$nChat=\App\Models\AdminMessage::where('receiver_id',auth()->id())->whereNull('read_at')->count();}catch(\Throwable $e){$nChat=0;} @endphp <span class="badge" id="chatBadge" data-count="{{ $nChat }}" @if($nChat<1) style="display:none" @endif>{{ $nChat }}</span></a>
+    @if(auth()->user()->isUtama())
+    <a href="{{ route('admin.chat.monitor') }}" class="{{ request()->routeIs('admin.chat.monitor*')?'active':'' }}"><i class="fa-solid fa-user-secret"></i> Pantau Chat</a>
+    @endif
     <div class="nav-label">KONTEN WEBSITE</div>
     <a href="{{ route('admin.berita.index') }}" class="{{ request()->routeIs('admin.berita.*')?'active':'' }}"><i class="fa-solid fa-newspaper"></i> Berita & Artikel</a>
     <a href="{{ route('admin.program.index') }}" class="{{ request()->routeIs('admin.program.*')?'active':'' }}"><i class="fa-solid fa-book-open"></i> Program</a>
