@@ -27,15 +27,13 @@
   </div>
   <div class="stat-card">
     <div class="stat-top"><small>Admin Terakhir Login</small><div class="stat-ic" style="background:#fce7f3;color:#db2777"><i class="fa-solid fa-user-clock"></i></div></div>
-        <div class="stat-num">
-      @if($lastAdminLogin)
-        {{ \Illuminate\Support\Carbon::parse($lastAdminLogin->last_login_at)->format('d M Y H:i') }}
-        <div style="font-size:11px;color:var(--muted);margin-top:4px">{{ $lastAdminLogin->name }} ({{ $lastAdminLogin->roleLabel() }})</div>
-      @else
-        <span class="text-stone-400">Belum ada</span>
-      @endif
-    </div>
-    <div class="delta">🕐 Login Terakhir</div>
+    @if($lastAdminLogin)
+    <div class="stat-num">{{ $lastAdminLogin->last_login_at->format('H:i') }} <span style="font-size:13px;font-weight:600;color:var(--muted)">WIB</span></div>
+    <div class="delta" style="color:var(--muted);font-weight:600">{{ $lastAdminLogin->last_login_at->locale('id')->translatedFormat('d M Y') }} &middot; {{ $lastAdminLogin->name }}</div>
+    @else
+    <div class="stat-num" style="color:var(--muted)">—</div>
+    <div class="delta" style="color:var(--muted)">Belum ada login</div>
+    @endif
   </div>
 </div>
 
