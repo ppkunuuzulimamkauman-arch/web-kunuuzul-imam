@@ -86,7 +86,6 @@
     @endforeach
   </div>
   @endif
-  <p class="text-[13px] text-stone-500 mt-5">Untuk bergabung dalam kepengurusan atau informasi lebih lanjut, hubungi sekretariat pondok melalui halaman <a href="{{ route('kontak') }}" class="text-orange-600 font-bold hover:underline">Kontak</a>.</p>
 </div>
 </div>
 @endsection
