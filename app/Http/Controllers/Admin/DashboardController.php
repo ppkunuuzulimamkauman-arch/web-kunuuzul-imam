@@ -8,6 +8,7 @@ use App\Models\Galeri;
 use App\Models\Pendaftaran;
 use App\Models\Pesan;
 use App\Models\Program;
+use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\View\View;
 
@@ -76,6 +77,12 @@ class DashboardController extends Controller
             ]))
             ->sortByDesc('waktu')->take(6)->values();
 
+// Admin terakhir login
+        $lastAdminLogin = User::where('is_active', true)
+            ->whereNotNull('last_login_at')
+            ->orderBy('last_login_at', 'desc')
+            ->first();
+
         return view('admin.dashboard', [
             'totalPendaftar' => Pendaftaran::count(),
             'totalBerita' => Berita::where('is_published', true)->count(),
@@ -94,6 +101,7 @@ class DashboardController extends Controller
             'pipeline' => $pipeline,
             'pendaftarTerbaru' => $pendaftarTerbaru,
             'aktivitas' => $aktivitas,
+            'lastAdminLogin' => $lastAdminLogin,
         ]);
     }
 }

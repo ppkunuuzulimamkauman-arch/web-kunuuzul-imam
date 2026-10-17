@@ -23,6 +23,7 @@ class User extends Authenticatable
         'password',
         'role',
         'is_active',
+        'session_version',
     ];
 
     /**
@@ -45,6 +46,7 @@ class User extends Authenticatable
         'last_login_at' => 'datetime',
         'is_active' => 'boolean',
         'password' => 'hashed',
+        'session_version' => 'integer',
     ];
 
     public const ROLES = ['superadmin', 'operator'];

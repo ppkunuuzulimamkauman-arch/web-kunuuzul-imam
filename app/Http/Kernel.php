@@ -67,5 +67,6 @@ class Kernel extends HttpKernel
         'verified' => \Illuminate\Auth\Middleware\EnsureEmailIsVerified::class,
         'admin' => \App\Http\Middleware\EnsureIsAdmin::class,
         'admin.idle' => \App\Http\Middleware\AdminIdleTimeout::class,
+        'session.version' => \App\Http\Middleware\EnsureSessionVersion::class,
     ];
 }

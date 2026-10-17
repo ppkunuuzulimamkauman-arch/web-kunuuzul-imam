@@ -26,9 +26,16 @@
     <div class="delta">↑ {{ $dGaleri['nilai'] }}% <small>vs bulan lalu</small></div>
   </div>
   <div class="stat-card">
-    <div class="stat-top"><small>Program Aktif</small><div class="stat-ic" style="background:#fce7f3;color:#db2777"><i class="fa-solid fa-book-open"></i></div></div>
-    <div class="stat-num">{{ number_format($totalProgram) }}</div>
-    <div class="delta">↑ {{ $dProgram['nilai'] }}% <small>vs bulan lalu</small></div>
+    <div class="stat-top"><small>Admin Terakhir Login</small><div class="stat-ic" style="background:#fce7f3;color:#db2777"><i class="fa-solid fa-user-clock"></i></div></div>
+        <div class="stat-num">
+      @if($lastAdminLogin)
+        {{ \Illuminate\Support\Carbon::parse($lastAdminLogin->last_login_at)->format('d M Y H:i') }}
+        <div style="font-size:11px;color:var(--muted);margin-top:4px">{{ $lastAdminLogin->name }} ({{ $lastAdminLogin->roleLabel() }})</div>
+      @else
+        <span class="text-stone-400">Belum ada</span>
+      @endif
+    </div>
+    <div class="delta">🕐 Login Terakhir</div>
   </div>
 </div>
 
