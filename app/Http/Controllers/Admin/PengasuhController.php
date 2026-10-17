@@ -32,7 +32,7 @@ class PengasuhController extends Controller
     {
         $data = $request->validate([
             'nama' => 'required|string|max:150', 'jabatan' => 'nullable|string|max:150',
-            'bio' => 'nullable|string', 'foto' => 'nullable|image|max:2048',
+            'bio' => 'nullable|string', 'biografi' => 'nullable|string', 'foto' => 'nullable|image|max:2048',
             'urutan' => 'nullable|integer|min:0',
         ]);
         $data['is_aktif'] = $request->boolean('is_aktif', true);
@@ -52,7 +52,7 @@ class PengasuhController extends Controller
     {
         $data = $request->validate([
             'nama' => 'required|string|max:150', 'jabatan' => 'nullable|string|max:150',
-            'bio' => 'nullable|string', 'foto' => 'nullable|image|max:2048',
+            'bio' => 'nullable|string', 'biografi' => 'nullable|string', 'foto' => 'nullable|image|max:2048',
             'urutan' => 'nullable|integer|min:0',
         ]);
         $data['is_aktif'] = $request->boolean('is_aktif');

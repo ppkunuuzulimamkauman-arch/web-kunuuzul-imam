@@ -138,6 +138,14 @@ class HomeController extends Controller
         return view('profil-struktur', compact('pengasuhs'));
     }
 
+    public function masyayikh(Pengasuh $pengasuh): View
+    {
+        try {
+            $lainnya = Pengasuh::where('is_aktif', true)->where('id', '!=', $pengasuh->id)->orderBy('urutan')->take(4)->get();
+        } catch (\Throwable $e) { $lainnya = collect(); }
+        return view('profil-masyayikh', compact('pengasuh', 'lainnya'));
+    }
+
     public function visi(): View
     {
         return view('profil-visi');

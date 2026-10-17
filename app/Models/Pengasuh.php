@@ -12,7 +12,7 @@ class Pengasuh extends Model
 
     protected static array $storedFiles = ['foto'];
 
-    protected $fillable = ['nama', 'jabatan', 'bio', 'foto', 'urutan', 'is_aktif'];
+    protected $fillable = ['nama', 'jabatan', 'bio', 'biografi', 'foto', 'urutan', 'is_aktif'];
 
     protected $casts = ['is_aktif' => 'boolean'];
 }

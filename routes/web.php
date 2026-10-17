@@ -34,6 +34,7 @@ Route::get('/sitemap.xml', [SiteController::class, 'sitemap']);
 Route::get('/profil', [HomeController::class, 'profil'])->name('profil');
 Route::get('/profil/sejarah', [HomeController::class, 'sejarah'])->name('profil.sejarah');
 Route::get('/profil/struktur', [HomeController::class, 'struktur'])->name('profil.struktur');
+Route::get('/profil/masyayikh/{pengasuh}', [HomeController::class, 'masyayikh'])->name('profil.masyayikh');
 Route::get('/profil/visi', [HomeController::class, 'visi'])->name('profil.visi');
 Route::get('/lembaga', [HomeController::class, 'lembaga'])->name('lembaga');
 Route::get('/organisasi', [HomeController::class, 'organisasi'])->name('organisasi');

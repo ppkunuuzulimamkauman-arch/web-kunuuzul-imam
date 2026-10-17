@@ -6,7 +6,8 @@
 <div class="form-grid">
 <label class="f">Nama*<input name="nama" required value="{{ old('nama',$pengasuh->nama??'') }}"></label>
 <label class="f">Jabatan<input name="jabatan" value="{{ old('jabatan',$pengasuh->jabatan??'') }}" placeholder="Pengasuh — Pengampu Tafsir"></label>
-<label class="f" style="grid-column:1/-1">Bio<textarea name="bio" style="min-height:90px">{{ old('bio',$pengasuh->bio??'') }}</textarea></label>
+<label class="f" style="grid-column:1/-1">Bio singkat <small style="color:var(--muted);font-weight:600">(tampil di kartu, mis. jabatan atau tahun 1842–1918)</small><textarea name="bio" style="min-height:80px">{{ old('bio',$pengasuh->bio??'') }}</textarea></label>
+<label class="f" style="grid-column:1/-1">Biografi lengkap <small style="color:var(--muted);font-weight:600">(muncul di halaman detail saat kartu ditekan)</small><textarea name="biografi" style="min-height:160px">{{ old('biografi',$pengasuh->biografi??'') }}</textarea></label>
 <label class="f">Foto (maks 2MB)<input type="file" name="foto" accept="image/*">@if(!empty($pengasuh->foto))<small style="color:var(--muted)">Ada: {{ $pengasuh->foto }}</small><br><img src="{{ '/storage/'.$pengasuh->foto }}" style="width:80px;height:80px;object-fit:cover;border-radius:50%;margin-top:6px" onerror="this.style.display='none'">@endif</label>
 <label class="f">Urutan<input type="number" name="urutan" value="{{ old('urutan',$pengasuh->urutan??0) }}"></label>
 </div>
