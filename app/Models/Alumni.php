@@ -21,6 +21,7 @@ class Alumni extends Model
 
     protected $fillable = [
         'nama',
+        'nik',
         'angkatan',
         'tahun_lulus',
         'lembaga',
@@ -88,6 +89,87 @@ class Alumni extends Model
         }
 
         return implode(' - ', $parts);
+    }
+
+    public function kodeAlumni(): string
+    {
+        return 'ALM-'.str_pad((string) $this->id, 4, '0', STR_PAD_LEFT);
+    }
+
+    /** @return array<int, string> */
+    public static function lembagaOptions(): array
+    {
+        $defaults = ['MTs', 'MA', 'Madrasah Diniyah', 'Tahfidz', "Ma'had Aly"];
+
+        try {
+            $lembaga = Lembaga::query()
+                ->where('is_aktif', true)
+                ->orderBy('urutan')
+                ->pluck('nama')
+                ->all();
+        } catch (\Throwable $e) {
+            $lembaga = [];
+        }
+
+        return self::uniqueOptions(array_merge($defaults, $lembaga, self::existingValues('lembaga')));
+    }
+
+    /** @return array<int, string> */
+    public static function pekerjaanOptions(): array
+    {
+        $defaults = [
+            'Pelajar/Mahasiswa',
+            'Guru/Dosen',
+            'PNS/ASN',
+            'TNI/Polri',
+            'Karyawan Swasta',
+            'Wirausaha',
+            'Petani/Peternak',
+            'Nelayan',
+            'Buruh',
+            'Ibu Rumah Tangga',
+            'Belum Bekerja',
+        ];
+
+        return self::uniqueOptions(array_merge($defaults, self::existingValues('pekerjaan')));
+    }
+
+    /** @return array<int, string> */
+    public static function domisiliOptions(): array
+    {
+        $defaults = [
+            'Jombang', 'Surabaya', 'Malang', 'Kediri', 'Sidoarjo', 'Gresik',
+            'Mojokerto', 'Blitar', 'Madiun', 'Jakarta', 'Bandung', 'Semarang',
+            'Yogyakarta', 'Denpasar', 'Makassar', 'Medan', 'Palembang',
+            'Banjarmasin', 'Pontianak', 'Manado', 'Mataram', 'Bekasi', 'Depok',
+            'Tangerang', 'Bogor',
+        ];
+
+        return self::uniqueOptions(array_merge($defaults, self::existingValues('domisili')));
+    }
+
+    /** @return array<int, string> */
+    private static function existingValues(string $column): array
+    {
+        try {
+            return self::query()
+                ->whereNotNull($column)
+                ->where($column, '!=', '')
+                ->distinct()
+                ->orderBy($column)
+                ->pluck($column)
+                ->all();
+        } catch (\Throwable $e) {
+            return [];
+        }
+    }
+
+    /** @param array<int, mixed> $options */
+    private static function uniqueOptions(array $options): array
+    {
+        $options = array_map(fn ($option) => trim((string) $option), $options);
+
+        return array_values(array_unique(array_filter($options, fn ($option) => $option !== '')));
     }
 
     public function fotoUrl(): ?string

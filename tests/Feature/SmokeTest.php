@@ -29,7 +29,7 @@ class SmokeTest extends TestCase
     {
         $res = $this->get('/ini-pasti-tidak-ada-123');
         $res->assertNotFound();
-        $this->assertStringContainsString('Halaman Tidak Ditemukan', $res->getContent());
+        $this->assertStringContainsString('Lost in space', $res->getContent());
     }
 
     #[Test]

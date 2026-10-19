@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Alumni;
 use App\Http\Controllers\Controller;
 use App\Models\Alumni;
 use App\Services\Turnstile;
+use App\Support\Nik;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -50,7 +51,89 @@ class AlumniController extends Controller
 
     public function registerForm(): View
     {
-        return view('alumni.register');
+        return view('alumni.register', [
+            'totalAlumni' => Alumni::tampil()->count(),
+        ]);
+    }
+
+    public function checkNik(Request $request): RedirectResponse
+    {
+        $request->merge([
+            'nik' => preg_replace('/\D+/', '', (string) $request->input('nik')),
+        ]);
+
+        $request->validate([
+            'nik' => ['required', 'string', 'size:16', 'regex:/^\d{16}$/'],
+        ], [
+            'nik.required' => 'Masukkan NIK terlebih dahulu.',
+            'nik.size' => 'NIK harus 16 digit angka.',
+            'nik.regex' => 'NIK hanya boleh berisi angka.',
+        ]);
+
+        $nik = (string) $request->input('nik');
+
+        if (! Nik::isValid($nik)) {
+            return back()
+                ->withErrors(['nik' => 'NIK tidak valid. Periksa kembali 16 digit angka pada KTP/KK Anda.'])
+                ->withInput();
+        }
+
+        $request->session()->put('alumni_nik', $nik);
+
+        return Alumni::where('nik', $nik)->exists()
+            ? redirect()->route('alumni.register.recorded')
+            : redirect()->route('alumni.register.form');
+    }
+
+    public function registerFormFields(Request $request): View|RedirectResponse
+    {
+        $nik = (string) $request->session()->get('alumni_nik', '');
+
+        if (! Nik::isValid($nik)) {
+            return redirect()->route('alumni.register')
+                ->withErrors(['nik' => 'Silakan masukkan NIK terlebih dahulu.']);
+        }
+
+        if (Alumni::where('nik', $nik)->exists()) {
+            return redirect()->route('alumni.register.recorded');
+        }
+
+        return view('alumni.register-form', [
+            'nik' => $nik,
+            'totalAlumni' => Alumni::tampil()->count(),
+            'lembagaOptions' => Alumni::lembagaOptions(),
+            'pekerjaanOptions' => Alumni::pekerjaanOptions(),
+            'domisiliOptions' => Alumni::domisiliOptions(),
+            'years' => range((int) now()->year + 1, 1950),
+        ]);
+    }
+
+    public function registerRecorded(Request $request): View|RedirectResponse
+    {
+        $nik = (string) $request->session()->get('alumni_nik', '');
+
+        if (! Nik::isValid($nik)) {
+            return redirect()->route('alumni.register')
+                ->withErrors(['nik' => 'Silakan masukkan NIK terlebih dahulu.']);
+        }
+
+        $alumni = Alumni::where('nik', $nik)->first();
+
+        if (! $alumni) {
+            return redirect()->route('alumni.register.form');
+        }
+
+        return view('alumni.register-recorded', [
+            'alumni' => $alumni,
+            'totalAlumni' => Alumni::tampil()->count(),
+        ]);
+    }
+
+    public function resetNik(Request $request): RedirectResponse
+    {
+        $request->session()->forget('alumni_nik');
+
+        return redirect()->route('alumni.register');
     }
 
     public function registerStore(Request $request): RedirectResponse
@@ -60,20 +143,46 @@ class AlumniController extends Controller
             return redirect()->route('alumni.register.success');
         }
 
+        $nik = (string) $request->session()->get('alumni_nik', '');
+
+        if (! Nik::isValid($nik)) {
+            return redirect()->route('alumni.register')
+                ->withErrors(['nik' => 'Sesi NIK tidak valid. Silakan masukkan NIK kembali.']);
+        }
+
+        if (Alumni::where('nik', $nik)->exists()) {
+            return redirect()->route('alumni.register.recorded')
+                ->withErrors(['nik' => 'NIK sudah terdaftar.']);
+        }
+
+        // NIK diambil dari sesi, bukan dari input form.
+        $request->merge(['nik' => $nik]);
+
         $data = $request->validate([
+            'nik' => ['required', 'digits:16', 'unique:alumnis,nik'],
             'nama' => 'required|string|max:150',
             'angkatan' => 'nullable|integer|min:1900|max:2100',
             'tahun_lulus' => 'nullable|integer|min:1900|max:2100',
             'lembaga' => 'nullable|string|max:150',
+            'lembaga_lainnya' => 'nullable|string|max:150',
             'domisili' => 'nullable|string|max:150',
             'pekerjaan' => 'nullable|string|max:150',
+            'pekerjaan_lainnya' => 'nullable|string|max:150',
             'no_hp' => 'required|string|max:20|regex:/^[0-9+\-\s]{9,20}$/',
             'email' => 'nullable|email|max:150',
             'tentang' => 'nullable|string|max:2000',
             'foto' => 'nullable|image|max:2048',
         ], [
             'no_hp.regex' => 'Nomor HP tidak valid (9-20 karakter, angka / + / - / spasi).',
+            'nik.unique' => 'NIK sudah terdaftar.',
         ]);
+
+        foreach (['lembaga', 'pekerjaan'] as $field) {
+            if (($data[$field] ?? null) === '__other__') {
+                $data[$field] = trim((string) ($data[$field.'_lainnya'] ?? '')) ?: null;
+            }
+        }
+        unset($data['lembaga_lainnya'], $data['pekerjaan_lainnya']);
 
         if (! Turnstile::verify($request->input('cf-turnstile-response'), $request->ip())) {
             return back()
@@ -89,6 +198,7 @@ class AlumniController extends Controller
         $data['is_tampil'] = false;
 
         $alumni = Alumni::create($data);
+        $request->session()->forget('alumni_nik');
 
         // Notifikasi email ke admin (best-effort, gagal kirim tidak menggagalkan pendaftaran).
         try {
@@ -109,7 +219,9 @@ class AlumniController extends Controller
 
     public function registerSuccess(): View
     {
-        return view('alumni.register-success');
+        return view('alumni.register-success', [
+            'totalAlumni' => Alumni::tampil()->count(),
+        ]);
     }
 
     public function stats(): View

@@ -19,11 +19,12 @@
 <div class="card">
   <p style="font-size:14px;color:var(--muted);line-height:1.7;margin:0 0 10px">
     Unggah file CSV dengan baris judul (header). Kolom wajib: <b>Nama</b>.
-    Kolom lain opsional: Angkatan, Tahun Lulus, Lembaga, Domisili, Pekerjaan,
+    Kolom lain opsional: NIK, Angkatan, Tahun Lulus, Lembaga, Domisili, Pekerjaan,
     No. HP, Email, Status, Tampil, Tentang, Catatan Admin.
   </p>
 
   <ul style="font-size:13px;color:var(--muted);line-height:1.8;margin:0 0 16px 18px">
+    <li>NIK harus 16 digit dan valid. NIK yang sudah terdaftar akan dilewati.</li>
     <li>Status: <b>Menunggu</b>, <b>Disetujui</b>, atau <b>Ditolak</b>. Kosong = Disetujui.</li>
     <li>Tampil: <b>ya</b> / <b>tidak</b>. Kosong = ya (jika status Disetujui).</li>
     <li>Nama + angkatan yang sama akan dilewati (anti-duplikat).</li>

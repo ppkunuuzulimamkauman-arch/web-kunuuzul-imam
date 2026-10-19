@@ -24,6 +24,11 @@
         <input name="nama" required value="{{ old('nama', $alumni->nama ?? '') }}">
       </label>
 
+      <label class="f">NIK
+        <input name="nik" inputmode="numeric" maxlength="16" value="{{ old('nik', $alumni->nik ?? '') }}" placeholder="16 digit (opsional)">
+        <small style="color:var(--muted)">Dipakai alumni untuk cek data mandiri di halaman pendaftaran.</small>
+      </label>
+
       <label class="f">Angkatan (tahun masuk)
         <input type="number" name="angkatan" min="1900" max="2100" value="{{ old('angkatan', $alumni->angkatan ?? '') }}">
       </label>

@@ -45,9 +45,18 @@ class AlumniDirectoryTest extends TestCase
 
     public function test_halaman_form_dan_sukses_pendaftaran_bisa_diakses(): void
     {
+        $nik = $this->validNik(1);
+
         $this->get(route('alumni.register'))
             ->assertOk()
-            ->assertSee('Pendaftaran Alumni');
+            ->assertSee('Pendaftaran Alumni')
+            ->assertSee('Masukkan NIK');
+
+        $this->withSession(['alumni_nik' => $nik])
+            ->get(route('alumni.register.form'))
+            ->assertOk()
+            ->assertSee('Lengkapi Data Anda')
+            ->assertSee($nik);
 
         $this->get(route('alumni.register.success'))
             ->assertOk()
@@ -58,19 +67,23 @@ class AlumniDirectoryTest extends TestCase
     {
         config(['services.turnstile.site_key' => null, 'services.turnstile.secret' => null]);
 
-        $this->post(route('alumni.register.store'), [
-            'nama' => 'Calon Alumni',
-            'angkatan' => 2020,
-            'tahun_lulus' => 2024,
-            'lembaga' => 'MA',
-            'domisili' => 'Jombang',
-            'pekerjaan' => 'Mahasiswa',
-            'no_hp' => '081234567890',
-            'email' => 'calon-alumni@example.test',
-            'tentang' => 'Siap bersilaturahmi.',
-        ])->assertRedirect(route('alumni.register.success'));
+        $nik = $this->validNik(2);
+
+        $this->withSession(['alumni_nik' => $nik])
+            ->post(route('alumni.register.store'), [
+                'nama' => 'Calon Alumni',
+                'angkatan' => 2020,
+                'tahun_lulus' => 2024,
+                'lembaga' => 'MA',
+                'domisili' => 'Jombang',
+                'pekerjaan' => 'Mahasiswa',
+                'no_hp' => '081234567890',
+                'email' => 'calon-alumni@example.test',
+                'tentang' => 'Siap bersilaturahmi.',
+            ])->assertRedirect(route('alumni.register.success'));
 
         $alumni = Alumni::where('nama', 'Calon Alumni')->firstOrFail();
+        $this->assertSame($nik, $alumni->nik);
         $this->assertSame(Alumni::STATUS_PENDING, $alumni->status);
         $this->assertFalse((bool) $alumni->is_tampil);
 
@@ -81,11 +94,12 @@ class AlumniDirectoryTest extends TestCase
 
     public function test_honeypot_pendaftaran_tidak_membuat_data(): void
     {
-        $this->post(route('alumni.register.store'), [
-            'website' => 'http://spam.test',
-            'nama' => 'Bot Alumni',
-            'no_hp' => '081234567890',
-        ])->assertRedirect(route('alumni.register.success'));
+        $this->withSession(['alumni_nik' => $this->validNik(3)])
+            ->post(route('alumni.register.store'), [
+                'website' => 'http://spam.test',
+                'nama' => 'Bot Alumni',
+                'no_hp' => '081234567890',
+            ])->assertRedirect(route('alumni.register.success'));
 
         $this->assertDatabaseMissing('alumnis', ['nama' => 'Bot Alumni']);
     }
@@ -138,14 +152,22 @@ class AlumniDirectoryTest extends TestCase
     public function test_admin_bisa_menambah_mengubah_dan_menghapus_alumni(): void
     {
         $utama = $this->adminUser('crud');
+        $nikBaru = $this->validNik(4);
+        $nikUbah = $this->validNik(5);
 
         $this->actingAs($utama)
             ->get(route('admin.alumni.index'))
             ->assertOk();
 
         $this->actingAs($utama)
+            ->get(route('admin.alumni.create'))
+            ->assertOk()
+            ->assertSee('NIK');
+
+        $this->actingAs($utama)
             ->post(route('admin.alumni.store'), [
                 'nama' => 'Alumni Baru',
+                'nik' => $nikBaru,
                 'angkatan' => 2015,
                 'tahun_lulus' => 2019,
                 'lembaga' => 'MA',
@@ -160,12 +182,14 @@ class AlumniDirectoryTest extends TestCase
             ->assertRedirect(route('admin.alumni.index'));
 
         $alumni = Alumni::where('nama', 'Alumni Baru')->firstOrFail();
+        $this->assertSame($nikBaru, $alumni->nik);
         $this->assertTrue((bool) $alumni->is_tampil);
         $this->assertSame(Alumni::STATUS_APPROVED, $alumni->status);
 
         $this->actingAs($utama)
             ->put(route('admin.alumni.update', $alumni), [
                 'nama' => 'Alumni Diubah',
+                'nik' => $nikUbah,
                 'angkatan' => 2015,
                 'status' => Alumni::STATUS_APPROVED,
                 'is_tampil' => '1',
@@ -175,6 +199,7 @@ class AlumniDirectoryTest extends TestCase
         $this->assertDatabaseHas('alumnis', [
             'id' => $alumni->id,
             'nama' => 'Alumni Diubah',
+            'nik' => $nikUbah,
         ]);
 
         $this->actingAs($utama)
@@ -187,8 +212,10 @@ class AlumniDirectoryTest extends TestCase
     public function test_admin_bisa_export_csv_alumni(): void
     {
         $admin = $this->adminUser('export');
+        $nik = $this->validNik(6);
         Alumni::create([
             'nama' => 'Alumni Export',
+            'nik' => $nik,
             'angkatan' => 2018,
             'domisili' => 'Surabaya',
             'status' => Alumni::STATUS_APPROVED,
@@ -200,6 +227,7 @@ class AlumniDirectoryTest extends TestCase
         $res->assertOk();
         $res->assertHeader('content-type', 'text/csv; charset=UTF-8');
         $this->assertStringContainsString('Alumni Export', $res->streamedContent());
+        $this->assertStringContainsString($nik, $res->streamedContent());
         $this->assertStringContainsString('Disetujui', $res->streamedContent());
     }
 
@@ -210,14 +238,16 @@ class AlumniDirectoryTest extends TestCase
 
         $res->assertOk();
         $res->assertHeader('content-type', 'text/csv; charset=UTF-8');
-        $this->assertStringContainsString('Nama,Angkatan', $res->streamedContent());
+        $this->assertStringContainsString('Nama,NIK,Angkatan', $res->streamedContent());
     }
 
     public function test_admin_bisa_import_csv_alumni(): void
     {
+        $nik = $this->validNik(7);
+
         $csv = $this->alumniCsv([
-            ['Alumni Import', '2010', '2014', 'MA', 'Jombang', 'Guru', '081234567890', 'import@example.test', 'Disetujui', 'ya', 'Test import', ''],
-            ['Alumni Pending', '2011', '', '', '', '', '', '', 'Menunggu', '', '', ''],
+            ['Alumni Import', $nik, '2010', '2014', 'MA', 'Jombang', 'Guru', '081234567890', 'import@example.test', 'Disetujui', 'ya', 'Test import', ''],
+            ['Alumni Pending', '', '2011', '', '', '', '', '', '', 'Menunggu', '', '', ''],
         ]);
 
         $this->actingAs($this->adminUser('import'))
@@ -228,6 +258,7 @@ class AlumniDirectoryTest extends TestCase
             ->assertSessionHas('sukses');
 
         $imported = Alumni::where('nama', 'Alumni Import')->firstOrFail();
+        $this->assertSame($nik, $imported->nik);
         $this->assertSame(Alumni::STATUS_APPROVED, $imported->status);
         $this->assertTrue((bool) $imported->is_tampil);
         $this->assertSame(2010, $imported->angkatan);
@@ -248,10 +279,12 @@ class AlumniDirectoryTest extends TestCase
             'is_tampil' => true,
         ]);
 
+        $nikBaru = $this->validNik(9);
+
         $csv = $this->alumniCsv([
-            ['Alumni Duplikat', '2012', '', '', '', '', '', '', 'Disetujui', '', '', ''],
-            ['', '2020', '', '', '', '', '', '', 'Disetujui', '', '', ''],
-            ['Alumni Baru Import', '2021', '', '', '', '', '', '', 'Disetujui', '', '', ''],
+            ['Alumni Duplikat', '', '2012', '', '', '', '', '', '', 'Disetujui', '', '', ''],
+            ['', $this->validNik(8), '2020', '', '', '', '', '', '', 'Disetujui', '', '', ''],
+            ['Alumni Baru Import', $nikBaru, '2021', '', '', '', '', '', '', 'Disetujui', '', '', ''],
         ]);
 
         $this->actingAs($this->adminUser('import-duplikat'))
@@ -262,7 +295,7 @@ class AlumniDirectoryTest extends TestCase
             ->assertSessionHas('import_errors');
 
         $this->assertSame(1, Alumni::where('nama', 'Alumni Duplikat')->count());
-        $this->assertDatabaseHas('alumnis', ['nama' => 'Alumni Baru Import']);
+        $this->assertDatabaseHas('alumnis', ['nama' => 'Alumni Baru Import', 'nik' => $nikBaru]);
     }
 
     public function test_halaman_statistik_publik_menampilkan_data_yang_tampil(): void
@@ -300,15 +333,129 @@ class AlumniDirectoryTest extends TestCase
             ->assertDontSee('MTs');
     }
 
+    public function test_halaman_pendaftaran_menampilkan_total_alumni(): void
+    {
+        Alumni::create(['nama' => 'Tampil Satu', 'is_tampil' => true]);
+        Alumni::create(['nama' => 'Tampil Dua', 'is_tampil' => true]);
+        Alumni::create([
+            'nama' => 'Menunggu',
+            'status' => Alumni::STATUS_PENDING,
+            'is_tampil' => true,
+        ]);
+
+        $this->get(route('alumni.register'))
+            ->assertOk()
+            ->assertSee('data-total-alumni="2"', false)
+            ->assertSee('Alumni sudah terdaftar');
+    }
+
+    public function test_nik_terdaftar_mengarah_ke_halaman_tercatat(): void
+    {
+        $nik = $this->validNik(11);
+        $alumni = Alumni::create([
+            'nama' => 'Alumni NIK',
+            'nik' => $nik,
+            'status' => Alumni::STATUS_APPROVED,
+            'is_tampil' => true,
+        ]);
+
+        $this->post(route('alumni.register.check'), ['nik' => $nik])
+            ->assertRedirect(route('alumni.register.recorded'))
+            ->assertSessionHas('alumni_nik', $nik);
+
+        $this->get(route('alumni.register.recorded'))
+            ->assertOk()
+            ->assertSee('Alumni sudah tercatat')
+            ->assertSee('Alumni NIK')
+            ->assertSee($alumni->kodeAlumni())
+            ->assertSee('Lihat Profil Publik');
+    }
+
+    public function test_nik_baru_mengarah_ke_form_biodata(): void
+    {
+        $nik = $this->validNik(12);
+
+        $this->post(route('alumni.register.check'), ['nik' => $nik])
+            ->assertRedirect(route('alumni.register.form'))
+            ->assertSessionHas('alumni_nik', $nik);
+
+        $this->get(route('alumni.register.form'))
+            ->assertOk()
+            ->assertSee('Lengkapi Data Anda')
+            ->assertSee($nik)
+            ->assertSee('Pilih lembaga')
+            ->assertSee('Pilih pekerjaan');
+    }
+
+    public function test_nik_tidak_valid_ditolak(): void
+    {
+        $this->post(route('alumni.register.check'), ['nik' => '123'])
+            ->assertRedirect()
+            ->assertSessionHasErrors('nik');
+
+        $this->post(route('alumni.register.check'), ['nik' => '3517013201010001'])
+            ->assertRedirect()
+            ->assertSessionHasErrors('nik');
+
+        $this->assertDatabaseCount('alumnis', 0);
+    }
+
+    public function test_nik_duplikat_saat_pendaftaran_ditolak(): void
+    {
+        $nik = $this->validNik(13);
+        Alumni::create([
+            'nama' => 'Sudah Ada',
+            'nik' => $nik,
+            'status' => Alumni::STATUS_APPROVED,
+            'is_tampil' => true,
+        ]);
+
+        $this->withSession(['alumni_nik' => $nik])
+            ->post(route('alumni.register.store'), [
+                'nama' => 'Duplikat NIK',
+                'no_hp' => '081234567890',
+            ])
+            ->assertRedirect(route('alumni.register.recorded'))
+            ->assertSessionHasErrors('nik');
+
+        $this->assertDatabaseMissing('alumnis', ['nama' => 'Duplikat NIK']);
+    }
+
+    public function test_admin_tidak_bisa_menyimpan_nik_duplikat(): void
+    {
+        $nik = $this->validNik(14);
+        Alumni::create([
+            'nama' => 'Pemilik NIK',
+            'nik' => $nik,
+            'status' => Alumni::STATUS_APPROVED,
+            'is_tampil' => true,
+        ]);
+
+        $this->actingAs($this->adminUser('nik-duplikat'))
+            ->post(route('admin.alumni.store'), [
+                'nama' => 'Alumni NIK Duplikat',
+                'nik' => $nik,
+                'status' => Alumni::STATUS_APPROVED,
+            ])
+            ->assertSessionHasErrors('nik');
+
+        $this->assertDatabaseMissing('alumnis', ['nama' => 'Alumni NIK Duplikat']);
+    }
+
     /** @param array<int, array<int, string>> $rows */
     private function alumniCsv(array $rows): string
     {
-        $header = ['Nama', 'Angkatan', 'Tahun Lulus', 'Lembaga', 'Domisili', 'Pekerjaan', 'No. HP', 'Email', 'Status', 'Tampil', 'Tentang', 'Catatan Admin'];
+        $header = ['Nama', 'NIK', 'Angkatan', 'Tahun Lulus', 'Lembaga', 'Domisili', 'Pekerjaan', 'No. HP', 'Email', 'Status', 'Tampil', 'Tentang', 'Catatan Admin'];
 
         return implode("\n", array_merge(
             [implode(',', $header)],
             array_map(fn (array $row) => implode(',', $row), $rows)
         ));
+    }
+
+    private function validNik(int $sequence): string
+    {
+        return '351701010101'.str_pad((string) $sequence, 4, '0', STR_PAD_LEFT);
     }
 
     private function adminUser(string $suffix): User

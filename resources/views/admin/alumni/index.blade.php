@@ -8,7 +8,7 @@
   <form method="GET" action="{{ route('admin.alumni.index') }}" style="display:flex;gap:8px;flex-wrap:wrap;align-items:center">
     <div class="searchbar" style="min-width:260px;background:var(--card)">
       <i class="fa-solid fa-magnifying-glass"></i>
-      <input name="q" value="{{ $q }}" placeholder="Cari nama, lembaga, domisili...">
+      <input name="q" value="{{ $q }}" placeholder="Cari nama, NIK, lembaga, domisili...">
     </div>
     <select name="angkatan" style="border:1px solid var(--line);border-radius:10px;padding:9px 12px;background:var(--card);color:var(--ink);font-size:13px">
       <option value="">Semua angkatan</option>
@@ -90,6 +90,9 @@
               </td>
               <td>
                 <b>{{ $alumni->nama }}</b>
+                @if($alumni->nik)
+                  <br><small style="color:var(--muted)">NIK: {{ $alumni->nik }}</small>
+                @endif
                 @if($alumni->pekerjaan)
                   <br><small style="color:var(--muted)">{{ $alumni->pekerjaan }}</small>
                 @endif

@@ -4,8 +4,11 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Alumni;
+use App\Support\Nik;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Validation\Rule;
+use Illuminate\Validation\ValidationException;
 use Illuminate\View\View;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 
@@ -22,6 +25,7 @@ class AlumniController extends Controller
             ->when($q !== '', function ($query) use ($q) {
                 $query->where(function ($sub) use ($q) {
                     $sub->where('nama', 'like', "%{$q}%")
+                        ->orWhere('nik', 'like', "%{$q}%")
                         ->orWhere('lembaga', 'like', "%{$q}%")
                         ->orWhere('domisili', 'like', "%{$q}%")
                         ->orWhere('pekerjaan', 'like', "%{$q}%")
@@ -61,6 +65,7 @@ class AlumniController extends Controller
             ->when($q !== '', function ($query) use ($q) {
                 $query->where(function ($sub) use ($q) {
                     $sub->where('nama', 'like', "%{$q}%")
+                        ->orWhere('nik', 'like', "%{$q}%")
                         ->orWhere('lembaga', 'like', "%{$q}%")
                         ->orWhere('domisili', 'like', "%{$q}%")
                         ->orWhere('pekerjaan', 'like', "%{$q}%")
@@ -77,10 +82,11 @@ class AlumniController extends Controller
         return response()->streamDownload(function () use ($rows) {
             $out = fopen('php://output', 'w');
             fwrite($out, "\xEF\xBB\xBF"); // BOM agar Excel membaca UTF-8 dengan benar
-            fputcsv($out, ['Nama', 'Angkatan', 'Tahun Lulus', 'Lembaga', 'Domisili', 'Pekerjaan', 'No. HP', 'Email', 'Status', 'Tampil', 'Tentang', 'Catatan Admin', 'Dibuat']);
+            fputcsv($out, ['Nama', 'NIK', 'Angkatan', 'Tahun Lulus', 'Lembaga', 'Domisili', 'Pekerjaan', 'No. HP', 'Email', 'Status', 'Tampil', 'Tentang', 'Catatan Admin', 'Dibuat']);
             foreach ($rows as $a) {
                 fputcsv($out, [
                     $a->nama,
+                    $a->nik,
                     $a->angkatan,
                     $a->tahun_lulus,
                     $a->lembaga,
@@ -109,7 +115,7 @@ class AlumniController extends Controller
         return response()->streamDownload(function () {
             $out = fopen('php://output', 'w');
             fwrite($out, "\xEF\xBB\xBF");
-            fputcsv($out, ['Nama', 'Angkatan', 'Tahun Lulus', 'Lembaga', 'Domisili', 'Pekerjaan', 'No. HP', 'Email', 'Status', 'Tampil', 'Tentang', 'Catatan Admin']);
+            fputcsv($out, ['Nama', 'NIK', 'Angkatan', 'Tahun Lulus', 'Lembaga', 'Domisili', 'Pekerjaan', 'No. HP', 'Email', 'Status', 'Tampil', 'Tentang', 'Catatan Admin']);
             fclose($out);
         }, 'template-import-alumni.csv', ['Content-Type' => 'text/csv; charset=UTF-8']);
     }
@@ -191,6 +197,13 @@ class AlumniController extends Controller
                 continue;
             }
 
+            $nik = Nik::normalize($get('nik'));
+            if ($nik !== null && ! Nik::isValid($nik)) {
+                $errors[] = "Baris {$rowNumber}: NIK tidak valid, dilewati.";
+                $skipped++;
+                continue;
+            }
+
             $email = $get('email');
             if ($email !== '' && (mb_strlen($email) > 150 || ! filter_var($email, FILTER_VALIDATE_EMAIL))) {
                 $errors[] = "Baris {$rowNumber}: email tidak valid ({$email}), dilewati.";
@@ -212,6 +225,11 @@ class AlumniController extends Controller
                 ? $this->parseCsvBool($get('is_tampil'), true)
                 : false;
 
+            if ($nik !== null && Alumni::where('nik', $nik)->exists()) {
+                $skipped++;
+                continue;
+            }
+
             $duplicate = Alumni::where('nama', $nama);
             if ($angkatan) {
                 $duplicate->where('angkatan', $angkatan);
@@ -225,6 +243,7 @@ class AlumniController extends Controller
 
             Alumni::create([
                 'nama' => $nama,
+                'nik' => $nik,
                 'angkatan' => $angkatan,
                 'tahun_lulus' => $tahunLulus,
                 'lembaga' => mb_substr($get('lembaga'), 0, 150) ?: null,
@@ -274,7 +293,7 @@ class AlumniController extends Controller
 
     public function update(Request $request, Alumni $alumni): RedirectResponse
     {
-        $data = $this->validated($request);
+        $data = $this->validated($request, $alumni);
         $data['is_tampil'] = $data['status'] === Alumni::STATUS_APPROVED && $request->boolean('is_tampil');
 
         if ($request->hasFile('foto')) {
@@ -328,10 +347,22 @@ class AlumniController extends Controller
     }
 
     /** @return array<string, mixed> */
-    private function validated(Request $request): array
+    private function validated(Request $request, ?Alumni $alumni = null): array
     {
-        return $request->validate([
+        if ($request->filled('nik')) {
+            $request->merge([
+                'nik' => preg_replace('/\D+/', '', (string) $request->input('nik')),
+            ]);
+        }
+
+        $uniqueNik = Rule::unique('alumnis', 'nik');
+        if ($alumni) {
+            $uniqueNik->ignore($alumni->id);
+        }
+
+        $data = $request->validate([
             'nama' => 'required|string|max:150',
+            'nik' => ['nullable', 'digits:16', $uniqueNik],
             'angkatan' => 'nullable|integer|min:1900|max:2100',
             'tahun_lulus' => 'nullable|integer|min:1900|max:2100',
             'lembaga' => 'nullable|string|max:150',
@@ -344,6 +375,12 @@ class AlumniController extends Controller
             'catatan_admin' => 'nullable|string|max:1000',
             'foto' => 'nullable|image|max:2048',
         ]);
+
+        if (! empty($data['nik']) && ! Nik::isValid($data['nik'])) {
+            throw ValidationException::withMessages(['nik' => 'NIK tidak valid.']);
+        }
+
+        return $data;
     }
 
     private function normalizeCsvHeader(string $header): string
