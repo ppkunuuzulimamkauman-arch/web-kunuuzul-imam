@@ -67,8 +67,6 @@ Route::post('/deploy-hook', [SiteController::class, 'deployHook'])->middleware('
 // === Auth Admin ===
 Route::get('/admin/login', [AuthController::class, 'login'])->name('login')->middleware('guest');
 Route::post('/admin/login', [AuthController::class, 'authenticate'])->middleware(['guest', 'throttle:5,1'])->name('login.post');
-Route::get('/admin/two-factor', [AuthController::class, 'showTwoFactorChallenge'])->middleware('guest')->name('admin.two-factor.challenge');
-Route::post('/admin/two-factor', [AuthController::class, 'verifyTwoFactorChallenge'])->middleware(['guest', 'throttle:10,1'])->name('admin.two-factor.verify');
 Route::post('/admin/logout', [AuthController::class, 'logout'])->name('admin.logout')->middleware('auth');
 Route::post('/admin/lock', [AuthController::class, 'lock'])->name('admin.lock')->middleware('auth');
 
@@ -135,12 +133,6 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'admin', 'admin.idle
     // Pengaturan website
     Route::get('setting', [SettingController::class, 'index'])->name('setting.index');
     Route::post('setting', [SettingController::class, 'update'])->name('setting.update');
-
-    // Keamanan akun (2FA)
-    Route::get('keamanan', [\App\Http\Controllers\Admin\TwoFactorController::class, 'show'])->name('two-factor.show');
-    Route::post('keamanan/aktifkan', [\App\Http\Controllers\Admin\TwoFactorController::class, 'enable'])->name('two-factor.enable');
-    Route::post('keamanan/nonaktifkan', [\App\Http\Controllers\Admin\TwoFactorController::class, 'disable'])->name('two-factor.disable');
-    Route::post('keamanan/kode-pemulihan', [\App\Http\Controllers\Admin\TwoFactorController::class, 'regenerateRecoveryCodes'])->name('two-factor.recovery');
 
     // Peta kontrol landing
     Route::view('panduan-landing', 'admin.panduan')->name('panduan');
