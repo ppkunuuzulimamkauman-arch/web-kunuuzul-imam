@@ -11,6 +11,10 @@
       Silaturahmi lintas angkatan Pondok Pesantren Kunuuzul Imam Kauman. Temukan teman seangkatan,
       rekan selembaga, dan jaringan alumni di seluruh Indonesia.
     </p>
+    <div class="mt-5 flex items-baseline gap-2">
+      <span class="text-3xl font-extrabold text-emerald-300">{{ $totalAlumni }}</span>
+      <span class="text-xs text-emerald-100/70">alumni sudah terdaftar</span>
+    </div>
     <div class="mt-6 flex flex-wrap gap-3">
       <a href="{{ route('alumni.register') }}"
          class="inline-flex items-center gap-2 px-5 py-3 rounded-xl bg-white text-emerald-900 text-sm font-extrabold hover:bg-emerald-50 transition">
@@ -25,6 +29,12 @@
 </section>
 
 <div class="max-w-7xl mx-auto px-4 -mt-8 relative z-10">
+  <div class="max-w-xl mx-auto mb-4">
+    <div class="bg-white border border-stone-200 rounded-3xl p-6 md:p-8 shadow-lg shadow-stone-200/60">
+      @include('alumni.partials.nik-check')
+    </div>
+  </div>
+
   <form method="GET" action="{{ route('alumni.home') }}" class="bg-white rounded-2xl border border-stone-200 shadow-lg p-4 md:p-5 grid gap-3 md:grid-cols-[1fr_200px_auto]">
     <label class="relative block">
       <i class="fa-solid fa-magnifying-glass absolute left-4 top-1/2 -translate-y-1/2 text-stone-400 text-sm"></i>

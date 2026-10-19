@@ -39,7 +39,13 @@ class AlumniController extends Controller
             ->orderByDesc('angkatan')
             ->pluck('angkatan');
 
-        return view('alumni.index', compact('alumnis', 'angkatans', 'q', 'angkatan'));
+        return view('alumni.index', [
+            'alumnis' => $alumnis,
+            'angkatans' => $angkatans,
+            'q' => $q,
+            'angkatan' => $angkatan,
+            'totalAlumni' => Alumni::tampil()->count(),
+        ]);
     }
 
     public function show(Alumni $alumni): View

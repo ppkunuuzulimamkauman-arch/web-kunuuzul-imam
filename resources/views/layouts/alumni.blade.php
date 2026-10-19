@@ -13,6 +13,9 @@
 <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
 @vite(['resources/css/app.css', 'resources/js/app.js'])
+<style>
+  dialog::backdrop { background: rgba(28, 25, 23, .55); }
+</style>
 </head>
 <body class="bg-stone-50 text-stone-800 min-h-screen flex flex-col">
 <header class="bg-white/95 backdrop-blur border-b border-stone-200 sticky top-0 z-40">
