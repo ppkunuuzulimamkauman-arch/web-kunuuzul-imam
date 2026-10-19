@@ -1,7 +1,8 @@
 ﻿<?php
 
-use App\Http\Controllers\Admin\AuthController;
 use App\Http\Controllers\Admin\AgendaController;
+use App\Http\Controllers\Admin\AlumniController;
+use App\Http\Controllers\Admin\AuthController;
 use App\Http\Controllers\Admin\BeritaController;
 use App\Http\Controllers\Admin\ChatController;
 use App\Http\Controllers\Admin\DashboardController;
@@ -112,6 +113,11 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'admin', 'admin.idle
 
     // Pengasuh / Struktur
     Route::resource('pengasuh', PengasuhController::class)->except(['show']);
+
+    // Direktori alumni
+    Route::resource('alumni', AlumniController::class)
+        ->except(['show'])
+        ->parameters(['alumni' => 'alumni']);
 
     // Agenda (Majelis Terdekat & Agenda Pondok di landing)
     Route::resource('agenda', AgendaController::class)->except(['show']);
