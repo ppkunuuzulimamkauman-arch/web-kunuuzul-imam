@@ -34,6 +34,8 @@ class User extends Authenticatable
     protected $hidden = [
         'password',
         'remember_token',
+        'two_factor_secret',
+        'two_factor_recovery_codes',
     ];
 
     /**
@@ -47,6 +49,8 @@ class User extends Authenticatable
         'is_active' => 'boolean',
         'password' => 'hashed',
         'session_version' => 'integer',
+        'two_factor_confirmed_at' => 'datetime',
+        'two_factor_secret' => 'encrypted',
     ];
 
     public const ROLES = ['superadmin', 'operator'];
@@ -69,5 +73,27 @@ class User extends Authenticatable
             'operator' => 'Pengelola',
             default => ucfirst((string) $this->role),
         };
+    }
+
+    /** 2FA sudah diaktifkan & dikonfirmasi. */
+    public function hasTwoFactor(): bool
+    {
+        return ! empty($this->two_factor_secret) && $this->two_factor_confirmed_at !== null;
+    }
+
+    /** Kode pemulihan (plain) tersimpan terenkripsi. */
+    public function recoveryCodes(): array
+    {
+        if (empty($this->two_factor_recovery_codes)) {
+            return [];
+        }
+
+        try {
+            $decoded = decrypt($this->two_factor_recovery_codes);
+        } catch (\Throwable $e) {
+            return [];
+        }
+
+        return is_array($decoded) ? $decoded : [];
     }
 }

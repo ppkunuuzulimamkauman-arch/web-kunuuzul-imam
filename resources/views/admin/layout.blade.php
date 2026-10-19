@@ -141,6 +141,7 @@ label.f{display:block;margin-bottom:12px;font-size:13px;font-weight:700}label.f 
     <div class="nav-label">SISTEM</div>
     <a href="{{ route('admin.panduan') }}" class="{{ request()->routeIs('admin.panduan')?'active':'' }}"><i class="fa-solid fa-map"></i> Panduan Landing</a>
     <a href="{{ route('admin.setting.index') }}" class="{{ request()->routeIs('admin.setting.*')?'active':'' }}"><i class="fa-solid fa-gear"></i> Pengaturan</a>
+    <a href="{{ route('admin.two-factor.show') }}" class="{{ request()->routeIs('admin.two-factor.*')?'active':'' }}"><i class="fa-solid fa-shield-halved"></i> Keamanan Akun</a>
     <a href="{{ route('admin.users.index') }}" class="{{ request()->routeIs('admin.users.*')?'active':'' }}"><i class="fa-solid fa-user-shield"></i> Akun Admin</a>
   </nav>
   <div class="userbox">
