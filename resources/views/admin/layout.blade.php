@@ -137,7 +137,7 @@ label.f{display:block;margin-bottom:12px;font-size:13px;font-weight:700}label.f 
     <a href="{{ route('admin.lembaga.index') }}" class="{{ request()->routeIs('admin.lembaga.*')?'active':'' }}"><i class="fa-solid fa-mosque"></i> Lembaga</a>
     <a href="{{ route('admin.organisasi.index') }}" class="{{ request()->routeIs('admin.organisasi.*')?'active':'' }}"><i class="fa-solid fa-sitemap"></i> Organisasi</a>
     <a href="{{ route('admin.pengasuh.index') }}" class="{{ request()->routeIs('admin.pengasuh.*')?'active':'' }}"><i class="fa-solid fa-users"></i> Pengasuh</a>
-    <a href="{{ route('admin.alumni.index') }}" class="{{ request()->routeIs('admin.alumni.*')?'active':'' }}"><i class="fa-solid fa-user-graduate"></i> Alumni</a>
+    <a href="{{ route('admin.alumni.index') }}" class="{{ request()->routeIs('admin.alumni.*')?'active':'' }}"><i class="fa-solid fa-user-graduate"></i> Alumni @php try{$nAlumni=\App\Models\Alumni::where('status','menunggu')->count();}catch(\Throwable $e){$nAlumni=0;} @endphp @if($nAlumni>0)<span class="badge">{{ $nAlumni }}</span>@endif</a>
     <a href="{{ route('admin.agenda.index') }}" class="{{ request()->routeIs('admin.agenda.*')?'active':'' }}"><i class="fa-solid fa-calendar-days"></i> Agenda</a>
     <div class="nav-label">SISTEM</div>
     <a href="{{ route('admin.panduan') }}" class="{{ request()->routeIs('admin.panduan')?'active':'' }}"><i class="fa-solid fa-map"></i> Panduan Landing</a>

@@ -1,7 +1,7 @@
 @extends('admin.layout')
 
 @section('title', 'Data Alumni')
-@section('crumb', 'Direktori alumni pondok')
+@section('crumb', 'Direktori dan pendaftaran alumni pondok')
 
 @section('content')
 <div class="toolbar">
@@ -20,6 +20,14 @@
   </form>
 
   <a class="btn" href="{{ route('admin.alumni.create') }}"><i class="fa-solid fa-plus"></i> Tambah Alumni</a>
+</div>
+
+<div style="display:flex;gap:6px;flex-wrap:wrap;margin:0 0 12px">
+  @foreach(['' => 'Semua', \App\Models\Alumni::STATUS_PENDING => 'Menunggu', \App\Models\Alumni::STATUS_APPROVED => 'Disetujui', \App\Models\Alumni::STATUS_REJECTED => 'Ditolak'] as $key => $label)
+    <a href="{{ route('admin.alumni.index', array_filter(['status' => $key, 'q' => $q, 'angkatan' => $angkatan])) }}"
+       class="pill {{ (string) $status === (string) $key ? 'p-green' : 'p-gray' }}"
+       style="text-decoration:none">{{ $label }} ({{ $counts[$key] ?? 0 }})</a>
+  @endforeach
 </div>
 
 <div class="card">
@@ -65,15 +73,36 @@
               <td>{{ $alumni->lembaga ?: '-' }}</td>
               <td>{{ $alumni->domisili ?: '-' }}</td>
               <td>
-                {!! $alumni->is_tampil
-                    ? '<span class="pill p-green">tampil</span>'
-                    : '<span class="pill p-gray">sembunyi</span>' !!}
+                <span class="pill {{ $alumni->statusPillClass() }}">{{ $alumni->statusLabel() }}</span>
+                @if($alumni->catatan_admin)
+                  <br><small style="color:var(--muted)">{{ \Illuminate\Support\Str::limit($alumni->catatan_admin, 50) }}</small>
+                @endif
               </td>
               <td>
                 <div class="actions">
+                  @if($alumni->status !== \App\Models\Alumni::STATUS_APPROVED)
+                    <form method="POST" action="{{ route('admin.alumni.approve', $alumni) }}">
+                      @csrf
+                      <button class="icon-btn" title="Setujui" style="color:#15803d">
+                        <i class="fa-solid fa-check"></i>
+                      </button>
+                    </form>
+                  @endif
+
+                  @if($alumni->status !== \App\Models\Alumni::STATUS_REJECTED)
+                    <form method="POST" action="{{ route('admin.alumni.reject', $alumni) }}"
+                          onsubmit="return confirm('Tolak pendaftaran alumni ini?')">
+                      @csrf
+                      <button class="icon-btn danger" title="Tolak">
+                        <i class="fa-solid fa-xmark"></i>
+                      </button>
+                    </form>
+                  @endif
+
                   <a class="icon-btn" href="{{ route('admin.alumni.edit', $alumni) }}" title="Edit">
                     <i class="fa-solid fa-pen"></i>
                   </a>
+
                   <form method="POST" action="{{ route('admin.alumni.destroy', $alumni) }}"
                         onsubmit="return confirm('Hapus data alumni ini?')">
                     @csrf

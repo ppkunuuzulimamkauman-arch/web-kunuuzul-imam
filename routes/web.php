@@ -118,6 +118,8 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'admin', 'admin.idle
     Route::resource('alumni', AlumniController::class)
         ->except(['show'])
         ->parameters(['alumni' => 'alumni']);
+    Route::post('alumni/{alumni}/approve', [AlumniController::class, 'approve'])->name('alumni.approve');
+    Route::post('alumni/{alumni}/reject', [AlumniController::class, 'reject'])->name('alumni.reject');
 
     // Agenda (Majelis Terdekat & Agenda Pondok di landing)
     Route::resource('agenda', AgendaController::class)->except(['show']);

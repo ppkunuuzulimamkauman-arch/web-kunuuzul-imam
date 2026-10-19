@@ -11,6 +11,10 @@ class Alumni extends Model
 {
     use HasFactory, DeletesStoredFiles;
 
+    public const STATUS_PENDING = 'menunggu';
+    public const STATUS_APPROVED = 'disetujui';
+    public const STATUS_REJECTED = 'ditolak';
+
     protected $table = 'alumnis';
 
     protected static array $storedFiles = ['foto'];
@@ -26,6 +30,8 @@ class Alumni extends Model
         'email',
         'foto',
         'tentang',
+        'status',
+        'catatan_admin',
         'is_tampil',
     ];
 
@@ -35,10 +41,40 @@ class Alumni extends Model
         'is_tampil' => 'boolean',
     ];
 
-    /** Hanya data yang boleh tampil di direktori publik. */
+    /** Hanya data yang sudah disetujui dan boleh tampil di direktori publik. */
     public function scopeTampil(Builder $query): Builder
     {
-        return $query->where('is_tampil', true);
+        return $query->where('status', self::STATUS_APPROVED)->where('is_tampil', true);
+    }
+
+    public function isPubliclyVisible(): bool
+    {
+        return $this->status === self::STATUS_APPROVED && (bool) $this->is_tampil;
+    }
+
+    /** @return array<string, string> */
+    public static function statusOptions(): array
+    {
+        return [
+            self::STATUS_PENDING => 'Menunggu',
+            self::STATUS_APPROVED => 'Disetujui',
+            self::STATUS_REJECTED => 'Ditolak',
+        ];
+    }
+
+    public function statusLabel(): string
+    {
+        return self::statusOptions()[$this->status] ?? ucfirst((string) $this->status);
+    }
+
+    public function statusPillClass(): string
+    {
+        return match ($this->status) {
+            self::STATUS_PENDING => 'p-gold',
+            self::STATUS_REJECTED => 'p-red',
+            self::STATUS_APPROVED => 'p-green',
+            default => 'p-gray',
+        };
     }
 
     public function angkatanLabel(): string

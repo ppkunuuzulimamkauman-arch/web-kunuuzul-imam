@@ -11,6 +11,16 @@
       Silaturahmi lintas angkatan Pondok Pesantren Kunuuzul Imam Kauman. Temukan teman seangkatan,
       rekan selembaga, dan jaringan alumni di seluruh Indonesia.
     </p>
+    <div class="mt-6 flex flex-wrap gap-3">
+      <a href="{{ route('alumni.register') }}"
+         class="inline-flex items-center gap-2 px-5 py-3 rounded-xl bg-white text-emerald-900 text-sm font-extrabold hover:bg-emerald-50 transition">
+        <i class="fa-solid fa-user-plus"></i> Daftar sebagai Alumni
+      </a>
+      <a href="#direktori"
+         class="inline-flex items-center gap-2 px-5 py-3 rounded-xl border border-emerald-300/40 text-emerald-50 text-sm font-extrabold hover:bg-emerald-800/50 transition">
+        <i class="fa-solid fa-users"></i> Lihat Direktori
+      </a>
+    </div>
   </div>
 </section>
 
@@ -33,7 +43,7 @@
   </form>
 </div>
 
-<div class="max-w-7xl mx-auto px-4 py-10">
+<div id="direktori" class="max-w-7xl mx-auto px-4 py-10">
   <div class="flex items-end justify-between gap-4 mb-6">
     <div>
       <h2 class="font-extrabold text-stone-900 text-xl">Daftar Alumni</h2>

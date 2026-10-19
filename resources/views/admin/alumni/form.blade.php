@@ -56,6 +56,18 @@
         <textarea name="tentang" style="min-height:110px">{{ old('tentang', $alumni->tentang ?? '') }}</textarea>
       </label>
 
+      <label class="f">Status
+        <select name="status">
+          @foreach(\App\Models\Alumni::statusOptions() as $value => $label)
+            <option value="{{ $value }}" @selected(old('status', $alumni->status ?? \App\Models\Alumni::STATUS_APPROVED) === $value)>{{ $label }}</option>
+          @endforeach
+        </select>
+      </label>
+
+      <label class="f">Catatan admin
+        <input name="catatan_admin" value="{{ old('catatan_admin', $alumni->catatan_admin ?? '') }}" placeholder="Alasan ditolak / catatan verifikasi">
+      </label>
+
       <label class="f">Foto (maks 2MB)
         <input type="file" name="foto" accept="image/*">
         @if(isset($alumni) && $alumni->fotoUrl())
@@ -68,7 +80,7 @@
 
     <label class="check" style="margin:6px 0 14px">
       <input type="checkbox" name="is_tampil" value="1" @checked(old('is_tampil', $alumni->is_tampil ?? true))>
-      Tampilkan di direktori publik
+      Tampilkan di direktori publik (hanya jika status Disetujui)
     </label>
 
     <div style="display:flex;gap:8px">

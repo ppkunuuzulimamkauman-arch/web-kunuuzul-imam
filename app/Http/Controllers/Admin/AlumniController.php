@@ -14,8 +14,10 @@ class AlumniController extends Controller
     {
         $q = trim((string) $request->query('q'));
         $angkatan = $request->query('angkatan');
+        $status = $request->query('status');
 
         $alumnis = Alumni::query()
+            ->when($status, fn ($query) => $query->where('status', $status))
             ->when($q !== '', function ($query) use ($q) {
                 $query->where(function ($sub) use ($q) {
                     $sub->where('nama', 'like', "%{$q}%")
@@ -37,7 +39,14 @@ class AlumniController extends Controller
             ->orderByDesc('angkatan')
             ->pluck('angkatan');
 
-        return view('admin.alumni.index', compact('alumnis', 'angkatans', 'q', 'angkatan'));
+        $counts = [
+            '' => Alumni::count(),
+            Alumni::STATUS_PENDING => Alumni::where('status', Alumni::STATUS_PENDING)->count(),
+            Alumni::STATUS_APPROVED => Alumni::where('status', Alumni::STATUS_APPROVED)->count(),
+            Alumni::STATUS_REJECTED => Alumni::where('status', Alumni::STATUS_REJECTED)->count(),
+        ];
+
+        return view('admin.alumni.index', compact('alumnis', 'angkatans', 'q', 'angkatan', 'status', 'counts'));
     }
 
     public function create(): View
@@ -48,7 +57,7 @@ class AlumniController extends Controller
     public function store(Request $request): RedirectResponse
     {
         $data = $this->validated($request);
-        $data['is_tampil'] = $request->boolean('is_tampil');
+        $data['is_tampil'] = $data['status'] === Alumni::STATUS_APPROVED && $request->boolean('is_tampil');
 
         if ($request->hasFile('foto')) {
             $data['foto'] = $request->file('foto')->store('alumni', 'public');
@@ -67,7 +76,7 @@ class AlumniController extends Controller
     public function update(Request $request, Alumni $alumni): RedirectResponse
     {
         $data = $this->validated($request);
-        $data['is_tampil'] = $request->boolean('is_tampil');
+        $data['is_tampil'] = $data['status'] === Alumni::STATUS_APPROVED && $request->boolean('is_tampil');
 
         if ($request->hasFile('foto')) {
             $alumni->deleteStoredFile($alumni->foto);
@@ -79,6 +88,37 @@ class AlumniController extends Controller
         $alumni->update($data);
 
         return redirect()->route('admin.alumni.index')->with('sukses', 'Data alumni diperbarui.');
+    }
+
+    public function approve(Alumni $alumni): RedirectResponse
+    {
+        $alumni->update([
+            'status' => Alumni::STATUS_APPROVED,
+            'is_tampil' => true,
+            'catatan_admin' => null,
+        ]);
+
+        return back()->with('sukses', 'Pendaftaran alumni disetujui dan tampil di direktori.');
+    }
+
+    public function reject(Request $request, Alumni $alumni): RedirectResponse
+    {
+        $request->validate([
+            'catatan_admin' => 'nullable|string|max:1000',
+        ]);
+
+        $data = [
+            'status' => Alumni::STATUS_REJECTED,
+            'is_tampil' => false,
+        ];
+
+        if ($request->filled('catatan_admin')) {
+            $data['catatan_admin'] = $request->input('catatan_admin');
+        }
+
+        $alumni->update($data);
+
+        return back()->with('sukses', 'Pendaftaran alumni ditolak.');
     }
 
     public function destroy(Alumni $alumni): RedirectResponse
@@ -101,6 +141,8 @@ class AlumniController extends Controller
             'no_hp' => 'nullable|string|max:30',
             'email' => 'nullable|email|max:150',
             'tentang' => 'nullable|string',
+            'status' => 'required|in:menunggu,disetujui,ditolak',
+            'catatan_admin' => 'nullable|string|max:1000',
             'foto' => 'nullable|image|max:2048',
         ]);
     }
