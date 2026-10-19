@@ -23,6 +23,9 @@
     <a class="btn ghost" href="{{ route('admin.alumni.export', array_filter(request()->only('q', 'angkatan', 'status'))) }}">
       <i class="fa-solid fa-file-csv"></i> Export CSV
     </a>
+    <a class="btn ghost" href="{{ route('admin.alumni.import') }}">
+      <i class="fa-solid fa-file-import"></i> Import CSV
+    </a>
     <a class="btn" href="{{ route('admin.alumni.create') }}"><i class="fa-solid fa-plus"></i> Tambah Alumni</a>
   </div>
 </div>

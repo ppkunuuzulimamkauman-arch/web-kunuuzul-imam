@@ -11,4 +11,6 @@ Route::post('/daftar', [AlumniController::class, 'registerStore'])
     ->name('register.store');
 Route::get('/daftar/sukses', [AlumniController::class, 'registerSuccess'])->name('register.success');
 
+Route::get('/statistik', [AlumniController::class, 'stats'])->name('stats');
+
 Route::get('/{alumni}', [AlumniController::class, 'show'])->whereNumber('alumni')->name('show');

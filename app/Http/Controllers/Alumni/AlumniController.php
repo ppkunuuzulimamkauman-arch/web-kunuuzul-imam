@@ -7,6 +7,7 @@ use App\Models\Alumni;
 use App\Services\Turnstile;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\View\View;
 
 class AlumniController extends Controller
@@ -109,5 +110,61 @@ class AlumniController extends Controller
     public function registerSuccess(): View
     {
         return view('alumni.register-success');
+    }
+
+    public function stats(): View
+    {
+        $total = Alumni::tampil()->count();
+
+        $perAngkatan = Alumni::tampil()
+            ->whereNotNull('angkatan')
+            ->select('angkatan', DB::raw('count(*) as total'))
+            ->groupBy('angkatan')
+            ->orderByDesc('angkatan')
+            ->get();
+
+        $perLembaga = Alumni::tampil()
+            ->whereNotNull('lembaga')
+            ->where('lembaga', '!=', '')
+            ->select('lembaga', DB::raw('count(*) as total'))
+            ->groupBy('lembaga')
+            ->orderByDesc('total')
+            ->orderBy('lembaga')
+            ->limit(8)
+            ->get();
+
+        $perDomisili = Alumni::tampil()
+            ->whereNotNull('domisili')
+            ->where('domisili', '!=', '')
+            ->select('domisili', DB::raw('count(*) as total'))
+            ->groupBy('domisili')
+            ->orderByDesc('total')
+            ->orderBy('domisili')
+            ->limit(8)
+            ->get();
+
+        $jumlahAngkatan = $perAngkatan->count();
+        $jumlahLembaga = Alumni::tampil()
+            ->whereNotNull('lembaga')
+            ->where('lembaga', '!=', '')
+            ->distinct()
+            ->count('lembaga');
+        $jumlahDomisili = Alumni::tampil()
+            ->whereNotNull('domisili')
+            ->where('domisili', '!=', '')
+            ->distinct()
+            ->count('domisili');
+        $maxAngkatan = (int) ($perAngkatan->max('total') ?? 0);
+
+        return view('alumni.stats', compact(
+            'total',
+            'perAngkatan',
+            'perLembaga',
+            'perDomisili',
+            'jumlahAngkatan',
+            'jumlahLembaga',
+            'jumlahDomisili',
+            'maxAngkatan'
+        ));
     }
 }

@@ -116,6 +116,9 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'admin', 'admin.idle
 
     // Direktori alumni
     Route::get('alumni/export', [AlumniController::class, 'export'])->name('alumni.export');
+    Route::get('alumni/import', [AlumniController::class, 'importForm'])->name('alumni.import');
+    Route::post('alumni/import', [AlumniController::class, 'import'])->name('alumni.import.store');
+    Route::get('alumni/import/template', [AlumniController::class, 'importTemplate'])->name('alumni.import.template');
     Route::resource('alumni', AlumniController::class)
         ->except(['show'])
         ->parameters(['alumni' => 'alumni']);

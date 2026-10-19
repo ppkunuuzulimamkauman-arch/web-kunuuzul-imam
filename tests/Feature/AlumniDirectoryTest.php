@@ -5,6 +5,7 @@ namespace Tests\Feature;
 use App\Models\Alumni;
 use App\Models\User;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
+use Illuminate\Http\UploadedFile;
 use Tests\TestCase;
 
 class AlumniDirectoryTest extends TestCase
@@ -200,6 +201,114 @@ class AlumniDirectoryTest extends TestCase
         $res->assertHeader('content-type', 'text/csv; charset=UTF-8');
         $this->assertStringContainsString('Alumni Export', $res->streamedContent());
         $this->assertStringContainsString('Disetujui', $res->streamedContent());
+    }
+
+    public function test_admin_bisa_mengunduh_template_import(): void
+    {
+        $res = $this->actingAs($this->adminUser('template'))
+            ->get(route('admin.alumni.import.template'));
+
+        $res->assertOk();
+        $res->assertHeader('content-type', 'text/csv; charset=UTF-8');
+        $this->assertStringContainsString('Nama,Angkatan', $res->streamedContent());
+    }
+
+    public function test_admin_bisa_import_csv_alumni(): void
+    {
+        $csv = $this->alumniCsv([
+            ['Alumni Import', '2010', '2014', 'MA', 'Jombang', 'Guru', '081234567890', 'import@example.test', 'Disetujui', 'ya', 'Test import', ''],
+            ['Alumni Pending', '2011', '', '', '', '', '', '', 'Menunggu', '', '', ''],
+        ]);
+
+        $this->actingAs($this->adminUser('import'))
+            ->post(route('admin.alumni.import.store'), [
+                'file' => UploadedFile::fake()->createWithContent('alumni.csv', $csv),
+            ])
+            ->assertRedirect(route('admin.alumni.import'))
+            ->assertSessionHas('sukses');
+
+        $imported = Alumni::where('nama', 'Alumni Import')->firstOrFail();
+        $this->assertSame(Alumni::STATUS_APPROVED, $imported->status);
+        $this->assertTrue((bool) $imported->is_tampil);
+        $this->assertSame(2010, $imported->angkatan);
+        $this->assertSame(2014, $imported->tahun_lulus);
+        $this->assertSame('Test import', $imported->tentang);
+
+        $pending = Alumni::where('nama', 'Alumni Pending')->firstOrFail();
+        $this->assertSame(Alumni::STATUS_PENDING, $pending->status);
+        $this->assertFalse((bool) $pending->is_tampil);
+    }
+
+    public function test_import_csv_melewati_duplikat_dan_baris_invalid(): void
+    {
+        Alumni::create([
+            'nama' => 'Alumni Duplikat',
+            'angkatan' => 2012,
+            'status' => Alumni::STATUS_APPROVED,
+            'is_tampil' => true,
+        ]);
+
+        $csv = $this->alumniCsv([
+            ['Alumni Duplikat', '2012', '', '', '', '', '', '', 'Disetujui', '', '', ''],
+            ['', '2020', '', '', '', '', '', '', 'Disetujui', '', '', ''],
+            ['Alumni Baru Import', '2021', '', '', '', '', '', '', 'Disetujui', '', '', ''],
+        ]);
+
+        $this->actingAs($this->adminUser('import-duplikat'))
+            ->post(route('admin.alumni.import.store'), [
+                'file' => UploadedFile::fake()->createWithContent('alumni.csv', $csv),
+            ])
+            ->assertRedirect(route('admin.alumni.import'))
+            ->assertSessionHas('import_errors');
+
+        $this->assertSame(1, Alumni::where('nama', 'Alumni Duplikat')->count());
+        $this->assertDatabaseHas('alumnis', ['nama' => 'Alumni Baru Import']);
+    }
+
+    public function test_halaman_statistik_publik_menampilkan_data_yang_tampil(): void
+    {
+        Alumni::create([
+            'nama' => 'Stats Satu',
+            'angkatan' => 2010,
+            'lembaga' => 'MA',
+            'domisili' => 'Jombang',
+            'is_tampil' => true,
+        ]);
+        Alumni::create([
+            'nama' => 'Stats Dua',
+            'angkatan' => 2010,
+            'lembaga' => 'MA',
+            'domisili' => 'Surabaya',
+            'is_tampil' => true,
+        ]);
+        Alumni::create([
+            'nama' => 'Stats Tiga',
+            'angkatan' => 2011,
+            'lembaga' => 'MTs',
+            'domisili' => 'Jombang',
+            'status' => Alumni::STATUS_PENDING,
+            'is_tampil' => true,
+        ]);
+
+        $this->get(route('alumni.stats'))
+            ->assertOk()
+            ->assertSee('Statistik Alumni')
+            ->assertSee('2010')
+            ->assertSee('2 alumni')
+            ->assertSee('MA')
+            ->assertSee('Surabaya')
+            ->assertDontSee('MTs');
+    }
+
+    /** @param array<int, array<int, string>> $rows */
+    private function alumniCsv(array $rows): string
+    {
+        $header = ['Nama', 'Angkatan', 'Tahun Lulus', 'Lembaga', 'Domisili', 'Pekerjaan', 'No. HP', 'Email', 'Status', 'Tampil', 'Tentang', 'Catatan Admin'];
+
+        return implode("\n", array_merge(
+            [implode(',', $header)],
+            array_map(fn (array $row) => implode(',', $row), $rows)
+        ));
     }
 
     private function adminUser(string $suffix): User

@@ -77,7 +77,7 @@ class AlumniController extends Controller
         return response()->streamDownload(function () use ($rows) {
             $out = fopen('php://output', 'w');
             fwrite($out, "\xEF\xBB\xBF"); // BOM agar Excel membaca UTF-8 dengan benar
-            fputcsv($out, ['Nama', 'Angkatan', 'Tahun Lulus', 'Lembaga', 'Domisili', 'Pekerjaan', 'No. HP', 'Email', 'Status', 'Tampil', 'Catatan Admin', 'Dibuat']);
+            fputcsv($out, ['Nama', 'Angkatan', 'Tahun Lulus', 'Lembaga', 'Domisili', 'Pekerjaan', 'No. HP', 'Email', 'Status', 'Tampil', 'Tentang', 'Catatan Admin', 'Dibuat']);
             foreach ($rows as $a) {
                 fputcsv($out, [
                     $a->nama,
@@ -90,12 +90,162 @@ class AlumniController extends Controller
                     $a->email,
                     $a->statusLabel(),
                     $a->is_tampil ? 'ya' : 'tidak',
+                    $a->tentang,
                     $a->catatan_admin,
                     $a->created_at?->format('Y-m-d H:i'),
                 ]);
             }
             fclose($out);
         }, $filename, ['Content-Type' => 'text/csv; charset=UTF-8']);
+    }
+
+    public function importForm(): View
+    {
+        return view('admin.alumni.import');
+    }
+
+    public function importTemplate(): StreamedResponse
+    {
+        return response()->streamDownload(function () {
+            $out = fopen('php://output', 'w');
+            fwrite($out, "\xEF\xBB\xBF");
+            fputcsv($out, ['Nama', 'Angkatan', 'Tahun Lulus', 'Lembaga', 'Domisili', 'Pekerjaan', 'No. HP', 'Email', 'Status', 'Tampil', 'Tentang', 'Catatan Admin']);
+            fclose($out);
+        }, 'template-import-alumni.csv', ['Content-Type' => 'text/csv; charset=UTF-8']);
+    }
+
+    public function import(Request $request): RedirectResponse
+    {
+        $request->validate([
+            'file' => 'required|file|max:2048',
+        ], [
+            'file.required' => 'Pilih file CSV terlebih dahulu.',
+            'file.max' => 'Ukuran file maksimal 2MB.',
+        ]);
+
+        $upload = $request->file('file');
+        if (! in_array(strtolower($upload->getClientOriginalExtension()), ['csv', 'txt'], true)) {
+            return back()->withErrors(['file' => 'File harus berformat CSV.']);
+        }
+
+        $handle = fopen($upload->getRealPath(), 'r');
+        if (! $handle) {
+            return back()->withErrors(['file' => 'File tidak bisa dibaca.']);
+        }
+
+        // Deteksi pemisah: koma (CSV standar) atau titik koma (Excel lokal Indonesia).
+        $firstLine = fgets($handle);
+        $delimiter = ',';
+        if ($firstLine !== false) {
+            $delimiter = substr_count($firstLine, ';') > substr_count($firstLine, ',') ? ';' : ',';
+            rewind($handle);
+        }
+
+        $header = fgetcsv($handle, null, $delimiter, '"', '');
+        if (! $header) {
+            fclose($handle);
+
+            return back()->withErrors(['file' => 'File CSV kosong.']);
+        }
+
+        $header = array_map(fn ($h) => $this->normalizeCsvHeader((string) $h), $header);
+        if (! in_array('nama', $header, true)) {
+            fclose($handle);
+
+            return back()->withErrors(['file' => 'Header CSV tidak dikenali. Gunakan template import.']);
+        }
+
+        $index = array_flip($header);
+        $imported = 0;
+        $skipped = 0;
+        $errors = [];
+        $rowNumber = 1;
+
+        while (($row = fgetcsv($handle, null, $delimiter, '"', '')) !== false) {
+            $rowNumber++;
+
+            if ($rowNumber > 2001) {
+                $errors[] = 'Maksimal 2000 baris per import.';
+                break;
+            }
+
+            $row = array_map(fn ($v) => $this->cleanCsvValue((string) $v), $row);
+            if (count(array_filter($row, fn ($v) => $v !== '')) === 0) {
+                continue;
+            }
+
+            $get = function (string $key) use ($row, $index): string {
+                return isset($index[$key], $row[$index[$key]]) ? trim((string) $row[$index[$key]]) : '';
+            };
+
+            $nama = $get('nama');
+            if ($nama === '') {
+                $errors[] = "Baris {$rowNumber}: nama kosong, dilewati.";
+                $skipped++;
+                continue;
+            }
+
+            if (mb_strlen($nama) > 150) {
+                $errors[] = "Baris {$rowNumber}: nama terlalu panjang (maks 150 karakter), dilewati.";
+                $skipped++;
+                continue;
+            }
+
+            $email = $get('email');
+            if ($email !== '' && (mb_strlen($email) > 150 || ! filter_var($email, FILTER_VALIDATE_EMAIL))) {
+                $errors[] = "Baris {$rowNumber}: email tidak valid ({$email}), dilewati.";
+                $skipped++;
+                continue;
+            }
+
+            $noHp = $get('no_hp');
+            if (mb_strlen($noHp) > 30) {
+                $errors[] = "Baris {$rowNumber}: no. HP terlalu panjang (maks 30 karakter), dilewati.";
+                $skipped++;
+                continue;
+            }
+
+            $angkatan = $this->parseCsvYear($get('angkatan'));
+            $tahunLulus = $this->parseCsvYear($get('tahun_lulus'));
+            $status = $this->parseCsvStatus($get('status'));
+            $isTampil = $status === Alumni::STATUS_APPROVED
+                ? $this->parseCsvBool($get('is_tampil'), true)
+                : false;
+
+            $duplicate = Alumni::where('nama', $nama);
+            if ($angkatan) {
+                $duplicate->where('angkatan', $angkatan);
+            } else {
+                $duplicate->whereNull('angkatan');
+            }
+            if ($duplicate->exists()) {
+                $skipped++;
+                continue;
+            }
+
+            Alumni::create([
+                'nama' => $nama,
+                'angkatan' => $angkatan,
+                'tahun_lulus' => $tahunLulus,
+                'lembaga' => mb_substr($get('lembaga'), 0, 150) ?: null,
+                'domisili' => mb_substr($get('domisili'), 0, 150) ?: null,
+                'pekerjaan' => mb_substr($get('pekerjaan'), 0, 150) ?: null,
+                'no_hp' => $noHp ?: null,
+                'email' => $email ?: null,
+                'tentang' => mb_substr($get('tentang'), 0, 2000) ?: null,
+                'catatan_admin' => mb_substr($get('catatan_admin'), 0, 1000) ?: null,
+                'status' => $status,
+                'is_tampil' => $isTampil,
+            ]);
+
+            $imported++;
+        }
+
+        fclose($handle);
+
+        return redirect()->route('admin.alumni.import')
+            ->with('sukses', "Import selesai: {$imported} data ditambahkan, {$skipped} dilewati.")
+            ->with('import_errors', array_slice($errors, 0, 20));
     }
 
     public function create(): View
@@ -194,5 +344,70 @@ class AlumniController extends Controller
             'catatan_admin' => 'nullable|string|max:1000',
             'foto' => 'nullable|image|max:2048',
         ]);
+    }
+
+    private function normalizeCsvHeader(string $header): string
+    {
+        $header = strtolower($this->cleanCsvValue($header));
+        $header = (string) preg_replace('/[^a-z0-9]+/', '_', $header);
+        $header = trim($header, '_');
+
+        return match ($header) {
+            'no_hp_wa', 'no_hp_whatsapp', 'no_whatsapp', 'hp', 'whatsapp' => 'no_hp',
+            'tampil' => 'is_tampil',
+            'tentang_catatan' => 'tentang',
+            default => $header,
+        };
+    }
+
+    private function cleanCsvValue(string $value): string
+    {
+        $value = preg_replace('/^\xEF\xBB\xBF/', '', $value) ?? $value;
+        $value = trim($value);
+
+        if ($value !== '' && ! mb_check_encoding($value, 'UTF-8')) {
+            $value = mb_convert_encoding($value, 'UTF-8', 'Windows-1252');
+        }
+
+        return $value;
+    }
+
+    private function parseCsvYear(string $value): ?int
+    {
+        $value = trim($value);
+        if ($value === '' || ! ctype_digit($value)) {
+            return null;
+        }
+
+        $year = (int) $value;
+
+        return ($year >= 1900 && $year <= 2100) ? $year : null;
+    }
+
+    private function parseCsvStatus(string $value): string
+    {
+        $value = strtolower(trim($value));
+
+        return match (true) {
+            in_array($value, ['menunggu', 'pending', 'waiting'], true) => Alumni::STATUS_PENDING,
+            in_array($value, ['ditolak', 'rejected', 'reject'], true) => Alumni::STATUS_REJECTED,
+            default => Alumni::STATUS_APPROVED,
+        };
+    }
+
+    private function parseCsvBool(string $value, bool $default): bool
+    {
+        $value = strtolower(trim($value));
+        if ($value === '') {
+            return $default;
+        }
+        if (in_array($value, ['1', 'ya', 'yes', 'true', 'y', 'tampil'], true)) {
+            return true;
+        }
+        if (in_array($value, ['0', 'tidak', 'no', 'false', 'n', 'sembunyi'], true)) {
+            return false;
+        }
+
+        return $default;
     }
 }

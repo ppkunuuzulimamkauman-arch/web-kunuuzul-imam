@@ -20,13 +20,17 @@
     <a href="{{ route('alumni.home') }}" class="flex items-center gap-2 sm:gap-3 min-w-0">
       <img src="{{ asset('images/logo-pondok.png') }}" alt="Logo PP Kunuuzul Imam Kauman" class="h-9 sm:h-11 w-auto object-contain shrink-0">
       <span class="w-px h-9 bg-stone-200 hidden sm:block"></span>
-      <div class="leading-tight min-w-0">
-        <p class="text-[9px] sm:text-[10px] tracking-[0.25em] text-stone-500 font-semibold">IKATAN ALUMNI</p>
-        <p class="font-extrabold text-[13px] sm:text-[15px] md:text-[16px] text-stone-900 whitespace-nowrap">KUNUUZUL IMAM KAUMAN</p>
+      <div class="leading-tight min-w-0 hidden sm:block">
+        <p class="text-[10px] tracking-[0.25em] text-stone-500 font-semibold">IKATAN ALUMNI</p>
+        <p class="font-extrabold text-[15px] md:text-[16px] text-stone-900 whitespace-nowrap">KUNUUZUL IMAM KAUMAN</p>
+      </div>
+      <div class="leading-tight sm:hidden">
+        <p class="font-extrabold text-[13px] text-stone-900 whitespace-nowrap">ALUMNI</p>
       </div>
     </a>
     <nav class="flex items-center gap-1 sm:gap-2 text-[12px] sm:text-[13px] font-bold shrink-0">
       <a href="{{ route('alumni.home') }}" class="px-2 sm:px-3 py-2 rounded-lg text-emerald-700 hover:bg-emerald-50 transition">Direktori</a>
+      <a href="{{ route('alumni.stats') }}" class="px-2 sm:px-3 py-2 rounded-lg text-stone-600 hover:bg-stone-100 transition">Statistik</a>
       <a href="{{ config('app.url') }}" class="hidden md:inline-block px-3 py-2 rounded-lg text-stone-600 hover:bg-stone-100 transition">Situs Utama</a>
       <a href="{{ route('alumni.register') }}" class="px-2.5 sm:px-3 py-2 rounded-lg bg-emerald-700 text-white hover:bg-emerald-800 transition">Daftar</a>
     </nav>
@@ -40,7 +44,10 @@
 <footer class="bg-emerald-950 text-emerald-100/70 mt-16">
   <div class="max-w-7xl mx-auto px-4 py-10 flex flex-col md:flex-row items-center justify-between gap-4 text-[13px]">
     <p>&copy; {{ date('Y') }} PP Kunuuzul Imam Kauman</p>
-    <a href="{{ config('app.url') }}" class="hover:text-white transition">Kembali ke situs utama</a>
+    <div class="flex flex-wrap items-center justify-center gap-x-4 gap-y-2">
+      <a href="{{ route('alumni.stats') }}" class="hover:text-white transition">Statistik Alumni</a>
+      <a href="{{ config('app.url') }}" class="hover:text-white transition">Kembali ke situs utama</a>
+    </div>
   </div>
 </footer>
 </body>
