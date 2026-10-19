@@ -12,12 +12,17 @@ class AlumniDirectoryTest extends TestCase
 {
     use DatabaseTransactions;
 
-    public function test_direktori_publik_hanya_menampilkan_alumni_yang_tampil(): void
+    public function test_direktori_publik_hanya_menampilkan_hasil_pencarian_nik_yang_tampil(): void
     {
-        Alumni::create(['nama' => 'Alumni Tampil', 'angkatan' => 2010, 'is_tampil' => true]);
-        Alumni::create(['nama' => 'Alumni Sembunyi', 'angkatan' => 2011, 'is_tampil' => false]);
+        $nikTampil = $this->validNik(1);
+        $nikSembunyi = $this->validNik(2);
+        $nikMenunggu = $this->validNik(3);
+
+        Alumni::create(['nama' => 'Alumni Tampil', 'nik' => $nikTampil, 'angkatan' => 2010, 'is_tampil' => true]);
+        Alumni::create(['nama' => 'Alumni Sembunyi', 'nik' => $nikSembunyi, 'angkatan' => 2011, 'is_tampil' => false]);
         Alumni::create([
             'nama' => 'Alumni Menunggu',
+            'nik' => $nikMenunggu,
             'angkatan' => 2012,
             'status' => Alumni::STATUS_PENDING,
             'is_tampil' => true,
@@ -25,9 +30,26 @@ class AlumniDirectoryTest extends TestCase
 
         $this->get(route('alumni.home'))
             ->assertOk()
+            ->assertDontSee('Alumni Tampil')
+            ->assertDontSee('Alumni Sembunyi')
+            ->assertDontSee('Alumni Menunggu')
+            ->assertDontSee('Daftar Alumni');
+
+        $this->get(route('alumni.home', ['nik' => $nikTampil]))
+            ->assertOk()
             ->assertSee('Alumni Tampil')
             ->assertDontSee('Alumni Sembunyi')
             ->assertDontSee('Alumni Menunggu');
+
+        $this->get(route('alumni.home', ['nik' => $nikSembunyi]))
+            ->assertOk()
+            ->assertDontSee('Alumni Sembunyi')
+            ->assertSee('Data tidak ditemukan');
+
+        $this->get(route('alumni.home', ['nik' => $nikMenunggu]))
+            ->assertOk()
+            ->assertDontSee('Alumni Menunggu')
+            ->assertSee('Data tidak ditemukan');
     }
 
     public function test_detail_alumni_yang_disembunyikan_menghasilkan_404(): void
@@ -106,8 +128,10 @@ class AlumniDirectoryTest extends TestCase
 
     public function test_admin_menyetujui_pendaftaran_alumni(): void
     {
+        $nik = $this->validNik(16);
         $alumni = Alumni::create([
             'nama' => 'Alumni Menunggu',
+            'nik' => $nik,
             'status' => Alumni::STATUS_PENDING,
             'is_tampil' => false,
         ]);
@@ -120,7 +144,7 @@ class AlumniDirectoryTest extends TestCase
         $this->assertSame(Alumni::STATUS_APPROVED, $alumni->status);
         $this->assertTrue((bool) $alumni->is_tampil);
 
-        $this->get(route('alumni.home'))
+        $this->get(route('alumni.home', ['nik' => $nik]))
             ->assertOk()
             ->assertSee('Alumni Menunggu');
     }
@@ -369,6 +393,29 @@ class AlumniDirectoryTest extends TestCase
             ->assertSee('Alumni NIK')
             ->assertSee($alumni->kodeAlumni())
             ->assertSee('Lihat Profil Publik');
+    }
+
+    public function test_nik_di_direktori_mengarah_ke_hasil_pencarian(): void
+    {
+        $nik = $this->validNik(15);
+        Alumni::create([
+            'nama' => 'Alumni Direktori',
+            'nik' => $nik,
+            'status' => Alumni::STATUS_APPROVED,
+            'is_tampil' => true,
+        ]);
+
+        $this->post(route('alumni.register.check'), [
+            'nik' => $nik,
+            'source' => 'directory',
+        ])
+            ->assertRedirect(route('alumni.home', ['nik' => $nik]))
+            ->assertSessionHas('alumni_nik', $nik);
+
+        $this->get(route('alumni.home', ['nik' => $nik]))
+            ->assertOk()
+            ->assertSee('Alumni Direktori')
+            ->assertSee('Menampilkan 1 dari 1 alumni');
     }
 
     public function test_nik_baru_mengarah_ke_form_biodata(): void

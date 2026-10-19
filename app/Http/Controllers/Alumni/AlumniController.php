@@ -15,37 +15,24 @@ class AlumniController extends Controller
 {
     public function index(Request $request): View
     {
-        $q = trim((string) $request->query('q'));
-        $angkatan = $request->query('angkatan');
+        $nik = preg_replace('/\D+/', '', (string) $request->query('nik', ''));
+        $searched = $nik !== '';
+        $hasil = null;
+        $nikError = null;
 
-        $alumnis = Alumni::tampil()
-            ->when($q !== '', function ($query) use ($q) {
-                $query->where(function ($sub) use ($q) {
-                    $sub->where('nama', 'like', "%{$q}%")
-                        ->orWhere('lembaga', 'like', "%{$q}%")
-                        ->orWhere('domisili', 'like', "%{$q}%")
-                        ->orWhere('pekerjaan', 'like', "%{$q}%");
-                });
-            })
-            ->when($angkatan, fn ($query) => $query->where('angkatan', $angkatan))
-            ->orderByDesc('angkatan')
-            ->orderBy('nama')
-            ->paginate(12)
-            ->withQueryString();
+        if ($searched) {
+            if (! Nik::isValid($nik)) {
+                $nikError = 'NIK tidak valid. Masukkan 16 digit angka yang benar.';
+            } else {
+                $hasil = Alumni::tampil()->where('nik', $nik)->first();
 
-        $angkatans = Alumni::tampil()
-            ->whereNotNull('angkatan')
-            ->distinct()
-            ->orderByDesc('angkatan')
-            ->pluck('angkatan');
+                if (! $hasil) {
+                    $nikError = 'Data alumni tidak ditemukan atau belum ditampilkan.';
+                }
+            }
+        }
 
-        return view('alumni.index', [
-            'alumnis' => $alumnis,
-            'angkatans' => $angkatans,
-            'q' => $q,
-            'angkatan' => $angkatan,
-            'totalAlumni' => Alumni::tampil()->count(),
-        ]);
+        return view('alumni.index', compact('nik', 'searched', 'hasil', 'nikError'));
     }
 
     public function show(Alumni $alumni): View
@@ -70,6 +57,7 @@ class AlumniController extends Controller
 
         $request->validate([
             'nik' => ['required', 'string', 'size:16', 'regex:/^\d{16}$/'],
+            'source' => ['nullable', 'in:register,directory'],
         ], [
             'nik.required' => 'Masukkan NIK terlebih dahulu.',
             'nik.size' => 'NIK harus 16 digit angka.',
@@ -86,9 +74,17 @@ class AlumniController extends Controller
 
         $request->session()->put('alumni_nik', $nik);
 
-        return Alumni::where('nik', $nik)->exists()
-            ? redirect()->route('alumni.register.recorded')
-            : redirect()->route('alumni.register.form');
+        $alumni = Alumni::where('nik', $nik)->first();
+
+        if (! $alumni) {
+            return redirect()->route('alumni.register.form');
+        }
+
+        if ($request->input('source') === 'directory' && $alumni->isPubliclyVisible()) {
+            return redirect()->route('alumni.home', ['nik' => $nik]);
+        }
+
+        return redirect()->route('alumni.register.recorded');
     }
 
     public function registerFormFields(Request $request): View|RedirectResponse
