@@ -7,6 +7,7 @@ use App\Models\Alumni;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
+use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class AlumniController extends Controller
 {
@@ -47,6 +48,54 @@ class AlumniController extends Controller
         ];
 
         return view('admin.alumni.index', compact('alumnis', 'angkatans', 'q', 'angkatan', 'status', 'counts'));
+    }
+
+    public function export(Request $request): StreamedResponse
+    {
+        $q = trim((string) $request->query('q'));
+        $angkatan = $request->query('angkatan');
+        $status = $request->query('status');
+
+        $rows = Alumni::query()
+            ->when($status, fn ($query) => $query->where('status', $status))
+            ->when($q !== '', function ($query) use ($q) {
+                $query->where(function ($sub) use ($q) {
+                    $sub->where('nama', 'like', "%{$q}%")
+                        ->orWhere('lembaga', 'like', "%{$q}%")
+                        ->orWhere('domisili', 'like', "%{$q}%")
+                        ->orWhere('pekerjaan', 'like', "%{$q}%")
+                        ->orWhere('email', 'like', "%{$q}%");
+                });
+            })
+            ->when($angkatan, fn ($query) => $query->where('angkatan', $angkatan))
+            ->orderByDesc('angkatan')
+            ->orderBy('nama')
+            ->get();
+
+        $filename = 'alumni-'.now()->format('Ymd-His').'.csv';
+
+        return response()->streamDownload(function () use ($rows) {
+            $out = fopen('php://output', 'w');
+            fwrite($out, "\xEF\xBB\xBF"); // BOM agar Excel membaca UTF-8 dengan benar
+            fputcsv($out, ['Nama', 'Angkatan', 'Tahun Lulus', 'Lembaga', 'Domisili', 'Pekerjaan', 'No. HP', 'Email', 'Status', 'Tampil', 'Catatan Admin', 'Dibuat']);
+            foreach ($rows as $a) {
+                fputcsv($out, [
+                    $a->nama,
+                    $a->angkatan,
+                    $a->tahun_lulus,
+                    $a->lembaga,
+                    $a->domisili,
+                    $a->pekerjaan,
+                    $a->no_hp,
+                    $a->email,
+                    $a->statusLabel(),
+                    $a->is_tampil ? 'ya' : 'tidak',
+                    $a->catatan_admin,
+                    $a->created_at?->format('Y-m-d H:i'),
+                ]);
+            }
+            fclose($out);
+        }, $filename, ['Content-Type' => 'text/csv; charset=UTF-8']);
     }
 
     public function create(): View

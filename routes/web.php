@@ -115,6 +115,7 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'admin', 'admin.idle
     Route::resource('pengasuh', PengasuhController::class)->except(['show']);
 
     // Direktori alumni
+    Route::get('alumni/export', [AlumniController::class, 'export'])->name('alumni.export');
     Route::resource('alumni', AlumniController::class)
         ->except(['show'])
         ->parameters(['alumni' => 'alumni']);

@@ -183,6 +183,25 @@ class AlumniDirectoryTest extends TestCase
         $this->assertDatabaseMissing('alumnis', ['id' => $alumni->id]);
     }
 
+    public function test_admin_bisa_export_csv_alumni(): void
+    {
+        $admin = $this->adminUser('export');
+        Alumni::create([
+            'nama' => 'Alumni Export',
+            'angkatan' => 2018,
+            'domisili' => 'Surabaya',
+            'status' => Alumni::STATUS_APPROVED,
+            'is_tampil' => true,
+        ]);
+
+        $res = $this->actingAs($admin)->get(route('admin.alumni.export'));
+
+        $res->assertOk();
+        $res->assertHeader('content-type', 'text/csv; charset=UTF-8');
+        $this->assertStringContainsString('Alumni Export', $res->streamedContent());
+        $this->assertStringContainsString('Disetujui', $res->streamedContent());
+    }
+
     private function adminUser(string $suffix): User
     {
         return User::create([

@@ -19,7 +19,34 @@
     <button type="submit" class="btn ghost"><i class="fa-solid fa-magnifying-glass"></i> Cari</button>
   </form>
 
-  <a class="btn" href="{{ route('admin.alumni.create') }}"><i class="fa-solid fa-plus"></i> Tambah Alumni</a>
+  <div style="display:flex;gap:8px;flex-wrap:wrap">
+    <a class="btn ghost" href="{{ route('admin.alumni.export', array_filter(request()->only('q', 'angkatan', 'status'))) }}">
+      <i class="fa-solid fa-file-csv"></i> Export CSV
+    </a>
+    <a class="btn" href="{{ route('admin.alumni.create') }}"><i class="fa-solid fa-plus"></i> Tambah Alumni</a>
+  </div>
+</div>
+
+@php
+  $statItems = [
+      ['label' => 'Total', 'value' => $counts[''] ?? 0, 'color' => '#0f766e', 'bg' => '#ccfbf1', 'icon' => 'fa-users'],
+      ['label' => 'Disetujui', 'value' => $counts[\App\Models\Alumni::STATUS_APPROVED] ?? 0, 'color' => '#15803d', 'bg' => '#dcfce7', 'icon' => 'fa-circle-check'],
+      ['label' => 'Menunggu', 'value' => $counts[\App\Models\Alumni::STATUS_PENDING] ?? 0, 'color' => '#92400e', 'bg' => '#fef3c7', 'icon' => 'fa-hourglass-half'],
+      ['label' => 'Ditolak', 'value' => $counts[\App\Models\Alumni::STATUS_REJECTED] ?? 0, 'color' => '#991b1b', 'bg' => '#fee2e2', 'icon' => 'fa-circle-xmark'],
+  ];
+@endphp
+<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin-bottom:14px">
+  @foreach($statItems as $s)
+    <div class="card" style="display:flex;align-items:center;gap:12px;padding:14px;margin:0">
+      <div style="width:42px;height:42px;border-radius:12px;display:flex;align-items:center;justify-content:center;background:{{ $s['bg'] }};color:{{ $s['color'] }};font-size:16px">
+        <i class="fa-solid {{ $s['icon'] }}"></i>
+      </div>
+      <div>
+        <div style="font-size:20px;font-weight:800;line-height:1">{{ $s['value'] }}</div>
+        <div style="font-size:12px;color:var(--muted);font-weight:700">{{ $s['label'] }}</div>
+      </div>
+    </div>
+  @endforeach
 </div>
 
 <div style="display:flex;gap:6px;flex-wrap:wrap;margin:0 0 12px">
