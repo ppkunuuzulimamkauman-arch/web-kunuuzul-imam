@@ -71,8 +71,8 @@ class AlumniDirectoryTest extends TestCase
 
         $this->get(route('alumni.register'))
             ->assertOk()
-            ->assertSee('Pendaftaran Alumni')
-            ->assertSee('Masukkan NIK');
+            ->assertSee('Lengkapi Data Anda')
+            ->assertSee('Nama lengkap');
 
         $this->withSession(['alumni_nik' => $nik])
             ->get(route('alumni.register.form'))
@@ -93,6 +93,7 @@ class AlumniDirectoryTest extends TestCase
 
         $this->withSession(['alumni_nik' => $nik])
             ->post(route('alumni.register.store'), [
+                'nik' => $nik,
                 'nama' => 'Calon Alumni',
                 'angkatan' => 2020,
                 'tahun_lulus' => 2024,
@@ -357,22 +358,6 @@ class AlumniDirectoryTest extends TestCase
             ->assertDontSee('MTs');
     }
 
-    public function test_halaman_pendaftaran_menampilkan_total_alumni(): void
-    {
-        Alumni::create(['nama' => 'Tampil Satu', 'is_tampil' => true]);
-        Alumni::create(['nama' => 'Tampil Dua', 'is_tampil' => true]);
-        Alumni::create([
-            'nama' => 'Menunggu',
-            'status' => Alumni::STATUS_PENDING,
-            'is_tampil' => true,
-        ]);
-
-        $this->get(route('alumni.register'))
-            ->assertOk()
-            ->assertSee('data-total-alumni="2"', false)
-            ->assertSee('Alumni sudah terdaftar');
-    }
-
     public function test_nik_terdaftar_mengarah_ke_halaman_tercatat(): void
     {
         $nik = $this->validNik(11);
@@ -459,6 +444,7 @@ class AlumniDirectoryTest extends TestCase
 
         $this->withSession(['alumni_nik' => $nik])
             ->post(route('alumni.register.store'), [
+                'nik' => $nik,
                 'nama' => 'Duplikat NIK',
                 'no_hp' => '081234567890',
             ])

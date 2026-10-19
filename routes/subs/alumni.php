@@ -5,7 +5,7 @@ use Illuminate\Support\Facades\Route;
 
 Route::get('/', [AlumniController::class, 'index'])->name('home');
 
-Route::get('/daftar', [AlumniController::class, 'registerForm'])->name('register');
+Route::get('/daftar', [AlumniController::class, 'registerFormFields'])->name('register');
 Route::post('/daftar', [AlumniController::class, 'checkNik'])
     ->middleware('throttle:10,1')
     ->name('register.check');

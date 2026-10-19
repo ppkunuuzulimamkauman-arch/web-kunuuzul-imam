@@ -29,8 +29,12 @@
     <p class="text-[11px] font-extrabold tracking-[0.3em] text-emerald-300">BIODATA ALUMNI</p>
     <h1 class="text-3xl md:text-4xl font-extrabold mt-2">Lengkapi Data Anda</h1>
     <p class="text-emerald-100/80 text-sm mt-3">
-      NIK <span class="font-mono text-white">{{ $nik }}</span> belum terdaftar.
-      Isi biodata di bawah ini untuk mendaftar.
+      @if($nik !== '')
+        NIK <span class="font-mono text-white">{{ $nik }}</span> sudah terisi.
+        Lengkapi biodata di bawah ini untuk mendaftar.
+      @else
+        Isi NIK dan biodata Anda untuk mendaftar sebagai alumni.
+      @endif
     </p>
   </div>
 </section>
@@ -52,13 +56,16 @@
         </div>
       @endif
 
-      <div class="sm:col-span-2 rounded-xl border border-emerald-100 bg-emerald-50 px-4 py-3 flex items-center justify-between gap-3">
-        <div>
-          <p class="text-[10px] font-extrabold tracking-wider text-emerald-700">NIK</p>
-          <p class="font-mono text-sm text-emerald-950 mt-1">{{ $nik }}</p>
-        </div>
-        <a href="{{ route('alumni.register.reset') }}" class="text-[11px] font-bold text-emerald-700 hover:text-emerald-800">Ganti NIK</a>
-      </div>
+      <label class="block sm:col-span-2">
+        <span class="{{ $labelTextClass }}">NIK *</span>
+        <input name="nik" required inputmode="numeric" autocomplete="off" maxlength="16"
+               pattern="[0-9]{16}" value="{{ old('nik', $nik) }}" placeholder="16 digit angka"
+               class="{{ $inputClass }} font-mono tracking-wider">
+        <span class="block text-[12px] text-stone-400 mt-1">16 digit angka pada KTP/KK.</span>
+        @error('nik')
+          <span class="block text-red-600 text-[12px] font-bold mt-1">{{ $message }}</span>
+        @enderror
+      </label>
 
       <label class="block sm:col-span-2">
         <span class="{{ $labelTextClass }}">Nama lengkap *</span>
@@ -156,7 +163,7 @@
                 class="px-6 py-3 rounded-xl bg-emerald-700 text-white text-sm font-extrabold hover:bg-emerald-800 transition">
           Kirim Pendaftaran
         </button>
-        <a href="{{ route('alumni.register') }}"
+        <a href="{{ route('alumni.home') }}"
            class="px-6 py-3 rounded-xl border border-stone-200 text-stone-600 text-sm font-extrabold hover:bg-stone-50 transition">
           Batal
         </a>

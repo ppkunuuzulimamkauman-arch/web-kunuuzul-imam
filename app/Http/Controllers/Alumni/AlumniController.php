@@ -42,13 +42,6 @@ class AlumniController extends Controller
         return view('alumni.show', compact('alumni'));
     }
 
-    public function registerForm(): View
-    {
-        return view('alumni.register', [
-            'totalAlumni' => Alumni::tampil()->count(),
-        ]);
-    }
-
     public function checkNik(Request $request): RedirectResponse
     {
         $request->merge([
@@ -92,17 +85,15 @@ class AlumniController extends Controller
         $nik = (string) $request->session()->get('alumni_nik', '');
 
         if (! Nik::isValid($nik)) {
-            return redirect()->route('alumni.register')
-                ->withErrors(['nik' => 'Silakan masukkan NIK terlebih dahulu.']);
+            $nik = '';
         }
 
-        if (Alumni::where('nik', $nik)->exists()) {
+        if ($nik !== '' && Alumni::where('nik', $nik)->exists()) {
             return redirect()->route('alumni.register.recorded');
         }
 
         return view('alumni.register-form', [
             'nik' => $nik,
-            'totalAlumni' => Alumni::tampil()->count(),
             'lembagaOptions' => Alumni::lembagaOptions(),
             'pekerjaanOptions' => Alumni::pekerjaanOptions(),
             'domisiliOptions' => Alumni::domisiliOptions(),
@@ -115,7 +106,7 @@ class AlumniController extends Controller
         $nik = (string) $request->session()->get('alumni_nik', '');
 
         if (! Nik::isValid($nik)) {
-            return redirect()->route('alumni.register')
+            return redirect()->route('alumni.register.form')
                 ->withErrors(['nik' => 'Silakan masukkan NIK terlebih dahulu.']);
         }
 
@@ -145,23 +136,28 @@ class AlumniController extends Controller
             return redirect()->route('alumni.register.success');
         }
 
-        $nik = (string) $request->session()->get('alumni_nik', '');
+        $nik = preg_replace('/\D+/', '', (string) $request->input('nik'));
 
-        if (! Nik::isValid($nik)) {
-            return redirect()->route('alumni.register')
-                ->withErrors(['nik' => 'Sesi NIK tidak valid. Silakan masukkan NIK kembali.']);
-        }
+        if (Nik::isValid($nik) && Alumni::where('nik', $nik)->exists()) {
+            $request->session()->put('alumni_nik', $nik);
 
-        if (Alumni::where('nik', $nik)->exists()) {
             return redirect()->route('alumni.register.recorded')
                 ->withErrors(['nik' => 'NIK sudah terdaftar.']);
         }
 
-        // NIK diambil dari sesi, bukan dari input form.
         $request->merge(['nik' => $nik]);
 
         $data = $request->validate([
-            'nik' => ['required', 'digits:16', 'unique:alumnis,nik'],
+            'nik' => [
+                'required',
+                'digits:16',
+                'unique:alumnis,nik',
+                function ($attribute, $value, $fail) {
+                    if (! Nik::isValid((string) $value)) {
+                        $fail('NIK tidak valid. Periksa kembali 16 digit angka pada KTP/KK Anda.');
+                    }
+                },
+            ],
             'nama' => 'required|string|max:150',
             'angkatan' => 'nullable|integer|min:1900|max:2100',
             'tahun_lulus' => 'nullable|integer|min:1900|max:2100',
