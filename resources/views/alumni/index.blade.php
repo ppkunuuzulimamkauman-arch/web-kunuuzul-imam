@@ -154,16 +154,6 @@
       </div>
     </div>
 
-    <div class="mt-8 bg-emerald-50 border border-emerald-100 rounded-2xl p-6 flex flex-col sm:flex-row items-center justify-between gap-4">
-      <div>
-        <h2 class="font-extrabold text-emerald-900">Belum terdaftar sebagai alumni?</h2>
-        <p class="text-sm text-emerald-700/70 mt-1">Daftarkan diri Anda agar bisa terhubung dengan alumni lain.</p>
-      </div>
-      <a href="{{ route('alumni.register') }}"
-         class="shrink-0 inline-flex items-center gap-2 px-5 py-3 rounded-xl bg-emerald-700 text-white text-sm font-extrabold hover:bg-emerald-800 transition">
-        <i class="fa-solid fa-user-plus"></i> Daftar sebagai Alumni
-      </a>
-    </div>
   @endif
 </div>
 @endsection

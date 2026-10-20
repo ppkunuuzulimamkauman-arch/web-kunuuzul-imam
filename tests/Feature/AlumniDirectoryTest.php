@@ -353,9 +353,9 @@ class AlumniDirectoryTest extends TestCase
             ->assertSee('Statistik Alumni')
             ->assertSee('2010')
             ->assertSee('2 alumni')
-            ->assertSee('MA')
+            ->assertSee('>MA</span>', false)
             ->assertSee('Surabaya')
-            ->assertDontSee('MTs');
+            ->assertDontSee('>MTs</span>', false);
     }
 
     public function test_nik_terdaftar_mengarah_ke_halaman_tercatat(): void

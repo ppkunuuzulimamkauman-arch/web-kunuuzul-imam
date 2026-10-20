@@ -43,14 +43,7 @@
   @yield('content')
 </main>
 
-<footer class="bg-emerald-950 text-emerald-100/70 mt-16">
-  <div class="max-w-7xl mx-auto px-4 py-10 flex flex-col md:flex-row items-center justify-between gap-4 text-[13px]">
-    <p>&copy; {{ date('Y') }} PP Kunuuzul Imam Kauman</p>
-    <div class="flex flex-wrap items-center justify-center gap-x-4 gap-y-2">
-      <a href="{{ config('app.url') }}" class="hover:text-white transition">Kembali ke situs utama</a>
-    </div>
-  </div>
-</footer>
+@include('partials.site-footer')
 @stack('scripts')
 </body>
 </html>
