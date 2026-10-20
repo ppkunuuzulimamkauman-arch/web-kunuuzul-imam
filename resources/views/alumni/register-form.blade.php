@@ -16,16 +16,6 @@
     $inputClass = 'mt-1.5 w-full px-4 py-3 rounded-xl border border-stone-200 bg-stone-50 text-sm text-stone-900 placeholder-stone-400 focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500/30 transition';
     $labelTextClass = 'text-[12px] font-extrabold text-stone-700';
     $sectionTitleClass = 'text-[11px] font-extrabold tracking-[0.2em] text-emerald-700';
-
-    $wilayahPkInfo = [
-        'Wilayah PK 1' => 'Kecamatan Binakal dan Curahdami',
-        'Wilayah PK 2' => 'Kabupaten Jember',
-        'Wilayah PK 3' => 'Kecamatan Tenggarang, Tegalampel, dan Taman Krocok',
-        'Wilayah PK 4' => 'Kecamatan Pujer, Tlogosari, Sukosari, Wonosari, Tapen, Sempol, dan Ijen',
-        'Wilayah PK 5' => 'Kecamatan Maesan dan Grujugan',
-        'Wilayah PK 6' => 'Kecamatan Pakem dan Wringin',
-        'Wilayah PK 7' => 'Kecamatan Tamanan dan Jambesari DS',
-    ];
 @endphp
 
 <section class="bg-emerald-900 text-white">
@@ -144,24 +134,14 @@
 
       <label class="block">
         <span class="{{ $labelTextClass }}">Kabupaten *</span>
-        <input id="kabupaten" name="kabupaten" list="kabupaten-options" required
+        <input id="kabupaten" name="kabupaten" required
                value="{{ old('kabupaten') }}" placeholder="Contoh: Bondowoso / Jember" class="{{ $inputClass }}">
-        <datalist id="kabupaten-options">
-          @foreach($kabupatenOptions as $option)
-            <option value="{{ $option }}"></option>
-          @endforeach
-        </datalist>
       </label>
 
       <label class="block">
         <span class="{{ $labelTextClass }}">Kecamatan *</span>
-        <input id="kecamatan" name="kecamatan" list="kecamatan-options" required
+        <input id="kecamatan" name="kecamatan" required
                value="{{ old('kecamatan') }}" placeholder="Contoh: Binakal" class="{{ $inputClass }}">
-        <datalist id="kecamatan-options">
-          @foreach($kecamatanOptions as $option)
-            <option value="{{ $option }}"></option>
-          @endforeach
-        </datalist>
       </label>
 
       <label class="block">
@@ -196,18 +176,6 @@
           Wilayah PK ditentukan otomatis. Jika alamat di luar wilayah PK 1–7, kolom ini akan kosong.
         </span>
       </label>
-
-      <div class="sm:col-span-2 rounded-2xl border border-emerald-100 bg-emerald-50 p-5">
-        <p class="text-[11px] font-extrabold tracking-[0.2em] text-emerald-700">MENGETAHUI WILAYAH/PK</p>
-        <div class="mt-3 grid sm:grid-cols-2 gap-x-6 gap-y-2 text-[13px] text-stone-700">
-          @foreach($wilayahPkInfo as $label => $wilayah)
-            <p><span class="font-extrabold text-stone-900">{{ $label }}:</span> {{ $wilayah }}</p>
-          @endforeach
-        </div>
-        <p class="text-[11px] text-stone-500 mt-3">
-          Wilayah PK dipilih otomatis berdasarkan kabupaten dan kecamatan yang Anda isi.
-        </p>
-      </div>
 
       <div class="sm:col-span-2 pt-3">
         <p class="{{ $sectionTitleClass }}">KONTAK &amp; PEKERJAAN</p>

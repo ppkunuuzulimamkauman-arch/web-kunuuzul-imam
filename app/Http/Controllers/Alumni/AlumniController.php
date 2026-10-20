@@ -157,8 +157,6 @@ class AlumniController extends Controller
         return view('alumni.register-form', [
             'nik' => $nik,
             'pekerjaanOptions' => Alumni::pekerjaanOptions(),
-            'kabupatenOptions' => WilayahPk::kabupatenOptions(),
-            'kecamatanOptions' => WilayahPk::kecamatanOptions(),
             'wilayahPkMap' => WilayahPk::map(),
             'years' => range((int) now()->year + 1, 1950),
         ]);
