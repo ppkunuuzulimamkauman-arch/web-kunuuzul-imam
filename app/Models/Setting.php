@@ -82,7 +82,7 @@ class Setting extends Model
             'dawuh_terjemah' => '“Sebaik-baik kalian adalah yang belajar Al-Qur’an dan mengajarkannya.”',
             'dawuh_sumber' => '— HR. BUKHARI • DAWUH PENGASUH',
             // Join Us (link + jumlah followers)
-            'sosmed_twitter_url' => '#', 'sosmed_twitter_count' => '46.8K',
+            'sosmed_wa_channel_url' => '#', 'sosmed_wa_channel_count' => 'Ikuti',
             'sosmed_instagram_url' => '#', 'sosmed_instagram_count' => '62.9K',
             'sosmed_youtube_url' => '#', 'sosmed_youtube_count' => '110.6K',
             'sosmed_tiktok_url' => '#', 'sosmed_tiktok_count' => '50.2K',
@@ -185,8 +185,8 @@ class Setting extends Model
                 'icon' => 'fa-solid fa-share-nodes',
                 'desc' => 'Link & jumlah followers tombol Join Us.',
                 'fields' => [
-                    'sosmed_twitter_url' => ['label' => 'Twitter URL', 'type' => 'text', 'hint' => ''],
-                    'sosmed_twitter_count' => ['label' => 'Twitter Followers', 'type' => 'text', 'hint' => ''],
+                    'sosmed_wa_channel_url' => ['label' => 'Saluran WhatsApp URL', 'type' => 'text', 'hint' => 'Contoh: https://whatsapp.com/channel/...'],
+                    'sosmed_wa_channel_count' => ['label' => 'Saluran WhatsApp Followers', 'type' => 'text', 'hint' => 'Contoh: 1.2K atau Ikuti.'],
                     'sosmed_instagram_url' => ['label' => 'Instagram URL', 'type' => 'text', 'hint' => ''],
                     'sosmed_instagram_count' => ['label' => 'Instagram Followers', 'type' => 'text', 'hint' => ''],
                     'sosmed_youtube_url' => ['label' => 'Youtube URL', 'type' => 'text', 'hint' => ''],

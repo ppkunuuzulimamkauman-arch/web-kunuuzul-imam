@@ -22,7 +22,6 @@
     @empty
       <p class="text-[15px] leading-relaxed text-stone-600 text-justify">Sejarah pondok segera dilengkapi.</p>
     @endforelse
-    <p class="text-[15px] mt-4 leading-relaxed text-stone-600 text-justify">Kurikulum memadukan salaf (sorogan, bandongan, hafalan) dan khalaf (sekolah formal, bahasa, teknologi) dengan pengawasan musyrif 24 jam.</p>
   </div>
 </div>
 </div>

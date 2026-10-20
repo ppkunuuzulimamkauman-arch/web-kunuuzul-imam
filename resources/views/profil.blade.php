@@ -10,7 +10,6 @@
   <div class="reveal border border-stone-200 rounded-2xl p-6 md:p-8 bg-white">
     <h2 class="font-extrabold text-xl text-stone-900">Sejarah Singkat</h2>
     <p class="text-[15px] mt-3 leading-relaxed text-stone-600 text-justify">{{ \App\Models\Setting::get('profil_sejarah_singkat', 'Pondok Pesantren Kunuuzul Imam Kauman didirikan sebagai wujud khidmah kepada umat di kawasan Kauman.') }}</p>
-    <p class="text-[15px] mt-3 leading-relaxed text-stone-600 text-justify">Kurikulum memadukan salaf (sorogan, bandongan, hafalan) dan khalaf (sekolah formal, bahasa, teknologi) dengan pengawasan musyrif 24 jam.</p>
     <a href="{{ route('profil.sejarah') }}" class="inline-block mt-4 text-[13px] font-extrabold text-orange-600 hover:translate-x-1 transition-transform">Selengkapnya →</a>
   </div>
 
