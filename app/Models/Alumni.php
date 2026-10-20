@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Concerns\DeletesStoredFiles;
+use App\Support\WilayahPk;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -22,6 +23,10 @@ class Alumni extends Model
     protected $fillable = [
         'nama',
         'nik',
+        'jenis_kelamin',
+        'status_hidup',
+        'tempat_lahir',
+        'tanggal_lahir',
         'angkatan',
         'tahun_lulus',
         'lembaga',
@@ -29,6 +34,14 @@ class Alumni extends Model
         'pekerjaan',
         'no_hp',
         'email',
+        'dusun',
+        'rt',
+        'rw',
+        'desa',
+        'kecamatan',
+        'kabupaten',
+        'provinsi',
+        'wilayah_pk',
         'foto',
         'tentang',
         'status',
@@ -39,6 +52,7 @@ class Alumni extends Model
     protected $casts = [
         'angkatan' => 'integer',
         'tahun_lulus' => 'integer',
+        'tanggal_lahir' => 'date',
         'is_tampil' => 'boolean',
     ];
 
@@ -89,6 +103,81 @@ class Alumni extends Model
         }
 
         return implode(' - ', $parts);
+    }
+
+    /** @return array<string, string> */
+    public static function jenisKelaminOptions(): array
+    {
+        return [
+            'L' => 'Laki-laki',
+            'P' => 'Perempuan',
+        ];
+    }
+
+    /** @return array<string, string> */
+    public static function statusHidupOptions(): array
+    {
+        return [
+            'hidup' => 'Hidup',
+            'meninggal' => 'Meninggal',
+        ];
+    }
+
+    public function jenisKelaminLabel(): ?string
+    {
+        if (! $this->jenis_kelamin) {
+            return null;
+        }
+
+        return self::jenisKelaminOptions()[$this->jenis_kelamin] ?? $this->jenis_kelamin;
+    }
+
+    public function statusHidupLabel(): string
+    {
+        return self::statusHidupOptions()[$this->status_hidup] ?? 'Hidup';
+    }
+
+    public function tempatTanggalLahir(): string
+    {
+        $parts = array_filter([
+            $this->tempat_lahir,
+            $this->tanggal_lahir?->format('d/m/Y'),
+        ]);
+
+        return implode(', ', $parts);
+    }
+
+    public function alamatLengkap(): string
+    {
+        $parts = [];
+        if ($this->dusun) {
+            $parts[] = 'Dusun '.$this->dusun;
+        }
+        if ($this->rt) {
+            $parts[] = 'RT '.$this->rt;
+        }
+        if ($this->rw) {
+            $parts[] = 'RW '.$this->rw;
+        }
+        if ($this->desa) {
+            $parts[] = 'Desa '.$this->desa;
+        }
+        if ($this->kecamatan) {
+            $parts[] = 'Kec. '.$this->kecamatan;
+        }
+        if ($this->kabupaten) {
+            $parts[] = 'Kab. '.$this->kabupaten;
+        }
+        if ($this->provinsi) {
+            $parts[] = $this->provinsi;
+        }
+
+        return implode(', ', $parts);
+    }
+
+    public function wilayahPkLabel(): string
+    {
+        return WilayahPk::label($this->wilayah_pk);
     }
 
     public function kodeAlumni(): string

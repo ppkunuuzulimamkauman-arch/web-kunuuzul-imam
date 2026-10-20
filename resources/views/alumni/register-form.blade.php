@@ -6,13 +6,6 @@
 
 @section('content')
 @php
-    $selectedLembaga = (string) old('lembaga', '');
-    $lembagaIsOther = $selectedLembaga === '__other__'
-        || ($selectedLembaga !== '' && ! in_array($selectedLembaga, $lembagaOptions, true));
-    $lembagaOtherValue = $selectedLembaga === '__other__'
-        ? (string) old('lembaga_lainnya', '')
-        : ($lembagaIsOther ? $selectedLembaga : '');
-
     $selectedPekerjaan = (string) old('pekerjaan', '');
     $pekerjaanIsOther = $selectedPekerjaan === '__other__'
         || ($selectedPekerjaan !== '' && ! in_array($selectedPekerjaan, $pekerjaanOptions, true));
@@ -22,6 +15,17 @@
 
     $inputClass = 'mt-1.5 w-full px-4 py-3 rounded-xl border border-stone-200 bg-stone-50 text-sm text-stone-900 placeholder-stone-400 focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500/30 transition';
     $labelTextClass = 'text-[12px] font-extrabold text-stone-700';
+    $sectionTitleClass = 'text-[11px] font-extrabold tracking-[0.2em] text-emerald-700';
+
+    $wilayahPkInfo = [
+        'Wilayah PK 1' => 'Kecamatan Binakal dan Curahdami',
+        'Wilayah PK 2' => 'Kabupaten Jember',
+        'Wilayah PK 3' => 'Kecamatan Tenggarang, Tegalampel, dan Taman Krocok',
+        'Wilayah PK 4' => 'Kecamatan Pujer, Tlogosari, Sukosari, Wonosari, Tapen, Sempol, dan Ijen',
+        'Wilayah PK 5' => 'Kecamatan Maesan dan Grujugan',
+        'Wilayah PK 6' => 'Kecamatan Pakem dan Wringin',
+        'Wilayah PK 7' => 'Kecamatan Tamanan dan Jambesari DS',
+    ];
 @endphp
 
 <section class="bg-emerald-900 text-white">
@@ -42,7 +46,7 @@
 <div class="max-w-4xl mx-auto px-4 py-10">
   <div class="bg-white border border-stone-200 rounded-3xl p-6 md:p-10 shadow-sm">
     <form method="POST" action="{{ route('alumni.register.store') }}" enctype="multipart/form-data"
-          class="grid sm:grid-cols-2 gap-5">
+          class="grid sm:grid-cols-2 gap-x-5 gap-y-4">
       @csrf
 
       @if($errors->any())
@@ -56,9 +60,14 @@
         </div>
       @endif
 
+      <div class="sm:col-span-2 pt-1">
+        <p class="{{ $sectionTitleClass }}">DATA DIRI</p>
+        <div class="h-px bg-stone-100 mt-2"></div>
+      </div>
+
       <label class="block sm:col-span-2">
         <span class="{{ $labelTextClass }}">NIK *</span>
-        <input name="nik" required inputmode="numeric" autocomplete="off" maxlength="16"
+        <input id="nik" name="nik" required inputmode="numeric" autocomplete="off" maxlength="16"
                pattern="[0-9]{16}" value="{{ old('nik', $nik) }}" placeholder="16 digit angka"
                class="{{ $inputClass }} font-mono tracking-wider">
         <span class="block text-[12px] text-stone-400 mt-1">16 digit angka pada KTP/KK.</span>
@@ -70,6 +79,37 @@
       <label class="block sm:col-span-2">
         <span class="{{ $labelTextClass }}">Nama lengkap *</span>
         <input name="nama" required value="{{ old('nama') }}" autocomplete="name" class="{{ $inputClass }}">
+      </label>
+
+      <label class="block">
+        <span class="{{ $labelTextClass }}">Jenis kelamin *</span>
+        <select name="jenis_kelamin" required class="{{ $inputClass }}">
+          <option value="">Pilih jenis kelamin</option>
+          @foreach(\App\Models\Alumni::jenisKelaminOptions() as $value => $label)
+            <option value="{{ $value }}" @selected(old('jenis_kelamin') === $value)>{{ $label }}</option>
+          @endforeach
+        </select>
+      </label>
+
+      <label class="block">
+        <span class="{{ $labelTextClass }}">Status *</span>
+        <select name="status_hidup" required class="{{ $inputClass }}">
+          @foreach(\App\Models\Alumni::statusHidupOptions() as $value => $label)
+            <option value="{{ $value }}" @selected(old('status_hidup', 'hidup') === $value)>{{ $label }}</option>
+          @endforeach
+        </select>
+        <span class="block text-[12px] text-stone-400 mt-1">Status hidup / meninggal.</span>
+      </label>
+
+      <label class="block">
+        <span class="{{ $labelTextClass }}">Tempat lahir *</span>
+        <input name="tempat_lahir" required value="{{ old('tempat_lahir') }}" placeholder="Contoh: Bondowoso" class="{{ $inputClass }}">
+      </label>
+
+      <label class="block">
+        <span class="{{ $labelTextClass }}">Tanggal lahir *</span>
+        <input type="date" name="tanggal_lahir" required max="{{ now()->format('Y-m-d') }}"
+               value="{{ old('tanggal_lahir') }}" class="{{ $inputClass }}">
       </label>
 
       <label class="block">
@@ -92,29 +132,92 @@
         </select>
       </label>
 
+      <div class="sm:col-span-2 pt-3">
+        <p class="{{ $sectionTitleClass }}">ALAMAT LENGKAP</p>
+        <div class="h-px bg-stone-100 mt-2"></div>
+      </div>
+
       <label class="block">
-        <span class="{{ $labelTextClass }}">Lembaga</span>
-        <select name="lembaga" id="lembaga-select" class="{{ $inputClass }}">
-          <option value="">Pilih lembaga</option>
-          @foreach($lembagaOptions as $option)
-            <option value="{{ $option }}" @selected(! $lembagaIsOther && $selectedLembaga === $option)>{{ $option }}</option>
-          @endforeach
-          <option value="__other__" @selected($lembagaIsOther)>Lainnya</option>
-        </select>
-        <input type="text" name="lembaga_lainnya" id="lembaga-other" value="{{ $lembagaOtherValue }}"
-               placeholder="Tulis nama lembaga"
-               class="{{ $inputClass }} {{ $lembagaIsOther ? '' : 'hidden' }}">
+        <span class="{{ $labelTextClass }}">Provinsi *</span>
+        <input name="provinsi" required value="{{ old('provinsi', 'Jawa Timur') }}" placeholder="Contoh: Jawa Timur" class="{{ $inputClass }}">
       </label>
 
       <label class="block">
-        <span class="{{ $labelTextClass }}">Domisili</span>
-        <input name="domisili" list="domisili-options" value="{{ old('domisili') }}"
-               placeholder="Kota / kabupaten" class="{{ $inputClass }}">
-        <datalist id="domisili-options">
-          @foreach($domisiliOptions as $option)
+        <span class="{{ $labelTextClass }}">Kabupaten *</span>
+        <input id="kabupaten" name="kabupaten" list="kabupaten-options" required
+               value="{{ old('kabupaten') }}" placeholder="Contoh: Bondowoso / Jember" class="{{ $inputClass }}">
+        <datalist id="kabupaten-options">
+          @foreach($kabupatenOptions as $option)
             <option value="{{ $option }}"></option>
           @endforeach
         </datalist>
+      </label>
+
+      <label class="block">
+        <span class="{{ $labelTextClass }}">Kecamatan *</span>
+        <input id="kecamatan" name="kecamatan" list="kecamatan-options" required
+               value="{{ old('kecamatan') }}" placeholder="Contoh: Binakal" class="{{ $inputClass }}">
+        <datalist id="kecamatan-options">
+          @foreach($kecamatanOptions as $option)
+            <option value="{{ $option }}"></option>
+          @endforeach
+        </datalist>
+      </label>
+
+      <label class="block">
+        <span class="{{ $labelTextClass }}">Desa / kelurahan *</span>
+        <input name="desa" required value="{{ old('desa') }}" placeholder="Nama desa / kelurahan" class="{{ $inputClass }}">
+      </label>
+
+      <label class="block sm:col-span-2">
+        <span class="{{ $labelTextClass }}">Dusun *</span>
+        <input name="dusun" required value="{{ old('dusun') }}" placeholder="Nama dusun" class="{{ $inputClass }}">
+      </label>
+
+      <label class="block">
+        <span class="{{ $labelTextClass }}">RT *</span>
+        <input name="rt" required inputmode="numeric" maxlength="3" pattern="[0-9]{1,3}"
+               value="{{ old('rt') }}" placeholder="Contoh: 001" class="{{ $inputClass }}">
+      </label>
+
+      <label class="block">
+        <span class="{{ $labelTextClass }}">RW *</span>
+        <input name="rw" required inputmode="numeric" maxlength="3" pattern="[0-9]{1,3}"
+               value="{{ old('rw') }}" placeholder="Contoh: 002" class="{{ $inputClass }}">
+      </label>
+
+      <label class="block sm:col-span-2">
+        <span class="{{ $labelTextClass }}">Wilayah PK</span>
+        <input id="wilayah-pk-preview" readonly
+               placeholder="Otomatis terisi dari kabupaten dan kecamatan"
+               style="background-color:#ecfdf5;color:#065f46"
+               class="{{ $inputClass }} font-bold">
+        <span class="block text-[12px] text-stone-400 mt-1">
+          Wilayah PK ditentukan otomatis. Jika alamat di luar wilayah PK 1–7, kolom ini akan kosong.
+        </span>
+      </label>
+
+      <div class="sm:col-span-2 rounded-2xl border border-emerald-100 bg-emerald-50 p-5">
+        <p class="text-[11px] font-extrabold tracking-[0.2em] text-emerald-700">MENGETAHUI WILAYAH/PK</p>
+        <div class="mt-3 grid sm:grid-cols-2 gap-x-6 gap-y-2 text-[13px] text-stone-700">
+          @foreach($wilayahPkInfo as $label => $wilayah)
+            <p><span class="font-extrabold text-stone-900">{{ $label }}:</span> {{ $wilayah }}</p>
+          @endforeach
+        </div>
+        <p class="text-[11px] text-stone-500 mt-3">
+          Wilayah PK dipilih otomatis berdasarkan kabupaten dan kecamatan yang Anda isi.
+        </p>
+      </div>
+
+      <div class="sm:col-span-2 pt-3">
+        <p class="{{ $sectionTitleClass }}">KONTAK &amp; PEKERJAAN</p>
+        <div class="h-px bg-stone-100 mt-2"></div>
+      </div>
+
+      <label class="block">
+        <span class="{{ $labelTextClass }}">No. HP / WhatsApp *</span>
+        <input name="no_hp" required value="{{ old('no_hp') }}" inputmode="tel" autocomplete="tel"
+               placeholder="0812..." class="{{ $inputClass }}">
       </label>
 
       <label class="block">
@@ -131,21 +234,10 @@
                class="{{ $inputClass }} {{ $pekerjaanIsOther ? '' : 'hidden' }}">
       </label>
 
-      <label class="block">
-        <span class="{{ $labelTextClass }}">No. HP / WhatsApp *</span>
-        <input name="no_hp" required value="{{ old('no_hp') }}" inputmode="tel" autocomplete="tel"
-               placeholder="0812..." class="{{ $inputClass }}">
-      </label>
-
-      <label class="block sm:col-span-2">
-        <span class="{{ $labelTextClass }}">Email</span>
-        <input type="email" name="email" value="{{ old('email') }}" autocomplete="email" class="{{ $inputClass }}">
-      </label>
-
-      <label class="block sm:col-span-2">
-        <span class="{{ $labelTextClass }}">Tentang / catatan</span>
-        <textarea name="tentang" rows="4" class="{{ $inputClass }}">{{ old('tentang') }}</textarea>
-      </label>
+      <div class="sm:col-span-2 pt-3">
+        <p class="{{ $sectionTitleClass }}">FOTO &amp; VERIFIKASI</p>
+        <div class="h-px bg-stone-100 mt-2"></div>
+      </div>
 
       <label class="block sm:col-span-2">
         <span class="{{ $labelTextClass }}">Foto</span>
@@ -190,8 +282,49 @@
       select.addEventListener('change', sync);
     }
 
-    bindOther('lembaga-select', 'lembaga-other');
     bindOther('pekerjaan-select', 'pekerjaan-other');
+
+    const nik = document.getElementById('nik');
+    if (nik) {
+      nik.addEventListener('input', function () {
+        this.value = this.value.replace(/\D/g, '').slice(0, 16);
+      });
+    }
+
+    const kabupaten = document.getElementById('kabupaten');
+    const kecamatan = document.getElementById('kecamatan');
+    const preview = document.getElementById('wilayah-pk-preview');
+    const map = @json($wilayahPkMap);
+
+    function normalize(value) {
+      return (value || '').toLowerCase()
+        .replace(/\b(kecamatan|kec|kabupaten|kab|kota)\b/g, ' ')
+        .replace(/[^a-z0-9]+/g, ' ')
+        .trim();
+    }
+
+    function syncWilayahPk() {
+      if (!preview) return;
+
+      const kab = normalize(kabupaten ? kabupaten.value : '');
+      const kec = normalize(kecamatan ? kecamatan.value : '');
+      let pk = '';
+
+      if (kab === 'jember') {
+        pk = 'PK 2';
+      } else if (kab === 'bondowoso' && map[kec]) {
+        pk = map[kec];
+      }
+
+      preview.value = pk ? 'Wilayah ' + pk : '';
+    }
+
+    [kabupaten, kecamatan].forEach(function (element) {
+      if (!element) return;
+      element.addEventListener('input', syncWilayahPk);
+      element.addEventListener('change', syncWilayahPk);
+    });
+    syncWilayahPk();
   })();
 </script>
 @endpush

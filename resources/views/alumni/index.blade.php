@@ -59,7 +59,7 @@
   <div class="mb-6">
     <p class="text-[11px] font-extrabold tracking-[0.3em] text-emerald-700">STATISTIK</p>
     <h2 class="text-2xl md:text-3xl font-extrabold text-stone-900 mt-2">Statistik Alumni</h2>
-    <p class="text-sm text-stone-500 mt-1">Gambaran sebaran alumni berdasarkan angkatan, lembaga, dan domisili.</p>
+    <p class="text-sm text-stone-500 mt-1">Gambaran sebaran alumni berdasarkan angkatan, wilayah PK, dan domisili.</p>
   </div>
 
   <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
@@ -74,9 +74,9 @@
       <p class="text-[12px] text-stone-400 mt-1">angkatan terdata</p>
     </div>
     <div class="bg-white border border-stone-200 rounded-2xl p-5">
-      <p class="text-[10px] font-extrabold tracking-[0.2em] text-stone-400">LEMBAGA</p>
-      <p class="text-3xl font-extrabold text-stone-900 mt-1">{{ $jumlahLembaga }}</p>
-      <p class="text-[12px] text-stone-400 mt-1">lembaga terdata</p>
+      <p class="text-[10px] font-extrabold tracking-[0.2em] text-stone-400">WILAYAH PK</p>
+      <p class="text-3xl font-extrabold text-stone-900 mt-1">{{ $jumlahWilayahPk }}</p>
+      <p class="text-[12px] text-stone-400 mt-1">wilayah PK terdata</p>
     </div>
     <div class="bg-white border border-stone-200 rounded-2xl p-5">
       <p class="text-[10px] font-extrabold tracking-[0.2em] text-stone-400">DOMISILI</p>
@@ -121,17 +121,17 @@
 
       <div class="space-y-6">
         <div class="bg-white border border-stone-200 rounded-2xl p-6">
-          <h2 class="font-extrabold text-stone-900 text-lg">Lembaga Terbanyak</h2>
-          <p class="text-[12px] text-stone-400 mt-1">8 lembaga dengan alumni terbanyak.</p>
+          <h2 class="font-extrabold text-stone-900 text-lg">Wilayah PK Terbanyak</h2>
+          <p class="text-[12px] text-stone-400 mt-1">7 wilayah PK dengan alumni terbanyak.</p>
 
           <div class="mt-3">
-            @forelse($perLembaga as $row)
+            @forelse($perWilayahPk as $row)
               <div class="flex items-center justify-between gap-3 py-2.5 border-b border-stone-100 last:border-0">
-                <span class="text-sm font-bold text-stone-700 truncate">{{ $row->lembaga }}</span>
+                <span class="text-sm font-bold text-stone-700 truncate">Wilayah {{ $row->wilayah_pk }}</span>
                 <span class="text-[11px] font-extrabold px-2.5 py-1 rounded-full bg-stone-100 text-stone-600 shrink-0">{{ $row->total }}</span>
               </div>
             @empty
-              <p class="text-sm text-stone-400">Belum ada data lembaga.</p>
+              <p class="text-sm text-stone-400">Belum ada data wilayah PK.</p>
             @endforelse
           </div>
         </div>

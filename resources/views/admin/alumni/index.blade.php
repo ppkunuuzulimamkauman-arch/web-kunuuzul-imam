@@ -8,7 +8,7 @@
   <form method="GET" action="{{ route('admin.alumni.index') }}" style="display:flex;gap:8px;flex-wrap:wrap;align-items:center">
     <div class="searchbar" style="min-width:260px;background:var(--card)">
       <i class="fa-solid fa-magnifying-glass"></i>
-      <input name="q" value="{{ $q }}" placeholder="Cari nama, NIK, lembaga, domisili...">
+      <input name="q" value="{{ $q }}" placeholder="Cari nama, NIK, wilayah PK, domisili...">
     </div>
     <select name="angkatan" style="border:1px solid var(--line);border-radius:10px;padding:9px 12px;background:var(--card);color:var(--ink);font-size:13px">
       <option value="">Semua angkatan</option>
@@ -73,6 +73,7 @@
             <th>Angkatan</th>
             <th>Lembaga</th>
             <th>Domisili</th>
+            <th>Wilayah PK</th>
             <th>Status</th>
             <th>Aksi</th>
           </tr>
@@ -105,6 +106,7 @@
               </td>
               <td>{{ $alumni->lembaga ?: '-' }}</td>
               <td>{{ $alumni->domisili ?: '-' }}</td>
+              <td>{{ $alumni->wilayah_pk ?: '-' }}</td>
               <td>
                 <span class="pill {{ $alumni->statusPillClass() }}">{{ $alumni->statusLabel() }}</span>
                 @if($alumni->catatan_admin)

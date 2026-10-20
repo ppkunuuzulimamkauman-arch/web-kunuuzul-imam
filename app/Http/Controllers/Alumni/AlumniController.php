@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Alumni;
 use App\Services\Turnstile;
 use App\Support\Nik;
+use App\Support\WilayahPk;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -51,13 +52,13 @@ class AlumniController extends Controller
             ->orderByDesc('angkatan')
             ->get();
 
-        $perLembaga = Alumni::tampil()
-            ->whereNotNull('lembaga')
-            ->where('lembaga', '!=', '')
-            ->select('lembaga', DB::raw('count(*) as total'))
-            ->groupBy('lembaga')
+        $perWilayahPk = Alumni::tampil()
+            ->whereNotNull('wilayah_pk')
+            ->where('wilayah_pk', '!=', '')
+            ->select('wilayah_pk', DB::raw('count(*) as total'))
+            ->groupBy('wilayah_pk')
             ->orderByDesc('total')
-            ->orderBy('lembaga')
+            ->orderBy('wilayah_pk')
             ->limit(8)
             ->get();
 
@@ -72,11 +73,11 @@ class AlumniController extends Controller
             ->get();
 
         $jumlahAngkatan = $perAngkatan->count();
-        $jumlahLembaga = Alumni::tampil()
-            ->whereNotNull('lembaga')
-            ->where('lembaga', '!=', '')
+        $jumlahWilayahPk = Alumni::tampil()
+            ->whereNotNull('wilayah_pk')
+            ->where('wilayah_pk', '!=', '')
             ->distinct()
-            ->count('lembaga');
+            ->count('wilayah_pk');
         $jumlahDomisili = Alumni::tampil()
             ->whereNotNull('domisili')
             ->where('domisili', '!=', '')
@@ -87,10 +88,10 @@ class AlumniController extends Controller
         return compact(
             'total',
             'perAngkatan',
-            'perLembaga',
+            'perWilayahPk',
             'perDomisili',
             'jumlahAngkatan',
-            'jumlahLembaga',
+            'jumlahWilayahPk',
             'jumlahDomisili',
             'maxAngkatan'
         );
@@ -155,9 +156,10 @@ class AlumniController extends Controller
 
         return view('alumni.register-form', [
             'nik' => $nik,
-            'lembagaOptions' => Alumni::lembagaOptions(),
             'pekerjaanOptions' => Alumni::pekerjaanOptions(),
-            'domisiliOptions' => Alumni::domisiliOptions(),
+            'kabupatenOptions' => WilayahPk::kabupatenOptions(),
+            'kecamatanOptions' => WilayahPk::kecamatanOptions(),
+            'wilayahPkMap' => WilayahPk::map(),
             'years' => range((int) now()->year + 1, 1950),
         ]);
     }
@@ -220,28 +222,50 @@ class AlumniController extends Controller
                 },
             ],
             'nama' => 'required|string|max:150',
+            'jenis_kelamin' => 'required|in:L,P',
+            'status_hidup' => 'required|in:hidup,meninggal',
+            'tempat_lahir' => 'required|string|max:100',
+            'tanggal_lahir' => 'required|date|before_or_equal:today',
             'angkatan' => 'nullable|integer|min:1900|max:2100',
             'tahun_lulus' => 'nullable|integer|min:1900|max:2100',
-            'lembaga' => 'nullable|string|max:150',
-            'lembaga_lainnya' => 'nullable|string|max:150',
-            'domisili' => 'nullable|string|max:150',
             'pekerjaan' => 'nullable|string|max:150',
             'pekerjaan_lainnya' => 'nullable|string|max:150',
             'no_hp' => 'required|string|max:20|regex:/^[0-9+\-\s]{9,20}$/',
-            'email' => 'nullable|email|max:150',
-            'tentang' => 'nullable|string|max:2000',
+            'provinsi' => 'required|string|max:100',
+            'kabupaten' => 'required|string|max:100',
+            'kecamatan' => 'required|string|max:100',
+            'desa' => 'required|string|max:100',
+            'dusun' => 'required|string|max:100',
+            'rt' => ['required', 'regex:/^[0-9]{1,3}$/'],
+            'rw' => ['required', 'regex:/^[0-9]{1,3}$/'],
             'foto' => 'nullable|image|max:2048',
         ], [
             'no_hp.regex' => 'Nomor HP tidak valid (9-20 karakter, angka / + / - / spasi).',
             'nik.unique' => 'NIK sudah terdaftar.',
+            'jenis_kelamin.required' => 'Jenis kelamin wajib dipilih.',
+            'status_hidup.required' => 'Status wajib dipilih.',
+            'tempat_lahir.required' => 'Tempat lahir wajib diisi.',
+            'tanggal_lahir.required' => 'Tanggal lahir wajib diisi.',
+            'tanggal_lahir.date' => 'Tanggal lahir tidak valid.',
+            'tanggal_lahir.before_or_equal' => 'Tanggal lahir tidak boleh melebihi hari ini.',
+            'provinsi.required' => 'Provinsi wajib diisi.',
+            'kabupaten.required' => 'Kabupaten wajib diisi.',
+            'kecamatan.required' => 'Kecamatan wajib diisi.',
+            'desa.required' => 'Desa/kelurahan wajib diisi.',
+            'dusun.required' => 'Dusun wajib diisi.',
+            'rt.required' => 'RT wajib diisi.',
+            'rt.regex' => 'RT harus berupa 1-3 digit angka.',
+            'rw.required' => 'RW wajib diisi.',
+            'rw.regex' => 'RW harus berupa 1-3 digit angka.',
         ]);
 
-        foreach (['lembaga', 'pekerjaan'] as $field) {
-            if (($data[$field] ?? null) === '__other__') {
-                $data[$field] = trim((string) ($data[$field.'_lainnya'] ?? '')) ?: null;
-            }
+        if (($data['pekerjaan'] ?? null) === '__other__') {
+            $data['pekerjaan'] = trim((string) ($data['pekerjaan_lainnya'] ?? '')) ?: null;
         }
-        unset($data['lembaga_lainnya'], $data['pekerjaan_lainnya']);
+        unset($data['pekerjaan_lainnya']);
+
+        $data['wilayah_pk'] = WilayahPk::for($data['kabupaten'], $data['kecamatan']);
+        $data['domisili'] = $data['kabupaten'];
 
         if (! Turnstile::verify($request->input('cf-turnstile-response'), $request->ip())) {
             return back()

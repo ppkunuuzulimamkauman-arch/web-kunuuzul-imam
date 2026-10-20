@@ -28,6 +28,11 @@
         @endif
 
         <div class="flex flex-wrap gap-2 mt-4">
+          @if($alumni->wilayah_pk)
+            <span class="inline-flex items-center gap-2 text-[12px] font-bold px-3 py-1.5 rounded-full bg-emerald-50 text-emerald-700">
+              <i class="fa-solid fa-people-group"></i> {{ $alumni->wilayahPkLabel() }}
+            </span>
+          @endif
           @if($alumni->lembaga)
             <span class="inline-flex items-center gap-2 text-[12px] font-bold px-3 py-1.5 rounded-full bg-stone-100 text-stone-600">
               <i class="fa-solid fa-mosque"></i> {{ $alumni->lembaga }}
@@ -57,8 +62,12 @@
         <dd class="font-bold text-stone-800 mt-1">{{ $alumni->tahun_lulus ?: '-' }}</dd>
       </div>
       <div>
-        <dt class="text-[11px] font-extrabold uppercase tracking-wider text-stone-400">Lembaga</dt>
-        <dd class="font-bold text-stone-800 mt-1">{{ $alumni->lembaga ?: '-' }}</dd>
+        <dt class="text-[11px] font-extrabold uppercase tracking-wider text-stone-400">Wilayah PK</dt>
+        <dd class="font-bold text-stone-800 mt-1">{{ $alumni->wilayahPkLabel() }}</dd>
+      </div>
+      <div>
+        <dt class="text-[11px] font-extrabold uppercase tracking-wider text-stone-400">Jenis Kelamin</dt>
+        <dd class="font-bold text-stone-800 mt-1">{{ $alumni->jenisKelaminLabel() ?: '-' }}</dd>
       </div>
       <div>
         <dt class="text-[11px] font-extrabold uppercase tracking-wider text-stone-400">Domisili</dt>

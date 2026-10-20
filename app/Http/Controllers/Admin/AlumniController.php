@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\Alumni;
 use App\Support\Nik;
+use App\Support\WilayahPk;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
@@ -29,7 +30,10 @@ class AlumniController extends Controller
                         ->orWhere('lembaga', 'like', "%{$q}%")
                         ->orWhere('domisili', 'like', "%{$q}%")
                         ->orWhere('pekerjaan', 'like', "%{$q}%")
-                        ->orWhere('email', 'like', "%{$q}%");
+                        ->orWhere('email', 'like', "%{$q}%")
+                        ->orWhere('kecamatan', 'like', "%{$q}%")
+                        ->orWhere('kabupaten', 'like', "%{$q}%")
+                        ->orWhere('wilayah_pk', 'like', "%{$q}%");
                 });
             })
             ->when($angkatan, fn ($query) => $query->where('angkatan', $angkatan))
@@ -69,7 +73,10 @@ class AlumniController extends Controller
                         ->orWhere('lembaga', 'like', "%{$q}%")
                         ->orWhere('domisili', 'like', "%{$q}%")
                         ->orWhere('pekerjaan', 'like', "%{$q}%")
-                        ->orWhere('email', 'like', "%{$q}%");
+                        ->orWhere('email', 'like', "%{$q}%")
+                        ->orWhere('kecamatan', 'like', "%{$q}%")
+                        ->orWhere('kabupaten', 'like', "%{$q}%")
+                        ->orWhere('wilayah_pk', 'like', "%{$q}%");
                 });
             })
             ->when($angkatan, fn ($query) => $query->where('angkatan', $angkatan))
@@ -363,6 +370,10 @@ class AlumniController extends Controller
         $data = $request->validate([
             'nama' => 'required|string|max:150',
             'nik' => ['nullable', 'digits:16', $uniqueNik],
+            'jenis_kelamin' => 'nullable|in:L,P',
+            'status_hidup' => 'nullable|in:hidup,meninggal',
+            'tempat_lahir' => 'nullable|string|max:100',
+            'tanggal_lahir' => 'nullable|date',
             'angkatan' => 'nullable|integer|min:1900|max:2100',
             'tahun_lulus' => 'nullable|integer|min:1900|max:2100',
             'lembaga' => 'nullable|string|max:150',
@@ -370,6 +381,14 @@ class AlumniController extends Controller
             'pekerjaan' => 'nullable|string|max:150',
             'no_hp' => 'nullable|string|max:30',
             'email' => 'nullable|email|max:150',
+            'provinsi' => 'nullable|string|max:100',
+            'kabupaten' => 'nullable|string|max:100',
+            'kecamatan' => 'nullable|string|max:100',
+            'desa' => 'nullable|string|max:100',
+            'dusun' => 'nullable|string|max:100',
+            'rt' => 'nullable|string|max:5',
+            'rw' => 'nullable|string|max:5',
+            'wilayah_pk' => ['nullable', Rule::in(WilayahPk::pkOptions())],
             'tentang' => 'nullable|string',
             'status' => 'required|in:menunggu,disetujui,ditolak',
             'catatan_admin' => 'nullable|string|max:1000',
@@ -378,6 +397,22 @@ class AlumniController extends Controller
 
         if (! empty($data['nik']) && ! Nik::isValid($data['nik'])) {
             throw ValidationException::withMessages(['nik' => 'NIK tidak valid.']);
+        }
+
+        if (array_key_exists('status_hidup', $data) && empty($data['status_hidup'])) {
+            $data['status_hidup'] = 'hidup';
+        }
+
+        if (empty($data['wilayah_pk'])
+            && (array_key_exists('kabupaten', $data) || array_key_exists('kecamatan', $data))) {
+            $data['wilayah_pk'] = WilayahPk::for(
+                $data['kabupaten'] ?? null,
+                $data['kecamatan'] ?? null
+            );
+        }
+
+        if (empty($data['domisili']) && ! empty($data['kabupaten'])) {
+            $data['domisili'] = $data['kabupaten'];
         }
 
         return $data;

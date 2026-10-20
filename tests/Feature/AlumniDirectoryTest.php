@@ -72,7 +72,10 @@ class AlumniDirectoryTest extends TestCase
         $this->get(route('alumni.register'))
             ->assertOk()
             ->assertSee('Lengkapi Data Anda')
-            ->assertSee('Nama lengkap');
+            ->assertSee('Nama lengkap')
+            ->assertSee('DATA DIRI')
+            ->assertSee('ALAMAT LENGKAP')
+            ->assertSee('KONTAK & PEKERJAAN');
 
         $this->withSession(['alumni_nik' => $nik])
             ->get(route('alumni.register.form'))
@@ -95,20 +98,32 @@ class AlumniDirectoryTest extends TestCase
             ->post(route('alumni.register.store'), [
                 'nik' => $nik,
                 'nama' => 'Calon Alumni',
+                'jenis_kelamin' => 'L',
+                'status_hidup' => 'hidup',
+                'tempat_lahir' => 'Bondowoso',
+                'tanggal_lahir' => '2000-01-01',
                 'angkatan' => 2020,
                 'tahun_lulus' => 2024,
-                'lembaga' => 'MA',
-                'domisili' => 'Jombang',
                 'pekerjaan' => 'Mahasiswa',
                 'no_hp' => '081234567890',
-                'email' => 'calon-alumni@example.test',
-                'tentang' => 'Siap bersilaturahmi.',
+                'provinsi' => 'Jawa Timur',
+                'kabupaten' => 'Bondowoso',
+                'kecamatan' => 'Binakal',
+                'desa' => 'Desa Contoh',
+                'dusun' => 'Dusun Contoh',
+                'rt' => '001',
+                'rw' => '002',
             ])->assertRedirect(route('alumni.register.success'));
 
         $alumni = Alumni::where('nama', 'Calon Alumni')->firstOrFail();
         $this->assertSame($nik, $alumni->nik);
         $this->assertSame(Alumni::STATUS_PENDING, $alumni->status);
         $this->assertFalse((bool) $alumni->is_tampil);
+        $this->assertSame('L', $alumni->jenis_kelamin);
+        $this->assertSame('hidup', $alumni->status_hidup);
+        $this->assertSame('2000-01-01', $alumni->tanggal_lahir->format('Y-m-d'));
+        $this->assertSame('PK 1', $alumni->wilayah_pk);
+        $this->assertSame('Bondowoso', $alumni->domisili);
 
         $this->get(route('alumni.home'))
             ->assertOk()
@@ -193,6 +208,10 @@ class AlumniDirectoryTest extends TestCase
             ->post(route('admin.alumni.store'), [
                 'nama' => 'Alumni Baru',
                 'nik' => $nikBaru,
+                'jenis_kelamin' => 'L',
+                'status_hidup' => 'hidup',
+                'tempat_lahir' => 'Bondowoso',
+                'tanggal_lahir' => '1995-01-01',
                 'angkatan' => 2015,
                 'tahun_lulus' => 2019,
                 'lembaga' => 'MA',
@@ -200,6 +219,13 @@ class AlumniDirectoryTest extends TestCase
                 'pekerjaan' => 'Guru',
                 'no_hp' => '081234567890',
                 'email' => 'alumni-baru@example.test',
+                'provinsi' => 'Jawa Timur',
+                'kabupaten' => 'Bondowoso',
+                'kecamatan' => 'Curahdami',
+                'desa' => 'Desa Admin',
+                'dusun' => 'Dusun Admin',
+                'rt' => '003',
+                'rw' => '004',
                 'tentang' => 'Catatan alumni.',
                 'status' => Alumni::STATUS_APPROVED,
                 'is_tampil' => '1',
@@ -210,6 +236,8 @@ class AlumniDirectoryTest extends TestCase
         $this->assertSame($nikBaru, $alumni->nik);
         $this->assertTrue((bool) $alumni->is_tampil);
         $this->assertSame(Alumni::STATUS_APPROVED, $alumni->status);
+        $this->assertSame('PK 1', $alumni->wilayah_pk);
+        $this->assertSame('Curahdami', $alumni->kecamatan);
 
         $this->actingAs($utama)
             ->put(route('admin.alumni.update', $alumni), [
@@ -225,6 +253,7 @@ class AlumniDirectoryTest extends TestCase
             'id' => $alumni->id,
             'nama' => 'Alumni Diubah',
             'nik' => $nikUbah,
+            'wilayah_pk' => 'PK 1',
         ]);
 
         $this->actingAs($utama)
@@ -328,21 +357,21 @@ class AlumniDirectoryTest extends TestCase
         Alumni::create([
             'nama' => 'Stats Satu',
             'angkatan' => 2010,
-            'lembaga' => 'MA',
+            'wilayah_pk' => 'PK 1',
             'domisili' => 'Jombang',
             'is_tampil' => true,
         ]);
         Alumni::create([
             'nama' => 'Stats Dua',
             'angkatan' => 2010,
-            'lembaga' => 'MA',
+            'wilayah_pk' => 'PK 1',
             'domisili' => 'Surabaya',
             'is_tampil' => true,
         ]);
         Alumni::create([
             'nama' => 'Stats Tiga',
             'angkatan' => 2011,
-            'lembaga' => 'MTs',
+            'wilayah_pk' => 'PK 2',
             'domisili' => 'Jombang',
             'status' => Alumni::STATUS_PENDING,
             'is_tampil' => true,
@@ -353,9 +382,9 @@ class AlumniDirectoryTest extends TestCase
             ->assertSee('Statistik Alumni')
             ->assertSee('2010')
             ->assertSee('2 alumni')
-            ->assertSee('>MA</span>', false)
+            ->assertSee('Wilayah PK 1')
             ->assertSee('Surabaya')
-            ->assertDontSee('>MTs</span>', false);
+            ->assertDontSee('Wilayah PK 2');
     }
 
     public function test_nik_terdaftar_mengarah_ke_halaman_tercatat(): void
@@ -415,7 +444,8 @@ class AlumniDirectoryTest extends TestCase
             ->assertOk()
             ->assertSee('Lengkapi Data Anda')
             ->assertSee($nik)
-            ->assertSee('Pilih lembaga')
+            ->assertSee('Jenis kelamin')
+            ->assertSee('Wilayah PK')
             ->assertSee('Pilih pekerjaan');
     }
 

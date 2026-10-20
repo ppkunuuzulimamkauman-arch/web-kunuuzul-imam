@@ -15,7 +15,9 @@
     @if($alumni->angkatanLabel())
       <p class="text-[12px] font-bold text-emerald-700 mt-1">{{ $alumni->angkatanLabel() }}</p>
     @endif
-    @if($alumni->lembaga)
+    @if($alumni->wilayah_pk)
+      <p class="text-[12px] font-bold text-emerald-700 mt-1">Wilayah {{ $alumni->wilayah_pk }}</p>
+    @elseif($alumni->lembaga)
       <p class="text-[13px] text-stone-500 mt-1 truncate">{{ $alumni->lembaga }}</p>
     @endif
     @if($alumni->domisili)
