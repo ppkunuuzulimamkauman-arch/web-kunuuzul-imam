@@ -6,6 +6,7 @@ class WilayahPk
 {
     /**
      * Pemetaan kecamatan Bondowoso ke wilayah PK.
+     * Kabupaten selain Bondowoso otomatis masuk PK 2.
      * Sumber: poster "Mengetahui Wilayah/PK".
      *
      * @var array<string, string>
@@ -60,15 +61,15 @@ class WilayahPk
         $kabupaten = self::normalize($kabupaten);
         $kecamatan = self::normalize($kecamatan);
 
-        if ($kabupaten === 'jember') {
-            return 'PK 2';
+        if ($kabupaten === '') {
+            return null;
         }
 
         if ($kabupaten === 'bondowoso') {
             return self::BONDOWOSO[$kecamatan] ?? null;
         }
 
-        return null;
+        return 'PK 2';
     }
 
     /** @return array<string, string> */

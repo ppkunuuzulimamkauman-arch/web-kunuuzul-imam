@@ -58,7 +58,7 @@
       <label class="block sm:col-span-2">
         <span class="{{ $labelTextClass }}">NIK *</span>
         <input id="nik" name="nik" required inputmode="numeric" autocomplete="off" maxlength="16"
-               pattern="[0-9]{16}" value="{{ old('nik', $nik) }}" placeholder="16 digit angka"
+               pattern="[0-9]{16}" value="{{ old('nik', $nik) }}"
                class="{{ $inputClass }} font-mono tracking-wider">
         <span class="block text-[12px] text-stone-400 mt-1">16 digit angka pada KTP/KK.</span>
         @error('nik')
@@ -93,7 +93,7 @@
 
       <label class="block">
         <span class="{{ $labelTextClass }}">Tempat lahir *</span>
-        <input name="tempat_lahir" required value="{{ old('tempat_lahir') }}" placeholder="Contoh: Bondowoso" class="{{ $inputClass }}">
+        <input name="tempat_lahir" required value="{{ old('tempat_lahir') }}" class="{{ $inputClass }}">
       </label>
 
       <label class="block">
@@ -129,51 +129,50 @@
 
       <label class="block">
         <span class="{{ $labelTextClass }}">Provinsi *</span>
-        <input name="provinsi" required value="{{ old('provinsi', 'Jawa Timur') }}" placeholder="Contoh: Jawa Timur" class="{{ $inputClass }}">
+        <input name="provinsi" required value="{{ old('provinsi') }}" class="{{ $inputClass }}">
       </label>
 
       <label class="block">
         <span class="{{ $labelTextClass }}">Kabupaten *</span>
         <input id="kabupaten" name="kabupaten" required
-               value="{{ old('kabupaten') }}" placeholder="Contoh: Bondowoso / Jember" class="{{ $inputClass }}">
+               value="{{ old('kabupaten') }}" class="{{ $inputClass }}">
       </label>
 
       <label class="block">
         <span class="{{ $labelTextClass }}">Kecamatan *</span>
         <input id="kecamatan" name="kecamatan" required
-               value="{{ old('kecamatan') }}" placeholder="Contoh: Binakal" class="{{ $inputClass }}">
+               value="{{ old('kecamatan') }}" class="{{ $inputClass }}">
       </label>
 
       <label class="block">
         <span class="{{ $labelTextClass }}">Desa / kelurahan *</span>
-        <input name="desa" required value="{{ old('desa') }}" placeholder="Nama desa / kelurahan" class="{{ $inputClass }}">
+        <input name="desa" required value="{{ old('desa') }}" class="{{ $inputClass }}">
       </label>
 
       <label class="block sm:col-span-2">
         <span class="{{ $labelTextClass }}">Dusun *</span>
-        <input name="dusun" required value="{{ old('dusun') }}" placeholder="Nama dusun" class="{{ $inputClass }}">
+        <input name="dusun" required value="{{ old('dusun') }}" class="{{ $inputClass }}">
       </label>
 
       <label class="block">
         <span class="{{ $labelTextClass }}">RT *</span>
         <input name="rt" required inputmode="numeric" maxlength="3" pattern="[0-9]{1,3}"
-               value="{{ old('rt') }}" placeholder="Contoh: 001" class="{{ $inputClass }}">
+               value="{{ old('rt') }}" class="{{ $inputClass }}">
       </label>
 
       <label class="block">
         <span class="{{ $labelTextClass }}">RW *</span>
         <input name="rw" required inputmode="numeric" maxlength="3" pattern="[0-9]{1,3}"
-               value="{{ old('rw') }}" placeholder="Contoh: 002" class="{{ $inputClass }}">
+               value="{{ old('rw') }}" class="{{ $inputClass }}">
       </label>
 
       <label class="block sm:col-span-2">
         <span class="{{ $labelTextClass }}">Wilayah PK</span>
         <input id="wilayah-pk-preview" readonly
-               placeholder="Otomatis terisi dari kabupaten dan kecamatan"
                style="background-color:#ecfdf5;color:#065f46"
                class="{{ $inputClass }} font-bold">
         <span class="block text-[12px] text-stone-400 mt-1">
-          Wilayah PK ditentukan otomatis. Jika alamat di luar wilayah PK 1–7, kolom ini akan kosong.
+          Wilayah PK ditentukan otomatis dari kabupaten dan kecamatan. Alamat di luar Bondowoso masuk Wilayah PK 2.
         </span>
       </label>
 
@@ -184,8 +183,7 @@
 
       <label class="block">
         <span class="{{ $labelTextClass }}">No. HP / WhatsApp *</span>
-        <input name="no_hp" required value="{{ old('no_hp') }}" inputmode="tel" autocomplete="tel"
-               placeholder="0812..." class="{{ $inputClass }}">
+        <input name="no_hp" required value="{{ old('no_hp') }}" inputmode="tel" autocomplete="tel" class="{{ $inputClass }}">
       </label>
 
       <label class="block">
@@ -198,7 +196,6 @@
           <option value="__other__" @selected($pekerjaanIsOther)>Lainnya</option>
         </select>
         <input type="text" name="pekerjaan_lainnya" id="pekerjaan-other" value="{{ $pekerjaanOtherValue }}"
-               placeholder="Tulis pekerjaan"
                class="{{ $inputClass }} {{ $pekerjaanIsOther ? '' : 'hidden' }}">
       </label>
 
@@ -278,7 +275,7 @@
       const kec = normalize(kecamatan ? kecamatan.value : '');
       let pk = '';
 
-      if (kab === 'jember') {
+      if (kab !== '' && kab !== 'bondowoso') {
         pk = 'PK 2';
       } else if (kab === 'bondowoso' && map[kec]) {
         pk = map[kec];

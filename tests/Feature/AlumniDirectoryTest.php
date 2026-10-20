@@ -130,6 +130,34 @@ class AlumniDirectoryTest extends TestCase
             ->assertDontSee('Calon Alumni');
     }
 
+    public function test_pendaftaran_dari_luar_bondowoso_masuk_wilayah_pk_2(): void
+    {
+        config(['services.turnstile.site_key' => null, 'services.turnstile.secret' => null]);
+
+        $nik = $this->validNik(17);
+
+        $this->post(route('alumni.register.store'), [
+            'nik' => $nik,
+            'nama' => 'Calon Alumni Luar',
+            'jenis_kelamin' => 'P',
+            'status_hidup' => 'hidup',
+            'tempat_lahir' => 'Lumajang',
+            'tanggal_lahir' => '2001-02-03',
+            'no_hp' => '081234567891',
+            'provinsi' => 'Jawa Timur',
+            'kabupaten' => 'Lumajang',
+            'kecamatan' => 'Lumajang',
+            'desa' => 'Desa Luar',
+            'dusun' => 'Dusun Luar',
+            'rt' => '005',
+            'rw' => '006',
+        ])->assertRedirect(route('alumni.register.success'));
+
+        $alumni = Alumni::where('nama', 'Calon Alumni Luar')->firstOrFail();
+        $this->assertSame('PK 2', $alumni->wilayah_pk);
+        $this->assertSame('Lumajang', $alumni->domisili);
+    }
+
     public function test_honeypot_pendaftaran_tidak_membuat_data(): void
     {
         $this->withSession(['alumni_nik' => $this->validNik(3)])
