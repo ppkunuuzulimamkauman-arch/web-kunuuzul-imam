@@ -132,7 +132,7 @@
       </div>
       <a href="{{ route('konsultasi') }}" class="nav-link py-4">KONSULTASI</a>
       <div class="flex items-center gap-3 ml-3">
-        <a href="{{ route('ppdb.form') }}" class="nav-cta px-4 py-2 text-[11px] font-bold tracking-[0.15em] transition">DAFTAR PSB</a>
+        <a href="{{ route('psb.home') }}" class="nav-cta px-4 py-2 text-[11px] font-bold tracking-[0.15em] transition">DAFTAR PSB</a>
       </div>
     </div>
     <label for="mnavToggle" class="mnav-burger lg:hidden" aria-label="Buka / tutup menu"><span></span><span></span><span></span></label>
@@ -188,7 +188,7 @@
         <li class="{{ request()->routeIs('konsultasi') ? 'active' : '' }}"><a href="{{ route('konsultasi') }}">Konsultasi</a></li>
       </ul>
       <div class="mnav-foot">
-        <a href="{{ route('ppdb.form') }}" class="block text-center bg-amber-400 text-primary-900 font-extrabold text-[13px] tracking-[0.15em] px-4 py-3 rounded-2xl hover:bg-amber-300 transition">DAFTAR PSB</a>
+        <a href="{{ route('psb.home') }}" class="block text-center bg-amber-400 text-primary-900 font-extrabold text-[13px] tracking-[0.15em] px-4 py-3 rounded-2xl hover:bg-amber-300 transition">DAFTAR PSB</a>
       </div>
     </div>
   </aside>
