@@ -32,7 +32,68 @@ class AlumniController extends Controller
             }
         }
 
-        return view('alumni.index', compact('nik', 'searched', 'hasil', 'nikError'));
+        return view('alumni.index', array_merge([
+            'nik' => $nik,
+            'searched' => $searched,
+            'hasil' => $hasil,
+            'nikError' => $nikError,
+        ], $this->statistics()));
+    }
+
+    private function statistics(): array
+    {
+        $total = Alumni::tampil()->count();
+
+        $perAngkatan = Alumni::tampil()
+            ->whereNotNull('angkatan')
+            ->select('angkatan', DB::raw('count(*) as total'))
+            ->groupBy('angkatan')
+            ->orderByDesc('angkatan')
+            ->get();
+
+        $perLembaga = Alumni::tampil()
+            ->whereNotNull('lembaga')
+            ->where('lembaga', '!=', '')
+            ->select('lembaga', DB::raw('count(*) as total'))
+            ->groupBy('lembaga')
+            ->orderByDesc('total')
+            ->orderBy('lembaga')
+            ->limit(8)
+            ->get();
+
+        $perDomisili = Alumni::tampil()
+            ->whereNotNull('domisili')
+            ->where('domisili', '!=', '')
+            ->select('domisili', DB::raw('count(*) as total'))
+            ->groupBy('domisili')
+            ->orderByDesc('total')
+            ->orderBy('domisili')
+            ->limit(8)
+            ->get();
+
+        $jumlahAngkatan = $perAngkatan->count();
+        $jumlahLembaga = Alumni::tampil()
+            ->whereNotNull('lembaga')
+            ->where('lembaga', '!=', '')
+            ->distinct()
+            ->count('lembaga');
+        $jumlahDomisili = Alumni::tampil()
+            ->whereNotNull('domisili')
+            ->where('domisili', '!=', '')
+            ->distinct()
+            ->count('domisili');
+        $maxAngkatan = (int) ($perAngkatan->max('total') ?? 0);
+
+        return compact(
+            'total',
+            'perAngkatan',
+            'perLembaga',
+            'perDomisili',
+            'jumlahAngkatan',
+            'jumlahLembaga',
+            'jumlahDomisili',
+            'maxAngkatan'
+        );
     }
 
     public function show(Alumni $alumni): View
@@ -222,59 +283,4 @@ class AlumniController extends Controller
         ]);
     }
 
-    public function stats(): View
-    {
-        $total = Alumni::tampil()->count();
-
-        $perAngkatan = Alumni::tampil()
-            ->whereNotNull('angkatan')
-            ->select('angkatan', DB::raw('count(*) as total'))
-            ->groupBy('angkatan')
-            ->orderByDesc('angkatan')
-            ->get();
-
-        $perLembaga = Alumni::tampil()
-            ->whereNotNull('lembaga')
-            ->where('lembaga', '!=', '')
-            ->select('lembaga', DB::raw('count(*) as total'))
-            ->groupBy('lembaga')
-            ->orderByDesc('total')
-            ->orderBy('lembaga')
-            ->limit(8)
-            ->get();
-
-        $perDomisili = Alumni::tampil()
-            ->whereNotNull('domisili')
-            ->where('domisili', '!=', '')
-            ->select('domisili', DB::raw('count(*) as total'))
-            ->groupBy('domisili')
-            ->orderByDesc('total')
-            ->orderBy('domisili')
-            ->limit(8)
-            ->get();
-
-        $jumlahAngkatan = $perAngkatan->count();
-        $jumlahLembaga = Alumni::tampil()
-            ->whereNotNull('lembaga')
-            ->where('lembaga', '!=', '')
-            ->distinct()
-            ->count('lembaga');
-        $jumlahDomisili = Alumni::tampil()
-            ->whereNotNull('domisili')
-            ->where('domisili', '!=', '')
-            ->distinct()
-            ->count('domisili');
-        $maxAngkatan = (int) ($perAngkatan->max('total') ?? 0);
-
-        return view('alumni.stats', compact(
-            'total',
-            'perAngkatan',
-            'perLembaga',
-            'perDomisili',
-            'jumlahAngkatan',
-            'jumlahLembaga',
-            'jumlahDomisili',
-            'maxAngkatan'
-        ));
-    }
 }

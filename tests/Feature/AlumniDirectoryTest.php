@@ -323,7 +323,7 @@ class AlumniDirectoryTest extends TestCase
         $this->assertDatabaseHas('alumnis', ['nama' => 'Alumni Baru Import', 'nik' => $nikBaru]);
     }
 
-    public function test_halaman_statistik_publik_menampilkan_data_yang_tampil(): void
+    public function test_statistik_publik_tampil_di_halaman_direktori(): void
     {
         Alumni::create([
             'nama' => 'Stats Satu',
@@ -348,7 +348,7 @@ class AlumniDirectoryTest extends TestCase
             'is_tampil' => true,
         ]);
 
-        $this->get(route('alumni.stats'))
+        $this->get(route('alumni.home'))
             ->assertOk()
             ->assertSee('Statistik Alumni')
             ->assertSee('2010')

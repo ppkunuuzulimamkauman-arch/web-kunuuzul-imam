@@ -17,6 +17,4 @@ Route::get('/daftar/tercatat', [AlumniController::class, 'registerRecorded'])->n
 Route::get('/daftar/ganti-nik', [AlumniController::class, 'resetNik'])->name('register.reset');
 Route::get('/daftar/sukses', [AlumniController::class, 'registerSuccess'])->name('register.success');
 
-Route::get('/statistik', [AlumniController::class, 'stats'])->name('stats');
-
 Route::get('/{alumni}', [AlumniController::class, 'show'])->whereNumber('alumni')->name('show');
