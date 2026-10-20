@@ -126,14 +126,27 @@
             <a href="{{ route('lembaga') }}" class="block px-4 py-2.5 hover:bg-stone-100 text-[13px] font-bold">Lembaga</a>
             <a href="{{ route('program.index') }}" class="block px-4 py-2.5 hover:bg-stone-100 text-[13px] font-bold">Program</a>
             <a href="{{ route('organisasi') }}" class="block px-4 py-2.5 hover:bg-stone-100 text-[13px] font-bold">Organisasi</a>
-            <a href="{{ route('surat.home') }}" class="block px-4 py-2.5 hover:bg-stone-100 text-[13px] font-bold">Layanan Surat</a>
+            <details class="group/layanan border-t border-stone-100 mt-1 pt-1">
+              <summary class="flex items-center justify-between gap-2 px-4 py-2.5 hover:bg-stone-100 text-[13px] font-bold cursor-pointer list-none">
+                <span>Layanan</span>
+                <span class="layanan-chev text-[10px] transition-transform">▾</span>
+              </summary>
+              <div class="bg-stone-50/70 border-t border-stone-100 py-1">
+                <a href="{{ route('psb.home') }}" class="block px-6 py-2 hover:bg-stone-100 text-[12.5px] font-bold">PSB</a>
+                <a href="{{ route('surat.home') }}" class="block px-6 py-2 hover:bg-stone-100 text-[12.5px] font-bold">E-Surat</a>
+                <a href="{{ route('alumni.home') }}" class="block px-6 py-2 hover:bg-stone-100 text-[12.5px] font-bold">Alumni</a>
+              </div>
+            </details>
           </div>
         </div>
       </div>
       <a href="{{ route('konsultasi') }}" class="nav-link py-4">KONSULTASI</a>
-      <div class="flex items-center gap-3 ml-3">
-        <a href="{{ route('psb.home') }}" class="nav-cta px-4 py-2 text-[11px] font-bold tracking-[0.15em] transition">DAFTAR PSB</a>
-      </div>
+      <form action="{{ route('search') }}" method="GET" role="search" class="nav-search ml-1" title="Cari berita, program, atau halaman">
+        <i class="fa-solid fa-magnifying-glass text-[12px]"></i>
+        <input type="search" name="q" value="{{ request()->routeIs('search') ? request('q') : '' }}" maxlength="100"
+               autocomplete="off" enterkeyhint="search" placeholder="Cari..." aria-label="Cari di situs">
+        <button type="submit" aria-label="Cari"><i class="fa-solid fa-arrow-right text-[11px]"></i></button>
+      </form>
     </div>
     <label for="mnavToggle" class="mnav-burger lg:hidden" aria-label="Buka / tutup menu"><span></span><span></span><span></span></label>
   </div>
@@ -146,6 +159,14 @@
           <p>PONDOK PESANTREN</p>
           <h3>KUNUUZUL IMAM KAUMAN</h3>
         </div>
+      </div>
+      <div class="mnav-search">
+        <form action="{{ route('search') }}" method="GET" role="search">
+          <i class="fa-solid fa-magnifying-glass"></i>
+          <input type="search" name="q" value="{{ request()->routeIs('search') ? request('q') : '' }}" maxlength="100"
+                 autocomplete="off" enterkeyhint="search" placeholder="Cari berita, program, atau halaman..." aria-label="Cari di situs">
+          <button type="submit" aria-label="Cari"><i class="fa-solid fa-arrow-right"></i></button>
+        </form>
       </div>
       <ul class="mnav-list">
         <li class="{{ request()->routeIs('home') ? 'active' : '' }}"><a href="{{ route('home') }}">Beranda</a></li>
@@ -173,7 +194,7 @@
             </ul>
           </details>
         </li>
-        @php $lainActive = request()->routeIs('lembaga') || request()->routeIs('program.*') || request()->routeIs('organisasi'); @endphp
+        @php $lainActive = request()->routeIs('lembaga') || request()->routeIs('program.*') || request()->routeIs('organisasi') || request()->routeIs('surat.*', 'psb.*', 'alumni.*'); @endphp
         <li class="mnav-group {{ $lainActive ? 'has-active' : '' }}">
           <details @if($lainActive) open @endif>
             <summary>Lainnya <span class="mnav-chev">▾</span></summary>
@@ -181,7 +202,16 @@
               <li class="mnav-sub {{ request()->routeIs('lembaga') ? 'active' : '' }}"><a href="{{ route('lembaga') }}">Lembaga</a></li>
               <li class="mnav-sub {{ request()->routeIs('program.*') ? 'active' : '' }}"><a href="{{ route('program.index') }}">Program</a></li>
               <li class="mnav-sub {{ request()->routeIs('organisasi') ? 'active' : '' }}"><a href="{{ route('organisasi') }}">Organisasi</a></li>
-              <li class="mnav-sub"><a href="{{ route('surat.home') }}">Layanan Surat</a></li>
+              <li class="mnav-group mnav-subgroup">
+                <details>
+                  <summary>Layanan <span class="mnav-chev">▾</span></summary>
+                  <ul class="mnav-sublist">
+                    <li class="mnav-sub"><a href="{{ route('psb.home') }}">PSB</a></li>
+                    <li class="mnav-sub"><a href="{{ route('surat.home') }}">E-Surat</a></li>
+                    <li class="mnav-sub"><a href="{{ route('alumni.home') }}">Alumni</a></li>
+                  </ul>
+                </details>
+              </li>
             </ul>
           </details>
         </li>

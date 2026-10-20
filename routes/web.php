@@ -23,6 +23,7 @@ use App\Http\Controllers\KontakController;
 use App\Http\Controllers\KonsultasiController;
 use App\Http\Controllers\PendaftaranController;
 use App\Http\Controllers\PublicBeritaController;
+use App\Http\Controllers\SearchController;
 use App\Http\Controllers\SiteController;
 use Illuminate\Support\Facades\Route;
 
@@ -49,6 +50,7 @@ Route::get('/program/{slug}', [HomeController::class, 'programShow'])->name('pro
 Route::get('/berita', [PublicBeritaController::class, 'index'])->name('berita.index');
 Route::get('/artikel', [PublicBeritaController::class, 'artikel'])->name('artikel.index');
 Route::get('/berita/{slug}', [PublicBeritaController::class, 'show'])->name('berita.show');
+Route::get('/cari', SearchController::class)->name('search');
 
 Route::get('/galeri', [PendaftaranController::class, 'galeri'])->name('galeri.index');
 

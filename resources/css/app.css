@@ -31,6 +31,36 @@ body {
 .nav-link::after { content: ''; position: absolute; left: 0; bottom: 8px; height: 2px; width: 0; background: #dc2626; transition: width .3s ease; }
 .nav-link:hover::after, .nav-link.active::after { width: 100%; }
 
+/* Pencarian navbar desktop */
+#mainnav .nav-search { display: flex; align-items: center; gap: 7px; width: 8.5rem; padding: 8px 10px; border: 1px solid #d6d3d1; background: #fafaf9; color: #78716c; transition: width .25s ease, border-color .2s ease, background .2s ease; }
+#mainnav .nav-search:focus-within { width: 12rem; border-color: #a8a29e; background: #fff; }
+#mainnav .nav-search input { flex: 1; min-width: 0; border: 0; outline: 0; background: transparent; color: #1c1917; font-size: 12px; }
+#mainnav .nav-search input::placeholder { color: #a8a29e; }
+#mainnav .nav-search button { flex-shrink: 0; color: #57534e; transition: color .2s ease; }
+#mainnav .nav-search button:hover { color: #065f46; }
+@media (min-width: 1280px) {
+  #mainnav .nav-search { width: 11rem; }
+  #mainnav .nav-search:focus-within { width: 14rem; }
+}
+
+/* Submenu Layanan di dropdown Lainnya */
+.maindrop summary { list-style: none; }
+.maindrop summary::-webkit-details-marker { display: none; }
+.maindrop summary::marker { content: ''; }
+.maindrop details[open] > summary .layanan-chev { transform: rotate(180deg); }
+
+/* Pencarian drawer mobile */
+.mnav-search { flex-shrink: 0; padding: 14px 20px 2px; }
+.mnav-search form { display: flex; align-items: center; gap: 8px; padding: 9px 12px; border: 1px solid rgba(255,255,255,.2); background: rgba(255,255,255,.1); border-radius: 12px; }
+.mnav-search form > i { color: rgba(209,250,229,.8); font-size: 12px; }
+.mnav-search input { flex: 1; min-width: 0; border: 0; outline: 0; background: transparent; color: #fff; font-size: 13px; }
+.mnav-search input::placeholder { color: rgba(255,255,255,.55); }
+.mnav-search button { color: #fcd34d; }
+#mainnav #mnav .mnav-sublist > .mnav-subgroup > details > summary { padding-left: 32px; }
+#mainnav #mnav .mnav-sublist > .mnav-subgroup > details > summary:hover { padding-left: 36px; }
+#mainnav #mnav .mnav-subgroup .mnav-sublist .mnav-sub a { padding-left: 46px; }
+#mainnav #mnav .mnav-subgroup .mnav-sublist .mnav-sub a:hover { padding-left: 50px; }
+
 /* Anti-kedip saat pindah halaman:
    - navbar (#mainnav) + tombol toTop dikunci via view-transition-name sendiri + animation:none
      sehingga tidak ikut fade bersama <body> dan tidak di-snapshot ulang.
