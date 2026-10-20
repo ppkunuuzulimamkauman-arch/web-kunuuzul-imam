@@ -81,7 +81,7 @@
   <div class="border-t border-white/10">
     <div class="max-w-7xl mx-auto px-4 py-4 text-xs text-primary-100/70 flex flex-wrap gap-x-4 gap-y-1 items-center justify-between">
       <p>Copyright © {{ date('Y') }} {{ \App\Models\Setting::get('footer_copyright', 'Pondok Pesantren Kunuuzul Imam Kauman') }}</p>
-      <p><a href="{{ route('surat.home') }}" class="hover:text-amber-300 transition">Layanan Surat</a><span class="mx-2">•</span><a href="{{ $mainUrl }}/privasi" class="hover:text-amber-300 transition">Kebijakan Privasi</a><span class="mx-2">•</span><a href="{{ $mainUrl }}/kontak" class="hover:text-amber-300 transition">Kontak</a><span class="mx-2">•</span><a href="{{ $mainUrl }}/ppdb/cek" class="hover:text-amber-300 transition">Cek Status PSB</a></p>
+      <p><a href="{{ $mainUrl }}/privasi" class="hover:text-amber-300 transition">Kebijakan Privasi</a></p>
     </div>
   </div>
 </footer>
