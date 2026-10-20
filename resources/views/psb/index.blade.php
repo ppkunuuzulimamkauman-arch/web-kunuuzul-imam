@@ -16,7 +16,6 @@
   @keyframes psbFloatXY { 0%, 100% { transform: translate(0, 0); } 50% { transform: translate(12px, -20px); } }
   @keyframes psbPulseDot { 0%, 100% { box-shadow: 0 0 0 0 rgba(252, 211, 77, .5); } 50% { box-shadow: 0 0 0 7px rgba(252, 211, 77, 0); } }
   @keyframes psbNudge { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(6px); } }
-  @keyframes psbMarquee { from { transform: translateX(0); } to { transform: translateX(-50%); } }
 
   .psb-enter { animation: psbUp .85s cubic-bezier(.22, 1, .36, 1) both; animation-delay: var(--d, 0s); }
   .psb-hero-img { animation: psbKenBurns 26s ease-in-out infinite alternate; will-change: transform; }
@@ -31,12 +30,6 @@
 
   .psb-scroll-cue { position: absolute; left: 50%; bottom: 1.25rem; transform: translateX(-50%); display: none; align-items: center; gap: .45rem; font-size: 9px; font-weight: 800; letter-spacing: .28em; text-transform: uppercase; color: rgba(255, 255, 255, .5); }
   .psb-scroll-cue i { animation: psbNudge 1.9s ease-in-out infinite; }
-
-  .psb-marquee { overflow: hidden; border-top: 1px solid rgba(180, 83, 9, .25); border-bottom: 1px solid rgba(180, 83, 9, .25); background: #fbbf24; color: #064e3b; }
-  .psb-marquee-track { display: flex; width: max-content; animation: psbMarquee 34s linear infinite; }
-  .psb-marquee:hover .psb-marquee-track { animation-play-state: paused; }
-  .psb-marquee-row { display: flex; align-items: center; gap: 2rem; padding: .7rem 2rem .7rem 0; font-size: 10px; font-weight: 800; letter-spacing: .22em; text-transform: uppercase; white-space: nowrap; }
-  .psb-marquee-row i { font-size: 8px; color: rgba(146, 64, 14, .65); }
 
   .psb-kicker { position: relative; display: inline-block; }
   .psb-kicker::after { content: ""; position: absolute; left: 0; bottom: -.45rem; height: 2px; width: 100%; transform: scaleX(0); transform-origin: left; background: linear-gradient(90deg, #f59e0b, rgba(245, 158, 11, 0)); transition: transform .8s cubic-bezier(.22, 1, .36, 1) .2s; }
@@ -67,10 +60,7 @@
   }
 
   @media (prefers-reduced-motion: reduce) {
-    .psb-enter, .psb-hero-img, .psb-float, .psb-float-slow, .psb-live-dot, .psb-marquee-track, .psb-scroll-cue i { animation: none !important; }
-    .psb-marquee { overflow-x: auto; }
-    .psb-marquee-row { padding-right: 1rem; }
-    .psb-marquee-row + .psb-marquee-row { display: none; }
+    .psb-enter, .psb-hero-img, .psb-float, .psb-float-slow, .psb-live-dot, .psb-scroll-cue i { animation: none !important; }
     .psb-card, .psb-ic, .psb-img, .psb-cta::after, .psb-kicker::after { transition: none !important; }
     .psb-kicker::after { transform: scaleX(1); }
     .psb-card:hover { transform: none; }
@@ -188,19 +178,6 @@
     Gulir <i class="fa-solid fa-chevron-down"></i>
   </a>
 </section>
-
-{{-- ===== TICKER ===== --}}
-<div class="psb-marquee" aria-hidden="true">
-  <div class="psb-marquee-track">
-    @for($copy = 0; $copy < 2; $copy++)
-      <div class="psb-marquee-row">
-        @foreach(['Tahfidz 30 Juz', 'Kitab Kuning', 'MTs – MA', 'Pembinaan 24 Jam', 'Bahasa Arab & Inggris', 'Pendaftaran Online'] as $word)
-          <span>{{ $word }}</span><i class="fa-solid fa-star-of-life"></i>
-        @endforeach
-      </div>
-    @endfor
-  </div>
-</div>
 
 {{-- ===== EMPAT PILAR ===== --}}
 <section id="pilar" class="max-w-7xl mx-auto px-4 py-16 md:py-20">
