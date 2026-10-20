@@ -25,10 +25,7 @@ class HomeController extends Controller
             'gelombang' => $this->gelombang(),
             'syarat' => $this->lines(Setting::get('psb_syarat', '')),
             'biayaInfo' => trim((string) Setting::get('psb_biaya_info', '')),
-            'wa' => $wa,
             'waUrl' => $this->waUrl($wa),
-            'alamat' => $this->cleanPlaceholder(Setting::get('kontak_alamat_1', '')),
-            'jam' => trim((string) Setting::get('kontak_jam', '')),
         ]);
     }
 
@@ -76,16 +73,6 @@ class HomeController extends Controller
             ->filter(fn (array $g) => $g['nama'] !== '')
             ->values()
             ->all();
-    }
-
-    /**
-     * Sembunyikan teks placeholder bawaan agar tidak tampil di halaman publik.
-     */
-    private function cleanPlaceholder(?string $value): string
-    {
-        $value = trim((string) $value);
-
-        return str_contains($value, 'ganti di Pengaturan') ? '' : $value;
     }
 
     private function waUrl(string $nomor): ?string

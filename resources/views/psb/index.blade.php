@@ -187,16 +187,6 @@
         </li>
       @endforeach
     </ol>
-
-    <div class="mt-8 flex flex-col items-start justify-between gap-4 rounded-2xl bg-emerald-50 p-5 sm:flex-row sm:items-center">
-      <p class="text-sm text-emerald-900">
-        <i class="fa-solid fa-circle-info mr-1 text-emerald-700"></i>
-        Sudah pernah mendaftar? Cek status dengan nomor pendaftaran Anda.
-      </p>
-      <a href="{{ $mainUrl }}/ppdb" class="inline-flex items-center gap-2 rounded-xl bg-primary-900 px-5 py-3 text-[13px] font-extrabold text-white transition hover:bg-primary-800">
-        Isi Formulir Pendaftaran <i class="fa-solid fa-arrow-right"></i>
-      </a>
-    </div>
   </div>
 </section>
 
@@ -333,65 +323,6 @@
         <p class="mt-3 text-sm leading-relaxed text-stone-600">{{ $item['a'] }}</p>
       </details>
     @endforeach
-  </div>
-</section>
-
-{{-- ===== CTA & KONTAK ===== --}}
-<section id="kontak" class="max-w-7xl mx-auto px-4 pb-16">
-  <div class="grid items-center gap-8 rounded-3xl bg-primary-900 p-7 text-white md:p-12 lg:grid-cols-2">
-    <div>
-      <p class="text-[11px] font-extrabold tracking-[0.3em] text-amber-300">PSB {{ $tahunAjaran }}</p>
-      <h2 class="mt-2 text-2xl font-extrabold leading-tight md:text-3xl">Siap menjadi bagian dari keluarga Kunuuzul Imam?</h2>
-      <p class="mt-3 max-w-lg text-sm leading-relaxed text-emerald-50/80">
-        Isi formulir online sekarang, atau hubungi panitia bila ada hal yang perlu ditanyakan.
-      </p>
-      <div class="mt-6 flex flex-col gap-3 sm:flex-row">
-        <a href="{{ $mainUrl }}/ppdb" class="inline-flex items-center justify-center gap-2 rounded-xl bg-amber-400 px-6 py-3.5 text-sm font-extrabold text-primary-900 transition hover:bg-amber-300">
-          <i class="fa-solid fa-pen-to-square"></i> Daftar Sekarang
-        </a>
-        <a href="{{ $mainUrl }}/ppdb/cek" class="inline-flex items-center justify-center gap-2 rounded-xl border border-white/40 px-6 py-3.5 text-sm font-bold text-white transition hover:bg-white/10">
-          Cek Status
-        </a>
-      </div>
-    </div>
-
-    <div class="rounded-2xl border border-white/15 bg-white/5 p-6">
-      <p class="text-[10px] font-extrabold tracking-[0.2em] text-emerald-200/70">PANITIA PSB</p>
-      <ul class="mt-4 space-y-4 text-sm">
-        <li class="flex items-start gap-3">
-          <i class="fa-brands fa-whatsapp mt-0.5 text-lg text-amber-300"></i>
-          <div>
-            <p class="text-[11px] font-bold uppercase tracking-wider text-emerald-100/60">WhatsApp</p>
-            @if($waUrl)
-              <a href="{{ $waUrl }}" target="_blank" rel="noopener" class="font-bold text-white hover:text-amber-300">{{ $wa }}</a>
-            @else
-              <a href="{{ $mainUrl }}/kontak" class="font-bold text-white hover:text-amber-300">Hubungi panitia via halaman Kontak</a>
-            @endif
-          </div>
-        </li>
-        @if($alamat !== '')
-          <li class="flex items-start gap-3">
-            <i class="fa-solid fa-location-dot mt-0.5 text-lg text-amber-300"></i>
-            <div>
-              <p class="text-[11px] font-bold uppercase tracking-wider text-emerald-100/60">Alamat</p>
-              <p class="text-emerald-50/90">{{ $alamat }}</p>
-            </div>
-          </li>
-        @endif
-        @if($jam !== '')
-          <li class="flex items-start gap-3">
-            <i class="fa-regular fa-clock mt-0.5 text-lg text-amber-300"></i>
-            <div>
-              <p class="text-[11px] font-bold uppercase tracking-wider text-emerald-100/60">Jam Layanan</p>
-              <p class="text-emerald-50/90">{{ $jam }}</p>
-            </div>
-          </li>
-        @endif
-      </ul>
-      <p class="mt-5 border-t border-white/10 pt-4 text-[12px] text-emerald-100/60">
-        <a href="{{ $mainUrl }}" class="font-bold text-emerald-100 hover:text-amber-300">Kunjungi situs utama pondok <i class="fa-solid fa-arrow-up-right-from-square text-[10px]"></i></a>
-      </p>
-    </div>
   </div>
 </section>
 @endsection
