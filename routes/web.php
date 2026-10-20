@@ -14,7 +14,9 @@ use App\Http\Controllers\Admin\PendaftaranAdminController;
 use App\Http\Controllers\Admin\PengasuhController;
 use App\Http\Controllers\Admin\PesanController;
 use App\Http\Controllers\Admin\ProgramController;
+use App\Http\Controllers\Admin\PsbController;
 use App\Http\Controllers\Admin\SettingController;
+use App\Http\Controllers\Admin\SuratAdminController;
 use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\KontakController;
@@ -128,12 +130,23 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'admin', 'admin.idle
     // Agenda (Majelis Terdekat & Agenda Pondok di landing)
     Route::resource('agenda', AgendaController::class)->except(['show']);
 
+    // Layanan permohonan surat
+    Route::get('surat/export', [SuratAdminController::class, 'export'])->name('surat.export');
+    Route::get('surat', [SuratAdminController::class, 'index'])->name('surat.index');
+    Route::get('surat/{permohonan}', [SuratAdminController::class, 'show'])->name('surat.show');
+    Route::patch('surat/{permohonan}', [SuratAdminController::class, 'update'])->name('surat.update');
+    Route::delete('surat/{permohonan}', [SuratAdminController::class, 'destroy'])->name('surat.destroy');
+
     // PPDB / Pendaftaran santri
     Route::get('pendaftaran', [PendaftaranAdminController::class, 'index'])->name('pendaftaran.index');
     Route::get('pendaftaran/export', [PendaftaranAdminController::class, 'export'])->name('pendaftaran.export');
     Route::get('pendaftaran/{pendaftaran}', [PendaftaranAdminController::class, 'show'])->name('pendaftaran.show');
     Route::patch('pendaftaran/{pendaftaran}/status', [PendaftaranAdminController::class, 'updateStatus'])->name('pendaftaran.status');
     Route::delete('pendaftaran/{pendaftaran}', [PendaftaranAdminController::class, 'destroy'])->name('pendaftaran.destroy');
+
+    // Halaman PSB (informasi publik + ringkasan pendaftar)
+    Route::get('psb', [PsbController::class, 'index'])->name('psb.index');
+    Route::post('psb', [PsbController::class, 'update'])->name('psb.update');
 
     // Inbox pesan + pengajuan akun
     Route::get('pesan', [PesanController::class, 'index'])->name('pesan.index');

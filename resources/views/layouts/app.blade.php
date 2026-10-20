@@ -126,6 +126,7 @@
             <a href="{{ route('lembaga') }}" class="block px-4 py-2.5 hover:bg-stone-100 text-[13px] font-bold">Lembaga</a>
             <a href="{{ route('program.index') }}" class="block px-4 py-2.5 hover:bg-stone-100 text-[13px] font-bold">Program</a>
             <a href="{{ route('organisasi') }}" class="block px-4 py-2.5 hover:bg-stone-100 text-[13px] font-bold">Organisasi</a>
+            <a href="{{ route('surat.home') }}" class="block px-4 py-2.5 hover:bg-stone-100 text-[13px] font-bold">Layanan Surat</a>
           </div>
         </div>
       </div>
@@ -180,6 +181,7 @@
               <li class="mnav-sub {{ request()->routeIs('lembaga') ? 'active' : '' }}"><a href="{{ route('lembaga') }}">Lembaga</a></li>
               <li class="mnav-sub {{ request()->routeIs('program.*') ? 'active' : '' }}"><a href="{{ route('program.index') }}">Program</a></li>
               <li class="mnav-sub {{ request()->routeIs('organisasi') ? 'active' : '' }}"><a href="{{ route('organisasi') }}">Organisasi</a></li>
+              <li class="mnav-sub"><a href="{{ route('surat.home') }}">Layanan Surat</a></li>
             </ul>
           </details>
         </li>
