@@ -70,6 +70,13 @@ class Setting extends Model
             'santri_jadwal' => "03.30 | Tahajud & murojaah\n04.30 | Subuh + setoran hafalan\n07.00 | Sekolah formal (MTs-MA)\n15.30 | Sorogan kitab & diniyah\n19.30 | Musyawarah + ekstrakurikuler",
             'santri_tatib' => "Menjaga shalat berjamaah lima waktu\nSetoran hafalan sesuai target halaqah\nBerbahasa Arab/Inggris di area pondok\nIzin musyrif untuk keluar asrama\nMenjaga adab kepada guru & teman",
             'santri_intro' => 'Kehidupan santri berjalan 24 jam dalam pengawasan musyrif asrama.',
+            // PSB (Penerimaan Santri Baru) — halaman psb.domain
+            'psb_tahun_ajaran' => '2026/2027',
+            'psb_status' => 'Dibuka',
+            'psb_gelombang' => '',
+            'psb_syarat' => "Kartu Keluarga (KK) calon santri\nIjazah atau Surat Keterangan Lulus (SKL)\nKIP / kartu bantuan pendidikan (jika ada)\nNIK calon santri (16 digit)\nNomor HP/WhatsApp aktif orang tua atau wali",
+            'psb_biaya_info' => 'Informasi biaya pendidikan dan rincian pembayaran dapat ditanyakan langsung kepada panitia PSB melalui WhatsApp.',
+            'psb_narahubung' => '',
             // Dawuh pengasuh (kartu hijau di landing)
             'dawuh_arab' => '﴿ خَيْرُكُمْ مَنْ تَعَلَّمَ الْقُرْآنَ وَعَلَّمَهُ ﴾',
             'dawuh_terjemah' => '“Sebaik-baik kalian adalah yang belajar Al-Qur’an dan mengajarkannya.”',
