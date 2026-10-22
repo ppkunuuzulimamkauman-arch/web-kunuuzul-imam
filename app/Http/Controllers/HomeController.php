@@ -174,6 +174,13 @@ class HomeController extends Controller
         return view('organisasi-show', compact('organisasi', 'lainnya'));
     }
 
+    public function galeri(): View
+    {
+        $galeris = Galeri::latest()->paginate(12);
+
+        return view('galeri-index', compact('galeris'));
+    }
+
     public function santri(): View
     {
         return view('santri');

@@ -124,13 +124,6 @@ label.f{display:block;margin-bottom:12px;font-size:13px;font-weight:700}label.f 
   <nav class="nav">
     <div class="nav-label">MENU UTAMA</div>
     <a href="{{ route('admin.dashboard') }}" class="{{ request()->routeIs('admin.dashboard')?'active':'' }}"><i class="fa-solid fa-house"></i> Dashboard</a>
-    <a href="{{ route('admin.pendaftaran.index') }}" class="{{ request()->routeIs('admin.pendaftaran.*')?'active':'' }}"><i class="fa-solid fa-user-plus"></i> PPDB Santri @php $nTunggu = \App\Models\Pendaftaran::where('status','menunggu')->count(); @endphp @if($nTunggu>0)<span class="badge">{{ $nTunggu }}</span>@endif</a>
-    <a href="{{ route('admin.psb.index') }}" class="{{ request()->routeIs('admin.psb.*')?'active':'' }}"><i class="fa-solid fa-bullhorn"></i> Halaman PSB</a>
-    <div class="nav-label">SIAKAD</div>
-    <a href="{{ route('admin.siakad.dashboard') }}" class="{{ request()->routeIs('admin.siakad.dashboard')?'active':'' }}"><i class="fa-solid fa-chart-line"></i> Dashboard SIAKAD</a>
-    <a href="{{ route('admin.siakad.santri.index') }}" class="{{ request()->routeIs('admin.siakad.santri.*')?'active':'' }}"><i class="fa-solid fa-user-graduate"></i> Data Santri</a>
-    <a href="{{ route('admin.siakad.tahun-ajaran.index') }}" class="{{ request()->routeIs('admin.siakad.tahun-ajaran.*')?'active':'' }}"><i class="fa-solid fa-calendar-days"></i> Tahun Ajaran</a>
-    <a href="{{ route('admin.siakad.kelas.index') }}" class="{{ request()->routeIs('admin.siakad.kelas.*')?'active':'' }}"><i class="fa-solid fa-school"></i> Kelas</a>
     <a href="{{ route('admin.pesan.index') }}" class="{{ request()->routeIs('admin.pesan.*')?'active':'' }}"><i class="fa-solid fa-inbox"></i> Inbox Pesan @php try{$nPesan=\App\Models\Pesan::where('is_dibaca',false)->count();}catch(\Throwable $e){$nPesan=0;} @endphp @if($nPesan>0)<span class="badge">{{ $nPesan }}</span>@endif</a>
     <a href="{{ route('admin.chat.index') }}" class="{{ request()->routeIs('admin.chat.*')?'active':'' }}"><i class="fa-solid fa-comments"></i> Chat Admin @php try{$nChat=\App\Models\AdminMessage::where('receiver_id',auth()->id())->whereNull('read_at')->count();}catch(\Throwable $e){$nChat=0;} @endphp <span class="badge" id="chatBadge" data-count="{{ $nChat }}" @if($nChat<1) style="display:none" @endif>{{ $nChat }}</span></a>
     @if(auth()->user()->isUtama())
@@ -143,12 +136,10 @@ label.f{display:block;margin-bottom:12px;font-size:13px;font-weight:700}label.f 
     <a href="{{ route('admin.lembaga.index') }}" class="{{ request()->routeIs('admin.lembaga.*')?'active':'' }}"><i class="fa-solid fa-mosque"></i> Lembaga</a>
     <a href="{{ route('admin.organisasi.index') }}" class="{{ request()->routeIs('admin.organisasi.*')?'active':'' }}"><i class="fa-solid fa-sitemap"></i> Organisasi</a>
     <a href="{{ route('admin.pengasuh.index') }}" class="{{ request()->routeIs('admin.pengasuh.*')?'active':'' }}"><i class="fa-solid fa-users"></i> Pengasuh</a>
-    <a href="{{ route('admin.alumni.index') }}" class="{{ request()->routeIs('admin.alumni.*')?'active':'' }}"><i class="fa-solid fa-user-graduate"></i> Alumni @php try{$nAlumni=\App\Models\Alumni::where('status','menunggu')->count();}catch(\Throwable $e){$nAlumni=0;} @endphp @if($nAlumni>0)<span class="badge">{{ $nAlumni }}</span>@endif</a>
-    <a href="{{ route('admin.surat.index') }}" class="{{ request()->routeIs('admin.surat.*')?'active':'' }}"><i class="fa-solid fa-envelope-open-text"></i> Permohonan Surat @php try{$nSurat=\App\Models\SuratPermohonan::where('status','menunggu')->count();}catch(\Throwable $e){$nSurat=0;} @endphp @if($nSurat>0)<span class="badge">{{ $nSurat }}</span>@endif</a>
     <a href="{{ route('admin.agenda.index') }}" class="{{ request()->routeIs('admin.agenda.*')?'active':'' }}"><i class="fa-solid fa-calendar-days"></i> Agenda</a>
     <div class="nav-label">SISTEM</div>
+    <a href="{{ config('pondok.siakad_url') }}" target="_blank" rel="noopener"><i class="fa-solid fa-database"></i> Buka Aplikasi SIAKAD</a>
     <a href="{{ route('admin.panduan') }}" class="{{ request()->routeIs('admin.panduan')?'active':'' }}"><i class="fa-solid fa-map"></i> Panduan Landing</a>
-    <a href="{{ route('admin.activity-logs.index') }}" class="{{ request()->routeIs('admin.activity-logs.*')?'active':'' }}"><i class="fa-solid fa-clipboard-list"></i> Log Aktivitas</a>
     <a href="{{ route('admin.setting.index') }}" class="{{ request()->routeIs('admin.setting.*')?'active':'' }}"><i class="fa-solid fa-gear"></i> Pengaturan</a>
     <a href="{{ route('admin.users.index') }}" class="{{ request()->routeIs('admin.users.*')?'active':'' }}"><i class="fa-solid fa-user-shield"></i> Akun Admin</a>
   </nav>
@@ -163,7 +154,7 @@ label.f{display:block;margin-bottom:12px;font-size:13px;font-weight:700}label.f 
     <button class="burger" onclick="document.getElementById('sidebar').classList.toggle('open')">☰</button>
     <div><h1>@yield('title','Dashboard')</h1><div class="crumb">@yield('crumb','Overview aktivitas pondok & website')</div></div>
     <div style="margin-left:auto;display:flex;gap:10px;align-items:center">
-      <form class="searchbar" action="{{ route('admin.pendaftaran.index') }}" method="GET"><i class="fa-solid fa-magnifying-glass"></i><input name="q" value="{{ request('q') }}" placeholder="Cari santri / nomor..."></form>
+      <form class="searchbar" action="{{ route('admin.berita.index') }}" method="GET"><i class="fa-solid fa-magnifying-glass"></i><input name="q" value="{{ request('q') }}" placeholder="Cari berita / artikel..."></form>
       <a class="icon-top" href="{{ route('admin.pesan.index') }}" title="Inbox"><i class="fa-regular fa-bell"></i>@if(($nPesan ?? 0)>0)<span class="dot">{{ $nPesan }}</span>@endif</a>
       <button class="icon-top" id="notifToggle" type="button" title="Aktifkan notifikasi chat"><i class="fa-solid fa-bell"></i></button>
       <button class="icon-top" id="themeToggle" title="Mode terang / gelap"><i class="fa-regular fa-moon" id="themeIcon"></i></button>

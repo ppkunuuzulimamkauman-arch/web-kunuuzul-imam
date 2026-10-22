@@ -10,9 +10,16 @@ class SmokeTest extends TestCase
     #[Test]
     public function halaman_publik_utama_bisa_diakses(): void
     {
-        foreach (['/', '/profil', '/berita', '/artikel', '/galeri', '/ppdb', '/kontak', '/konsultasi', '/lembaga', '/organisasi'] as $uri) {
+        foreach (['/', '/profil', '/berita', '/artikel', '/galeri', '/kontak', '/konsultasi', '/lembaga', '/organisasi'] as $uri) {
             $this->get($uri)->assertOk();
         }
+    }
+
+    #[Test]
+    public function tautan_ppdb_lama_diarahkan_ke_aplikasi_siakad(): void
+    {
+        $this->get('/ppdb')->assertRedirect(rtrim((string) config('pondok.psb_url'), '/').'/ppdb');
+        $this->get('/ppdb/cek')->assertRedirect(rtrim((string) config('pondok.psb_url'), '/').'/ppdb/cek');
     }
 
     #[Test]

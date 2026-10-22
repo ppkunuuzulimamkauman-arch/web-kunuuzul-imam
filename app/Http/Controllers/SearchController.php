@@ -119,9 +119,9 @@ class SearchController extends Controller
                 ['title' => 'Organisasi', 'description' => 'Organisasi di dalam dan di luar pesantren.', 'url' => route('organisasi'), 'keywords' => 'organisasi fokus iaska hmaski garda'],
                 ['title' => 'Kehidupan Santri', 'description' => 'Jadwal harian, tata tertib, dan pembinaan santri.', 'url' => route('santri.index'), 'keywords' => 'santri kehidupan asrama jadwal tata tertib'],
                 ['title' => 'Galeri', 'description' => 'Dokumentasi kegiatan dan suasana pondok.', 'url' => route('galeri.index'), 'keywords' => 'galeri foto dokumentasi kegiatan'],
-                ['title' => 'Penerimaan Santri Baru (PSB)', 'description' => 'Informasi pendaftaran, syarat, dan alur penerimaan santri baru.', 'url' => route('psb.home'), 'keywords' => 'psb ppdb pendaftaran santri baru penerimaan'],
-                ['title' => 'Layanan Surat Online (E-Surat)', 'description' => 'Ajukan dan cek status surat secara online.', 'url' => route('surat.home'), 'keywords' => 'surat e-surat layanan surat online'],
-                ['title' => 'Direktori Alumni', 'description' => 'Cari data alumni berdasarkan NIK.', 'url' => route('alumni.home'), 'keywords' => 'alumni direktori nik'],
+                ['title' => 'Penerimaan Santri Baru (PSB)', 'description' => 'Informasi pendaftaran, syarat, dan alur penerimaan santri baru.', 'url' => config('pondok.psb_url'), 'keywords' => 'psb ppdb pendaftaran santri baru penerimaan'],
+                ['title' => 'Layanan Surat Online (E-Surat)', 'description' => 'Ajukan dan cek status surat secara online.', 'url' => config('pondok.surat_url'), 'keywords' => 'surat e-surat layanan surat online'],
+                ['title' => 'Direktori Alumni', 'description' => 'Cari data alumni berdasarkan NIK.', 'url' => config('pondok.alumni_url'), 'keywords' => 'alumni direktori nik'],
                 ['title' => 'Kontak', 'description' => 'Alamat, nomor WhatsApp, dan jam layanan kantor pondok.', 'url' => route('kontak'), 'keywords' => 'kontak alamat whatsapp wa telepon jam kantor'],
                 ['title' => 'Kebijakan Privasi', 'description' => 'Kebijakan penggunaan dan perlindungan data pengunjung.', 'url' => route('privasi'), 'keywords' => 'privasi kebijakan data perlindungan'],
             ])->filter(function (array $page) use ($q) {

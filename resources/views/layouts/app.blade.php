@@ -132,10 +132,10 @@
                 <span class="layanan-chev text-[10px] transition-transform">▾</span>
               </summary>
               <div class="bg-stone-50/70 border-t border-stone-100 py-1">
-                <a href="{{ route('psb.home') }}" class="block px-6 py-2 hover:bg-stone-100 text-[12.5px] font-bold">PSB</a>
-                <a href="{{ route('surat.home') }}" class="block px-6 py-2 hover:bg-stone-100 text-[12.5px] font-bold">E-Surat</a>
-                <a href="{{ route('alumni.home') }}" class="block px-6 py-2 hover:bg-stone-100 text-[12.5px] font-bold">Alumni</a>
-                <a href="{{ route('siakad.home') }}" class="block px-6 py-2 hover:bg-stone-100 text-[12.5px] font-bold">SIAKAD</a>
+                <a href="{{ config('pondok.psb_url') }}" class="block px-6 py-2 hover:bg-stone-100 text-[12.5px] font-bold">PSB</a>
+                <a href="{{ config('pondok.surat_url') }}" class="block px-6 py-2 hover:bg-stone-100 text-[12.5px] font-bold">E-Surat</a>
+                <a href="{{ config('pondok.alumni_url') }}" class="block px-6 py-2 hover:bg-stone-100 text-[12.5px] font-bold">Alumni</a>
+                <a href="{{ config('pondok.siakad_url') }}" class="block px-6 py-2 hover:bg-stone-100 text-[12.5px] font-bold">SIAKAD</a>
               </div>
             </details>
           </div>
@@ -207,10 +207,10 @@
                 <details>
                   <summary>Layanan <span class="mnav-chev">▾</span></summary>
                   <ul class="mnav-sublist">
-                    <li class="mnav-sub"><a href="{{ route('psb.home') }}">PSB</a></li>
-                    <li class="mnav-sub"><a href="{{ route('surat.home') }}">E-Surat</a></li>
-                    <li class="mnav-sub"><a href="{{ route('alumni.home') }}">Alumni</a></li>
-                    <li class="mnav-sub"><a href="{{ route('siakad.home') }}">SIAKAD</a></li>
+                    <li class="mnav-sub"><a href="{{ config('pondok.psb_url') }}">PSB</a></li>
+                    <li class="mnav-sub"><a href="{{ config('pondok.surat_url') }}">E-Surat</a></li>
+                    <li class="mnav-sub"><a href="{{ config('pondok.alumni_url') }}">Alumni</a></li>
+                    <li class="mnav-sub"><a href="{{ config('pondok.siakad_url') }}">SIAKAD</a></li>
                   </ul>
                 </details>
               </li>
@@ -220,7 +220,7 @@
         <li class="{{ request()->routeIs('konsultasi') ? 'active' : '' }}"><a href="{{ route('konsultasi') }}">Konsultasi</a></li>
       </ul>
       <div class="mnav-foot">
-        <a href="{{ route('psb.home') }}" class="block text-center bg-amber-400 text-primary-900 font-extrabold text-[13px] tracking-[0.15em] px-4 py-3 rounded-2xl hover:bg-amber-300 transition">DAFTAR PSB</a>
+        <a href="{{ rtrim(config('pondok.psb_url'), '/') }}/ppdb" class="block text-center bg-amber-400 text-primary-900 font-extrabold text-[13px] tracking-[0.15em] px-4 py-3 rounded-2xl hover:bg-amber-300 transition">DAFTAR PSB</a>
       </div>
     </div>
   </aside>

@@ -29,11 +29,20 @@ return [
     |
     */
 
-    'subdomains' => [
-        'psb' => 'psb',
-        'surat' => 'surat',
-        'alumni' => 'alumni',
-        'siakad' => 'siakad',
-    ],
+    /*
+    |--------------------------------------------------------------------------
+    | Aplikasi Data Santri (terpisah)
+    |--------------------------------------------------------------------------
+    |
+    | Website utama tidak lagi memuat modul PSB/SIAKAD/Alumni/Surat. Semua
+    | tautan layanan diarahkan ke aplikasi SIAKAD yang memiliki database dan
+    | login admin sendiri.
+    |
+    */
+
+    'siakad_url' => env('SIAKAD_URL', 'https://siakad.kunuuzulimamkauman.net'),
+    'psb_url' => env('PSB_URL', 'https://psb.kunuuzulimamkauman.net'),
+    'surat_url' => env('SURAT_URL', 'https://surat.kunuuzulimamkauman.net'),
+    'alumni_url' => env('ALUMNI_URL', 'https://alumni.kunuuzulimamkauman.net'),
 
 ];

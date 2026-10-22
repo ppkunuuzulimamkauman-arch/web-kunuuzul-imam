@@ -1,8 +1,6 @@
 ﻿<?php
 
-use App\Http\Controllers\Admin\ActivityLogController;
 use App\Http\Controllers\Admin\AgendaController;
-use App\Http\Controllers\Admin\AlumniController;
 use App\Http\Controllers\Admin\AuthController;
 use App\Http\Controllers\Admin\BeritaController;
 use App\Http\Controllers\Admin\ChatController;
@@ -11,18 +9,14 @@ use App\Http\Controllers\Admin\GaleriController;
 use App\Http\Controllers\Admin\HeroSlideController;
 use App\Http\Controllers\Admin\LembagaController;
 use App\Http\Controllers\Admin\OrganisasiController;
-use App\Http\Controllers\Admin\PendaftaranAdminController;
 use App\Http\Controllers\Admin\PengasuhController;
 use App\Http\Controllers\Admin\PesanController;
 use App\Http\Controllers\Admin\ProgramController;
-use App\Http\Controllers\Admin\PsbController;
 use App\Http\Controllers\Admin\SettingController;
-use App\Http\Controllers\Admin\SuratAdminController;
 use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\KontakController;
 use App\Http\Controllers\KonsultasiController;
-use App\Http\Controllers\PendaftaranController;
 use App\Http\Controllers\PublicBeritaController;
 use App\Http\Controllers\SearchController;
 use App\Http\Controllers\SiteController;
@@ -53,12 +47,13 @@ Route::get('/artikel', [PublicBeritaController::class, 'artikel'])->name('artike
 Route::get('/berita/{slug}', [PublicBeritaController::class, 'show'])->name('berita.show');
 Route::get('/cari', SearchController::class)->name('search');
 
-Route::get('/galeri', [PendaftaranController::class, 'galeri'])->name('galeri.index');
+Route::get('/galeri', [HomeController::class, 'galeri'])->name('galeri.index');
 
-Route::get('/ppdb', [PendaftaranController::class, 'create'])->name('ppdb.form');
-Route::post('/ppdb', [PendaftaranController::class, 'store'])->middleware('throttle:10,1')->name('ppdb.store');
-Route::get('/ppdb/cek', [PendaftaranController::class, 'cek'])->name('ppdb.cek');
-Route::get('/ppdb/sukses/{nomor}', [PendaftaranController::class, 'sukses'])->name('ppdb.sukses');
+// Modul PSB sudah dipindahkan ke aplikasi SIAKAD. Tautan lama diarahkan
+// ke aplikasi terpisah agar tidak ada data pendaftaran di website utama.
+Route::get('/ppdb', fn () => redirect()->away(rtrim((string) config('pondok.psb_url'), '/').'/ppdb'))->name('ppdb.form');
+Route::get('/ppdb/cek', fn () => redirect()->away(rtrim((string) config('pondok.psb_url'), '/').'/ppdb/cek'))->name('ppdb.cek');
+Route::get('/ppdb/sukses/{nomor}', fn (string $nomor) => redirect()->away(rtrim((string) config('pondok.psb_url'), '/').'/ppdb/sukses/'.$nomor))->name('ppdb.sukses');
 
 Route::get('/kontak', [KontakController::class, 'index'])->name('kontak');
 Route::post('/kontak', [KontakController::class, 'store'])->middleware('throttle:10,1')->name('kontak.store');
@@ -119,40 +114,8 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'admin', 'admin.idle
     // Pengasuh / Struktur
     Route::resource('pengasuh', PengasuhController::class)->except(['show']);
 
-    // Direktori alumni
-    Route::get('alumni/export', [AlumniController::class, 'export'])->name('alumni.export');
-    Route::get('alumni/import', [AlumniController::class, 'importForm'])->name('alumni.import');
-    Route::post('alumni/import', [AlumniController::class, 'import'])->name('alumni.import.store');
-    Route::get('alumni/import/template', [AlumniController::class, 'importTemplate'])->name('alumni.import.template');
-    Route::resource('alumni', AlumniController::class)
-        ->except(['show'])
-        ->parameters(['alumni' => 'alumni']);
-    Route::post('alumni/{alumni}/approve', [AlumniController::class, 'approve'])->name('alumni.approve');
-    Route::post('alumni/{alumni}/reject', [AlumniController::class, 'reject'])->name('alumni.reject');
-
     // Agenda (Majelis Terdekat & Agenda Pondok di landing)
     Route::resource('agenda', AgendaController::class)->except(['show']);
-
-    // Layanan permohonan surat
-    Route::get('surat/export', [SuratAdminController::class, 'export'])->name('surat.export');
-    Route::get('surat', [SuratAdminController::class, 'index'])->name('surat.index');
-    Route::get('surat/{permohonan}', [SuratAdminController::class, 'show'])->name('surat.show');
-    Route::patch('surat/{permohonan}', [SuratAdminController::class, 'update'])->name('surat.update');
-    Route::delete('surat/{permohonan}', [SuratAdminController::class, 'destroy'])->name('surat.destroy');
-
-    // PPDB / Pendaftaran santri
-    Route::get('pendaftaran', [PendaftaranAdminController::class, 'index'])->name('pendaftaran.index');
-    Route::get('pendaftaran/export', [PendaftaranAdminController::class, 'export'])->name('pendaftaran.export');
-    Route::get('pendaftaran/{pendaftaran}', [PendaftaranAdminController::class, 'show'])->name('pendaftaran.show');
-    Route::patch('pendaftaran/{pendaftaran}/status', [PendaftaranAdminController::class, 'updateStatus'])->name('pendaftaran.status');
-    Route::delete('pendaftaran/{pendaftaran}', [PendaftaranAdminController::class, 'destroy'])->name('pendaftaran.destroy');
-
-    // Halaman PSB (informasi publik + ringkasan pendaftar)
-    Route::get('psb', [PsbController::class, 'index'])->name('psb.index');
-    Route::post('psb', [PsbController::class, 'update'])->name('psb.update');
-
-    // SIAKAD (fondasi: santri, tahun ajaran, kelas)
-    Route::prefix('siakad')->name('siakad.')->group(base_path('routes/admin/siakad.php'));
 
     // Inbox pesan + pengajuan akun
     Route::get('pesan', [PesanController::class, 'index'])->name('pesan.index');
@@ -164,9 +127,6 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'admin', 'admin.idle
     // Pengaturan website
     Route::get('setting', [SettingController::class, 'index'])->name('setting.index');
     Route::post('setting', [SettingController::class, 'update'])->name('setting.update');
-
-    // Log aktivitas terpusat (SIAKAD, PSB, dan modul lain)
-    Route::get('activity-logs', [ActivityLogController::class, 'index'])->name('activity-logs.index');
 
     // Peta kontrol landing
     Route::view('panduan-landing', 'admin.panduan')->name('panduan');
