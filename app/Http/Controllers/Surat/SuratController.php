@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Lembaga;
 use App\Models\Setting;
 use App\Models\SuratPermohonan;
+use App\Services\SantriService;
 use App\Services\Turnstile;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -36,7 +37,7 @@ class SuratController extends Controller
         ]);
     }
 
-    public function store(Request $request): RedirectResponse
+    public function store(Request $request, SantriService $santriService): RedirectResponse
     {
         // Honeypot: bot yang mengisi field tersembunyi langsung ditolak halus.
         if ($request->filled('website')) {
@@ -111,6 +112,7 @@ class SuratController extends Controller
         }
 
         $permohonan = SuratPermohonan::create($data);
+        $santriService->linkSurat($permohonan);
 
         // Notifikasi email ke admin (best-effort, gagal kirim tidak menggagalkan permohonan).
         try {

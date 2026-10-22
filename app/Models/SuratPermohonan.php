@@ -6,6 +6,7 @@ use App\Concerns\DeletesStoredFiles;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class SuratPermohonan extends Model
 {
@@ -21,6 +22,7 @@ class SuratPermohonan extends Model
     protected static array $storedFiles = ['lampiran', 'file_hasil'];
 
     protected $fillable = [
+        'santri_id',
         'kode',
         'jenis',
         'jenis_lainnya',
@@ -48,6 +50,11 @@ class SuratPermohonan extends Model
         'tanggal_selesai' => 'date',
         'selesai_at' => 'datetime',
     ];
+
+    public function santri(): BelongsTo
+    {
+        return $this->belongsTo(Santri::class);
+    }
 
     /** @return array<string, string> */
     public static function jenisOptions(): array

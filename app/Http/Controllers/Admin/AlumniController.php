@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Alumni;
+use App\Services\SantriService;
 use App\Support\Nik;
 use App\Support\WilayahPk;
 use Illuminate\Http\RedirectResponse;
@@ -279,7 +280,7 @@ class AlumniController extends Controller
         return view('admin.alumni.form');
     }
 
-    public function store(Request $request): RedirectResponse
+    public function store(Request $request, SantriService $santriService): RedirectResponse
     {
         $data = $this->validated($request);
         $data['is_tampil'] = $data['status'] === Alumni::STATUS_APPROVED && $request->boolean('is_tampil');
@@ -288,7 +289,8 @@ class AlumniController extends Controller
             $data['foto'] = $request->file('foto')->store('alumni', 'public');
         }
 
-        Alumni::create($data);
+        $alumni = Alumni::create($data);
+        $santriService->linkAlumni($alumni);
 
         return redirect()->route('admin.alumni.index')->with('sukses', 'Data alumni ditambahkan.');
     }
@@ -298,7 +300,7 @@ class AlumniController extends Controller
         return view('admin.alumni.form', compact('alumni'));
     }
 
-    public function update(Request $request, Alumni $alumni): RedirectResponse
+    public function update(Request $request, Alumni $alumni, SantriService $santriService): RedirectResponse
     {
         $data = $this->validated($request, $alumni);
         $data['is_tampil'] = $data['status'] === Alumni::STATUS_APPROVED && $request->boolean('is_tampil');
@@ -311,6 +313,7 @@ class AlumniController extends Controller
         }
 
         $alumni->update($data);
+        $santriService->linkAlumni($alumni);
 
         return redirect()->route('admin.alumni.index')->with('sukses', 'Data alumni diperbarui.');
     }

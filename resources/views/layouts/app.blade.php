@@ -135,6 +135,7 @@
                 <a href="{{ route('psb.home') }}" class="block px-6 py-2 hover:bg-stone-100 text-[12.5px] font-bold">PSB</a>
                 <a href="{{ route('surat.home') }}" class="block px-6 py-2 hover:bg-stone-100 text-[12.5px] font-bold">E-Surat</a>
                 <a href="{{ route('alumni.home') }}" class="block px-6 py-2 hover:bg-stone-100 text-[12.5px] font-bold">Alumni</a>
+                <a href="{{ route('siakad.home') }}" class="block px-6 py-2 hover:bg-stone-100 text-[12.5px] font-bold">SIAKAD</a>
               </div>
             </details>
           </div>
@@ -209,6 +210,7 @@
                     <li class="mnav-sub"><a href="{{ route('psb.home') }}">PSB</a></li>
                     <li class="mnav-sub"><a href="{{ route('surat.home') }}">E-Surat</a></li>
                     <li class="mnav-sub"><a href="{{ route('alumni.home') }}">Alumni</a></li>
+                    <li class="mnav-sub"><a href="{{ route('siakad.home') }}">SIAKAD</a></li>
                   </ul>
                 </details>
               </li>

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\ActivityLog;
 use App\Models\Galeri;
 use App\Models\HeroSlide;
 use App\Models\Lembaga;
@@ -11,6 +12,7 @@ use App\Models\Pesan;
 use App\Models\Pengasuh;
 use App\Models\Program;
 use App\Models\Setting;
+use App\Services\SantriService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
@@ -31,10 +33,27 @@ class PendaftaranAdminController extends Controller
         return view('admin.ppdb.show', compact('pendaftaran'));
     }
 
-    public function updateStatus(Request $request, Pendaftaran $pendaftaran): RedirectResponse
+    public function updateStatus(Request $request, Pendaftaran $pendaftaran, SantriService $santriService): RedirectResponse
     {
         $request->validate(['status' => 'required|in:menunggu,diproses,diterima,ditolak,lunas']);
+
+        $sebelum = $pendaftaran->only(['status', 'santri_id']);
         $pendaftaran->update(['status' => $request->status]);
+
+        if (in_array($request->status, ['diterima', 'lunas'], true)) {
+            $santriService->fromPendaftaran($pendaftaran);
+            $pendaftaran->refresh();
+        }
+
+        ActivityLog::catat(
+            'psb',
+            'ubah-status',
+            $pendaftaran,
+            'Status pendaftar diubah menjadi '.$request->status.'.',
+            $sebelum,
+            $pendaftaran->only(['status', 'santri_id'])
+        );
+
         return back()->with('sukses', 'Status pendaftar diubah ke '.$request->status.'.');
     }
 

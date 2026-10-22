@@ -7,6 +7,7 @@ use App\Support\WilayahPk;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class Alumni extends Model
 {
@@ -21,6 +22,7 @@ class Alumni extends Model
     protected static array $storedFiles = ['foto'];
 
     protected $fillable = [
+        'santri_id',
         'nama',
         'nik',
         'jenis_kelamin',
@@ -55,6 +57,11 @@ class Alumni extends Model
         'tanggal_lahir' => 'date',
         'is_tampil' => 'boolean',
     ];
+
+    public function santri(): BelongsTo
+    {
+        return $this->belongsTo(Santri::class);
+    }
 
     /** Hanya data yang sudah disetujui dan boleh tampil di direktori publik. */
     public function scopeTampil(Builder $query): Builder

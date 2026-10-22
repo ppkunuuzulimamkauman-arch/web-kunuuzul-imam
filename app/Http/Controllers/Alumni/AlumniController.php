@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Alumni;
 
 use App\Http\Controllers\Controller;
 use App\Models\Alumni;
+use App\Services\SantriService;
 use App\Services\Turnstile;
 use App\Support\Nik;
 use App\Support\WilayahPk;
@@ -190,7 +191,7 @@ class AlumniController extends Controller
         return redirect()->route('alumni.register');
     }
 
-    public function registerStore(Request $request): RedirectResponse
+    public function registerStore(Request $request, SantriService $santriService): RedirectResponse
     {
         // Honeypot: bot yang mengisi field tersembunyi langsung ditolak halus.
         if ($request->filled('website')) {
@@ -279,6 +280,7 @@ class AlumniController extends Controller
         $data['is_tampil'] = false;
 
         $alumni = Alumni::create($data);
+        $santriService->linkAlumni($alumni);
         $request->session()->forget('alumni_nik');
 
         // Notifikasi email ke admin (best-effort, gagal kirim tidak menggagalkan pendaftaran).

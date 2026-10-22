@@ -33,6 +33,7 @@ return [
         'psb' => 'psb',
         'surat' => 'surat',
         'alumni' => 'alumni',
+        'siakad' => 'siakad',
     ],
 
 ];

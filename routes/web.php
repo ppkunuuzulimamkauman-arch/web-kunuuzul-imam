@@ -1,5 +1,6 @@
 ﻿<?php
 
+use App\Http\Controllers\Admin\ActivityLogController;
 use App\Http\Controllers\Admin\AgendaController;
 use App\Http\Controllers\Admin\AlumniController;
 use App\Http\Controllers\Admin\AuthController;
@@ -150,6 +151,9 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'admin', 'admin.idle
     Route::get('psb', [PsbController::class, 'index'])->name('psb.index');
     Route::post('psb', [PsbController::class, 'update'])->name('psb.update');
 
+    // SIAKAD (fondasi: santri, tahun ajaran, kelas)
+    Route::prefix('siakad')->name('siakad.')->group(base_path('routes/admin/siakad.php'));
+
     // Inbox pesan + pengajuan akun
     Route::get('pesan', [PesanController::class, 'index'])->name('pesan.index');
     Route::get('pesan/{pesan}', [PesanController::class, 'show'])->name('pesan.show');
@@ -160,6 +164,9 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'admin', 'admin.idle
     // Pengaturan website
     Route::get('setting', [SettingController::class, 'index'])->name('setting.index');
     Route::post('setting', [SettingController::class, 'update'])->name('setting.update');
+
+    // Log aktivitas terpusat (SIAKAD, PSB, dan modul lain)
+    Route::get('activity-logs', [ActivityLogController::class, 'index'])->name('activity-logs.index');
 
     // Peta kontrol landing
     Route::view('panduan-landing', 'admin.panduan')->name('panduan');
