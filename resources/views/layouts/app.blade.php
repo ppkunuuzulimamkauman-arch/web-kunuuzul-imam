@@ -135,7 +135,7 @@
                 <a href="{{ config('pondok.psb_url') }}" class="block px-6 py-2 hover:bg-stone-100 text-[12.5px] font-bold">PSB</a>
                 <a href="{{ config('pondok.surat_url') }}" class="block px-6 py-2 hover:bg-stone-100 text-[12.5px] font-bold">E-Surat</a>
                 <a href="{{ config('pondok.alumni_url') }}" class="block px-6 py-2 hover:bg-stone-100 text-[12.5px] font-bold">Alumni</a>
-                <a href="{{ config('pondok.siakad_url') }}" class="block px-6 py-2 hover:bg-stone-100 text-[12.5px] font-bold">SIAKAD</a>
+                <a href="{{ config('pondok.siakad_url') }}" class="block px-6 py-2 hover:bg-stone-100 text-[12.5px] font-bold">Siberkah</a>
               </div>
             </details>
           </div>
@@ -210,7 +210,7 @@
                     <li class="mnav-sub"><a href="{{ config('pondok.psb_url') }}">PSB</a></li>
                     <li class="mnav-sub"><a href="{{ config('pondok.surat_url') }}">E-Surat</a></li>
                     <li class="mnav-sub"><a href="{{ config('pondok.alumni_url') }}">Alumni</a></li>
-                    <li class="mnav-sub"><a href="{{ config('pondok.siakad_url') }}">SIAKAD</a></li>
+                    <li class="mnav-sub"><a href="{{ config('pondok.siakad_url') }}">Siberkah</a></li>
                   </ul>
                 </details>
               </li>

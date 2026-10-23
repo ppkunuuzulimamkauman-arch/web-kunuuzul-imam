@@ -138,7 +138,7 @@ label.f{display:block;margin-bottom:12px;font-size:13px;font-weight:700}label.f 
     <a href="{{ route('admin.pengasuh.index') }}" class="{{ request()->routeIs('admin.pengasuh.*')?'active':'' }}"><i class="fa-solid fa-users"></i> Pengasuh</a>
     <a href="{{ route('admin.agenda.index') }}" class="{{ request()->routeIs('admin.agenda.*')?'active':'' }}"><i class="fa-solid fa-calendar-days"></i> Agenda</a>
     <div class="nav-label">SISTEM</div>
-    <a href="{{ config('pondok.siakad_url') }}" target="_blank" rel="noopener"><i class="fa-solid fa-database"></i> Buka Aplikasi SIAKAD</a>
+    <a href="{{ config('pondok.siakad_url') }}" target="_blank" rel="noopener"><i class="fa-solid fa-database"></i> Buka Aplikasi Siberkah</a>
     <a href="{{ route('admin.panduan') }}" class="{{ request()->routeIs('admin.panduan')?'active':'' }}"><i class="fa-solid fa-map"></i> Panduan Landing</a>
     <a href="{{ route('admin.setting.index') }}" class="{{ request()->routeIs('admin.setting.*')?'active':'' }}"><i class="fa-solid fa-gear"></i> Pengaturan</a>
     <a href="{{ route('admin.users.index') }}" class="{{ request()->routeIs('admin.users.*')?'active':'' }}"><i class="fa-solid fa-user-shield"></i> Akun Admin</a>

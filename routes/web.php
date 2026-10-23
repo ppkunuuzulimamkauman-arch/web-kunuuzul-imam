@@ -49,7 +49,7 @@ Route::get('/cari', SearchController::class)->name('search');
 
 Route::get('/galeri', [HomeController::class, 'galeri'])->name('galeri.index');
 
-// Modul PSB sudah dipindahkan ke aplikasi SIAKAD. Tautan lama diarahkan
+// Modul PSB sudah dipindahkan ke aplikasi Siberkah. Tautan lama diarahkan
 // ke aplikasi terpisah agar tidak ada data pendaftaran di website utama.
 Route::get('/ppdb', fn () => redirect()->away(rtrim((string) config('pondok.psb_url'), '/').'/ppdb'))->name('ppdb.form');
 Route::get('/ppdb/cek', fn () => redirect()->away(rtrim((string) config('pondok.psb_url'), '/').'/ppdb/cek'))->name('ppdb.cek');
