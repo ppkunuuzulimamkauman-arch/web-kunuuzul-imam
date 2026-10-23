@@ -107,7 +107,7 @@ class BeritaController extends Controller
     public function toggleHero(Berita $berita): RedirectResponse
     {
         if (! $berita->is_hero && Berita::where('is_hero', true)->where('id', '!=', $berita->id)->count() >= Berita::MAX_HERO) {
-            return back()->withErrors(['hero' => 'Sorotan Utama hanya 1 berita. Matikan bintang pada berita lain dulu.']);
+            return back()->withErrors(['hero' => 'Sorotan Utama maksimal '.Berita::MAX_HERO.' berita. Matikan bintang pada berita lain dulu.']);
         }
         $berita->update(['is_hero' => ! $berita->is_hero]);
         return back()->with('sukses', $berita->is_hero ? 'Ditampilkan sebagai Sorotan Utama.' : 'Dihapus dari Sorotan Utama.');

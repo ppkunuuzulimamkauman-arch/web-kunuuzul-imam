@@ -16,5 +16,6 @@ class Berita extends Model
 
     protected $casts = ['published_at' => 'datetime', 'is_published' => 'boolean', 'is_hero' => 'boolean'];
 
-    public const MAX_HERO = 1;
+    /** Jumlah maksimal berita yang boleh ditandai sebagai Sorotan Utama (slider). */
+    public const MAX_HERO = 4;
 }

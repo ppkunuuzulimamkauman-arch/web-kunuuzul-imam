@@ -70,25 +70,21 @@ class HomeController extends Controller
                 ->whereNotIn('id', $topIds)
                 ->latest('published_at')->take(35)->get();
         } catch (\Throwable $e) { $pool = collect(); }
-        // Sorotan Utama = 1 berita bertanda ⭐ (is_hero). Kalau belum ada yang
-        // ditandai, fallback ke berita terbaru. Linimasa = 3 berita terbaru
-        // berikutnya (tidak termasuk sorotan) agar tidak dobel.
+        // Sorotan Utama = berita bertanda ⭐ (is_hero), maks. Berita::MAX_HERO
+        // dan tampil bergantian di slider. Kalau belum ada yang ditandai,
+        // fallback ke berita terbaru. Linimasa = berita terbaru berikutnya
+        // (semua sorotan dikeluarkan dari pool agar tidak dobel).
         try {
             $sorotanFlagged = Berita::where('is_published', true)->where('is_hero', true)
                 ->whereNotIn('kategori', ['artikel', 'maklumat', 'dawuh', 'bahtsul'])
-                ->latest('published_at')->take(1)->get();
+                ->latest('published_at')->take(Berita::MAX_HERO)->get();
         } catch (\Throwable $e) { $sorotanFlagged = collect(); }
-        $sorotanItem = $sorotanFlagged->first() ?? $pool->first();
-        $sorotan = $sorotanItem ? collect([$sorotanItem]) : collect();
-        $rest = $pool;
-        if ($sorotanItem) {
-            $rest = $pool->reject(fn ($b) => $b->id === $sorotanItem->id)->values();
-            // Kalau berita bintang lebih lama dari 35 terbaru (tidak masuk pool),
-            // tetap tampil sebagai sorotan + pool tetap utuh untuk linimasa.
-            if ($pool->isEmpty() && $sorotanFlagged->isNotEmpty()) {
-                $rest = collect();
-            }
+        $sorotan = $sorotanFlagged;
+        if ($sorotan->isEmpty() && $pool->isNotEmpty()) {
+            $sorotan = collect([$pool->first()]);
         }
+        $sorotanIds = $sorotan->pluck('id')->all();
+        $rest = $pool->reject(fn ($b) => in_array($b->id, $sorotanIds, true))->values();
         try { $programs = Program::where('is_aktif', true)->orderBy('urutan')->take(6)->get(); }
         catch (\Throwable $e) { $programs = collect(); }
         try { $beritas = Berita::where('is_published', true)->latest('published_at')->take(7)->get(); }

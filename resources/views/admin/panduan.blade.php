@@ -6,7 +6,7 @@
   <p style="font-size:13.5px;color:var(--muted);margin-bottom:12px">Semua bagian beranda dikontrol dari sini. Tulis/edit dari menu yang ditautkan, landing ikut berubah otomatis. Bagian yang datanya masih kosong otomatis menampilkan contoh bawaan.</p>
   <div style="overflow-x:auto"><table>
     <tr><th>Bagian di landing</th><th>Dikontrol dari</th><th>Cara</th></tr>
-    <tr><td><b>Sorotan Utama (1 berita)</b></td><td><a class="link" href="{{ route('admin.berita.index') }}">Berita & Artikel</a></td><td>Klik ⭐ pada berita publish — hanya 1 yang aktif, tanpa bintang = otomatis berita terbaru</td></tr>
+    <tr><td><b>Sorotan Utama (maks 4 berita)</b></td><td><a class="link" href="{{ route('admin.berita.index') }}">Berita & Artikel</a></td><td>Klik ⭐ pada berita publish — maks 4 berita aktif dan tampil bergantian di slider, tanpa bintang = otomatis berita terbaru</td></tr>
     <tr><td><b>Linimasa, Cerita, Berita, Feature, Terbaru, Rekomendasi, Populer, Ticker</b></td><td><a class="link" href="{{ route('admin.berita.index') }}">Berita & Artikel</a></td><td>Tulis berita + upload gambar sampul, pilih <span class="pill p-blue">publish</span>, kategori Berita/Acara/PPDB/Prestasi/Pengumuman (bukan Maklumat/Dawuh/Bahtsul/Artikel). Linimasa = 3 terbaru setelah Sorotan.</td></tr>
     <tr><td><b>Maklumat Pondok</b></td><td><a class="link" href="{{ route('admin.berita.index') }}">Berita & Artikel</a></td><td>Kategori = <span class="pill p-gold">Maklumat Pondok</span></td></tr>
     <tr><td><b>Dawuh Masyayikh</b></td><td><a class="link" href="{{ route('admin.berita.index') }}">Berita & Artikel</a></td><td>Kategori = <span class="pill p-gold">Dawuh Masyayikh</span></td></tr>
