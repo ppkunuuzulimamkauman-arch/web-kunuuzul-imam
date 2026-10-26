@@ -18,8 +18,8 @@
 </style>
 </head>
 <body class="bg-stone-50 text-stone-800 min-h-screen flex flex-col">
-<header class="bg-white/95 backdrop-blur border-b border-stone-200 sticky top-0 z-40">
-  <div class="max-w-7xl mx-auto px-4 h-[72px] flex items-center justify-between gap-4">
+<header class="bg-white/90 backdrop-blur border-b border-stone-200/80 sticky top-0 z-40">
+  <div class="max-w-7xl mx-auto px-4 h-[68px] flex items-center justify-between gap-4">
     <a href="{{ route('alumni.home') }}" class="flex items-center gap-2 sm:gap-3 min-w-0">
       <img src="{{ asset('images/logo-pondok.png') }}" alt="Logo PP Kunuuzul Imam Kauman" class="h-9 sm:h-11 w-auto object-contain shrink-0">
       <span class="w-px h-9 bg-stone-200 hidden sm:block"></span>
@@ -31,10 +31,14 @@
         <p class="font-extrabold text-[13px] text-stone-900 whitespace-nowrap">ALUMNI</p>
       </div>
     </a>
-    <nav class="flex items-center gap-1 sm:gap-2 text-[12px] sm:text-[13px] font-bold shrink-0">
-      <a href="{{ route('alumni.home') }}" class="px-2 sm:px-3 py-2 rounded-lg text-emerald-700 hover:bg-emerald-50 transition">Direktori</a>
-      <a href="{{ config('app.url') }}" class="hidden md:inline-block px-3 py-2 rounded-lg text-stone-600 hover:bg-stone-100 transition">Situs Utama</a>
-      <a href="{{ route('alumni.register') }}" class="px-2.5 sm:px-3 py-2 rounded-lg bg-emerald-700 text-white hover:bg-emerald-800 transition">Daftar</a>
+    <nav class="flex items-center gap-1.5 sm:gap-2 text-[12px] sm:text-[13px] font-bold shrink-0">
+      <a href="{{ route('alumni.home') }}" class="px-2.5 sm:px-3 py-2 rounded-lg text-emerald-800 hover:bg-emerald-50 transition">Direktori</a>
+      <a href="{{ config('app.url') }}" class="hidden lg:inline-flex items-center gap-1.5 px-3 py-2 rounded-lg text-stone-600 hover:bg-stone-100 transition">
+        <i class="fa-solid fa-arrow-up-right-from-square text-[10px]"></i> Situs Utama
+      </a>
+      <a href="{{ route('alumni.register') }}" class="inline-flex items-center gap-1.5 px-3 sm:px-4 py-2.5 rounded-xl bg-emerald-700 text-white shadow-sm shadow-emerald-900/10 hover:bg-emerald-800 transition">
+        <i class="fa-solid fa-user-plus text-[11px]"></i><span>Daftar</span>
+      </a>
     </nav>
   </div>
 </header>
